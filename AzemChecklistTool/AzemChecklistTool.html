@@ -92,7 +92,8 @@ body { display: flex; flex-direction: column; height: 100dvh; }
   box-shadow: var(--shadow);
 }
 .search-wrap {
-  position: relative; display: flex; align-items: center;
+  position: relative; display: flex; align-items: center; gap: 4px;
+  padding-right: 44px;
   background: var(--bg); border-radius: var(--radius);
   border: 2px solid var(--border); transition: border-color 0.2s;
 }
@@ -103,16 +104,15 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 }
 .search-icon svg { width: 20px; height: 20px; }
 #enterName {
-  width: 100%; padding: 10px 44px 10px 44px; border: none;
+  flex: 1 1 auto; min-width: 0; padding: 10px 0; border: none;
   background: transparent; font-family: inherit; font-size: 15px;
   font-weight: 600; color: var(--text); outline: none;
   direction: rtl;
 }
 #enterName::placeholder { color: var(--text-muted); font-weight: 500; }
 .clear-input {
-  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; cursor: pointer; padding: 6px;
-  color: var(--text-muted); display: none; border-radius: 50%;
+  flex: 0 0 auto; background: none; border: none; cursor: pointer;
+  padding: 8px; color: var(--text-muted); display: none; border-radius: 50%;
 }
 .clear-input.visible { display: flex; }
 .clear-input svg { width: 18px; height: 18px; }
@@ -196,72 +196,18 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .btn-undo { background: var(--danger-light); color: var(--danger); }
 .btn-undo:active { background: var(--danger); color: #fff; transform: scale(0.95); }
 
-/* ── Bottom Section ── */
-.bottom-section {
-  flex-shrink: 0; background: var(--surface);
-  border-top: 2px solid var(--border);
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-}
-.add-row {
-  display: flex; gap: 8px; padding: 8px 12px;
-  background: linear-gradient(135deg, var(--primary) 0%, #0F2440 100%);
-}
+/* ── Add Button (inline in search bar) ── */
 .btn-add {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  gap: 8px; padding: 12px 16px; border-radius: var(--radius);
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 0 14px; height: 42px; border-radius: 8px;
   border: none; background: var(--gold); color: var(--primary);
-  font-family: inherit; font-size: 16px; font-weight: 900;
-  cursor: pointer; min-height: 50px; transition: all 0.15s;
+  font-family: inherit; font-size: 14px; font-weight: 900; white-space: nowrap;
+  cursor: pointer; transition: all 0.15s;
   user-select: none; -webkit-user-select: none;
-  box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.4);
 }
 .btn-add:active { transform: scale(0.97); background: var(--gold-light); }
-.btn-add svg { width: 22px; height: 22px; }
-.btn-cancel-input {
-  padding: 12px; border-radius: var(--radius);
-  border: none; background: rgba(255,255,255,0.15);
-  color: #fff; cursor: pointer; min-height: 50px;
-  font-size: 18px; transition: all 0.15s;
-  user-select: none; -webkit-user-select: none;
-}
-.btn-cancel-input:active { background: rgba(239,68,68,0.5); }
-
-/* ── Virtual Keyboard ── */
-.vkb {
-  padding: 6px 4px 8px; display: flex; flex-direction: column; gap: 4px;
-}
-.vkb-row {
-  display: flex; gap: 3px; justify-content: center; direction: ltr;
-}
-.vkb-key {
-  flex: 1; max-width: 42px; min-height: 46px; border-radius: 6px;
-  border: none; background: #E8EDF3; color: var(--text);
-  font-family: inherit; font-size: 16px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center;
-  justify-content: center; transition: all 0.1s;
-  user-select: none; -webkit-user-select: none;
-  position: relative; overflow: hidden;
-}
-.vkb-key:active {
-  background: var(--primary); color: #fff;
-  transform: scale(0.93);
-}
-.vkb-key.space { flex: 3; max-width: none; font-size: 13px; }
-.vkb-key.backspace { flex: 1.5; max-width: 64px; background: #FEE2E2; color: var(--danger); font-size: 13px; }
-.vkb-key.backspace:active { background: var(--danger); color: #fff; }
-.vkb-key.clear { flex: 1; max-width: 64px; background: #FEF3C7; color: #92400E; font-size: 11px; }
-.vkb-key.clear:active { background: var(--gold); color: #fff; }
-
-/* ── Ripple ── */
-.ripple {
-  position: absolute; border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  transform: scale(0); animation: rippleAnim 0.5s ease-out;
-  pointer-events: none;
-}
-@keyframes rippleAnim {
-  to { transform: scale(3); opacity: 0; }
-}
+.btn-add svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* ── Modal ── */
 .modal-overlay {
@@ -353,6 +299,10 @@ body { display: flex; flex-direction: column; height: 100dvh; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </div>
     <input type="text" id="enterName" placeholder="ابحث عن اسم أو اكتب اسماً جديداً..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="btn-add" onclick="addWalkin()" title="إضافة للحضور">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>إضافة للحضور</span>
+    </button>
     <button class="clear-input" id="clearInputBtn" onclick="clearInput()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
     </button>
@@ -388,20 +338,6 @@ body { display: flex; flex-direction: column; height: 100dvh; }
       </div>
     </div>
   </div>
-</div>
-
-<!-- Bottom Section -->
-<div class="bottom-section">
-  <div class="add-row">
-    <button class="btn-cancel-input" onclick="clearInput()" title="مسح">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <button class="btn-add" onclick="addWalkin()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      <span>إضافة للحضور</span>
-    </button>
-  </div>
-  <div class="vkb" id="virtualKeyboard"></div>
 </div>
 
 <!-- Hidden Import -->
@@ -604,6 +540,7 @@ function addWalkin() {
   renderChecked();
   updateStats();
   clearInput();
+  input.focus();
   toast('تمت إضافة الحاضر: ' + name, 'success');
   beep();
 }
@@ -618,6 +555,12 @@ document.getElementById('enterName').addEventListener('input', function() {
   const v = this.value;
   document.getElementById('clearInputBtn').classList.toggle('visible', v.length > 0);
   renderRegistered(v);
+});
+document.getElementById('enterName').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addWalkin();
+  }
 });
 
 /* ── Excel Import ── */
@@ -731,83 +674,12 @@ function beep() {
   } catch(e) {}
 }
 
-/* ── Virtual Keyboard ── */
-function buildKeyboard() {
-  const rows = [
-    ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج','د'],
-    ['ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط'],
-    ['ئ','ء','ؤ','ر','لا','ة','و','ز','ظ'],
-    ['مسافة','⌫']
-  ];
-  const kb = document.getElementById('virtualKeyboard');
-  kb.innerHTML = '';
-  const input = document.getElementById('enterName');
-
-  rows.forEach(row => {
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'vkb-row';
-    row.forEach(key => {
-      const btn = document.createElement('button');
-      btn.className = 'vkb-key';
-      btn.textContent = key;
-
-      if (key === 'مسافة') {
-        btn.classList.add('space');
-        btn.addEventListener('click', () => {
-          input.value += ' ';
-          input.dispatchEvent(new Event('input'));
-          addRipple(btn, event);
-        });
-      } else if (key === '⌫') {
-        btn.classList.add('backspace');
-        btn.addEventListener('click', () => {
-          input.value = input.value.slice(0, -1);
-          input.dispatchEvent(new Event('input'));
-          addRipple(btn, event);
-        });
-      } else if (key === '🗑') {
-        btn.classList.add('clear');
-        btn.addEventListener('click', () => {
-          input.value = '';
-          input.dispatchEvent(new Event('input'));
-          addRipple(btn, event);
-        });
-      } else {
-        btn.addEventListener('click', () => {
-          input.value += key;
-          input.dispatchEvent(new Event('input'));
-          input.focus();
-          addRipple(btn, event);
-        });
-      }
-      rowDiv.appendChild(btn);
-    });
-    kb.appendChild(rowDiv);
-  });
-}
-
-function addRipple(el, e) {
-  if (!e) return;
-  const r = document.createElement('span');
-  r.className = 'ripple';
-  const rect = el.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  r.style.width = r.style.height = size + 'px';
-  const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.left + rect.width/2);
-  const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : rect.top + rect.height/2);
-  r.style.left = (clientX - rect.left - size/2) + 'px';
-  r.style.top = (clientY - rect.top - size/2) + 'px';
-  el.appendChild(r);
-  setTimeout(() => r.remove(), 500);
-}
-
 /* ── Init ── */
 function init() {
   loadState();
   renderRegistered('');
   renderChecked();
   updateStats();
-  buildKeyboard();
   document.getElementById('enterName').focus();
 }
 init();
