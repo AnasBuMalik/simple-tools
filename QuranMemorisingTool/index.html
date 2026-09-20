@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>تَحفِيظ · متابعة حفظ القرآن الكريم</title>
+<link rel="manifest" href="manifest.json" />
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1969,6 +1970,15 @@ if (document.readyState === 'loading') {
 }
 
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.error('SW registration failed:', err);
+    });
+  });
+}
 </script>
 </body>
 </html>
