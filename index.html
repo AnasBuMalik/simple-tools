@@ -9,81 +9,367 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     min-height:100vh;
-    background:radial-gradient(1000px 500px at 100% -10%, rgba(56,189,248,.10), transparent 60%),
-               radial-gradient(800px 500px at 0% 110%, rgba(245,196,81,.07), transparent 60%),
-               #0f172a;
+    background:
+      radial-gradient(1000px 500px at 100% -10%, rgba(56,189,248,.10), transparent 60%),
+      radial-gradient(800px 500px at 0% 110%, rgba(245,196,81,.07), transparent 60%),
+      #0f172a;
     color:#e2e8f0;
     font-family:'Tajawal',system-ui,sans-serif;
-    display:flex;align-items:center;justify-content:center;
     padding:2rem 1rem;
+    display:flex;flex-direction:column;align-items:center;
   }
-  .wrap{max-width:720px;width:100%}
-  h1{
-    font-size:2rem;font-weight:800;text-align:center;margin-bottom:.5rem;
-    letter-spacing:-.02em;
+  .wrap{max-width:900px;width:100%}
+
+  /* ---------- Header ---------- */
+  header{text-align:center;margin-bottom:3rem}
+  .logo{
+    width:64px;height:64px;margin:0 auto 1rem;
+    border-radius:1.15rem;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,#f5c451,#c98f1d);
+    box-shadow:0 16px 32px -16px #f5c451;
+    font-size:1.9rem;
   }
-  .sub{text-align:center;color:#94a3b8;font-size:.9rem;margin-bottom:3rem}
-  .tools{display:grid;gap:1rem;grid-template-columns:1fr}
-  @media(min-width:600px){.tools{grid-template-columns:1fr 1fr}}
+  h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+  .sub{color:#94a3b8;font-size:.9rem}
+
+  /* ---------- Search ---------- */
+  .search{
+    position:relative;margin:2rem auto 1.5rem;max-width:440px;
+  }
+  .search input{
+    width:100%;padding:.75rem 1rem .75rem 2.75rem;
+    background:#1e293b;border:1px solid #334155;border-radius:.85rem;
+    color:#e2e8f0;font-family:inherit;font-size:.9rem;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .search input:focus{
+    outline:none;border-color:#60a5fa;
+    box-shadow:0 0 0 3px rgba(96,165,250,.16);
+  }
+  .search input::placeholder{color:#64748b}
+  .search::before{
+    content:'🔍';position:absolute;
+    right:1rem;top:50%;transform:translateY(-50%);
+    pointer-events:none;opacity:.6;
+  }
+
+  /* ---------- Grid ---------- */
+  .tools{
+    display:grid;gap:1rem;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:640px){.tools{grid-template-columns:1fr 1fr}}
+
   a.tool{
-    display:flex;align-items:center;gap:1rem;
+    display:flex;align-items:flex-start;gap:1rem;
     padding:1.5rem;border-radius:1.15rem;
-    background:linear-gradient(180deg,rgba(30,41,59,.9),rgba(30,41,59,.55));
+    background:linear-gradient(180deg,rgba(30,41,59,.9),rgba(30,41,59,.5));
     border:1px solid rgba(51,65,85,.85);
     text-decoration:none;color:inherit;
     transition:all .22s cubic-bezier(.2,.9,.3,1.2);
+    position:relative;overflow:hidden;
+  }
+  a.tool::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(245,196,81,.08),transparent 50%);
+    opacity:0;transition:opacity .3s;
+    pointer-events:none;
   }
   a.tool:hover{
     transform:translateY(-4px);
-    border-color:#f5c451;
-    box-shadow:0 20px 40px -20px rgba(245,196,81,.5);
+    border-color:rgba(245,196,81,.6);
+    box-shadow:0 24px 44px -22px rgba(245,196,81,.55);
   }
+  a.tool:hover::before{opacity:1}
+
   .icon{
-    width:56px;height:56px;border-radius:1rem;flex-shrink:0;
-    display:grid;place-items:center;font-size:1.6rem;
-    background:linear-gradient(145deg,rgba(245,196,81,.25),rgba(245,196,81,.05));
-    border:1px solid rgba(245,196,81,.35);
+    width:52px;height:52px;border-radius:.9rem;flex-shrink:0;
+    display:grid;place-items:center;font-size:1.5rem;
+    background:linear-gradient(145deg,rgba(245,196,81,.22),rgba(245,196,81,.04));
+    border:1px solid rgba(245,196,81,.3);
+    transition:transform .3s;
   }
-  .info h3{font-size:1.05rem;font-weight:800;margin-bottom:.25rem}
-  .info p{font-size:.8rem;color:#94a3b8;line-height:1.6}
+  a.tool:hover .icon{transform:scale(1.08) rotate(-4deg)}
+
+  .info{flex:1;min-width:0}
+  .info h3{
+    font-size:1rem;font-weight:800;margin-bottom:.35rem;
+    color:#f1f5f9;
+  }
+  .info p{
+    font-size:.78rem;color:#94a3b8;line-height:1.65;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .arrow{
+    color:#475569;font-size:1.2rem;flex-shrink:0;
+    transition:transform .25s, color .25s;
+    align-self:center;
+  }
+  a.tool:hover .arrow{color:#f5c451;transform:translateX(-4px)}
+
+  /* ---------- States ---------- */
+  .state{
+    text-align:center;padding:4rem 1rem;color:#64748b;
+  }
+  .state .spinner{
+    width:40px;height:40px;margin:0 auto 1rem;
+    border-radius:50%;
+    border:3px solid rgba(148,163,184,.2);
+    border-top-color:#f5c451;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .state.error{color:#fca5a5}
+  .state.error button{
+    margin-top:1rem;padding:.5rem 1rem;
+    background:rgba(148,163,184,.1);border:1px solid #334155;
+    color:#cbd5e1;border-radius:.6rem;cursor:pointer;
+    font-family:inherit;font-size:.85rem;font-weight:700;
+    transition:all .15s;
+  }
+  .state.error button:hover{background:rgba(148,163,184,.2)}
+
+  /* ---------- Skeleton ---------- */
+  .skeleton{
+    padding:1.5rem;border-radius:1.15rem;
+    background:linear-gradient(180deg,rgba(30,41,59,.9),rgba(30,41,59,.5));
+    border:1px solid rgba(51,65,85,.85);
+    display:flex;align-items:center;gap:1rem;
+  }
+  .skeleton .sq{
+    width:52px;height:52px;border-radius:.9rem;flex-shrink:0;
+    background:linear-gradient(90deg,#1e293b 25%,#26344a 50%,#1e293b 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s infinite;
+  }
+  .skeleton .lines{flex:1;display:flex;flex-direction:column;gap:.5rem}
+  .skeleton .line{
+    height:12px;border-radius:6px;
+    background:linear-gradient(90deg,#1e293b 25%,#26344a 50%,#1e293b 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s infinite;
+  }
+  .skeleton .line.short{width:40%}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* ---------- Footer ---------- */
   footer{
-    text-align:center;margin-top:3rem;color:#475569;font-size:.78rem;
+    text-align:center;margin-top:3rem;color:#475569;font-size:.75rem;
   }
+  footer a{color:#60a5fa;text-decoration:none;transition:color .15s}
+  footer a:hover{color:#93c5fd}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <h1>أدواتي</h1>
-  <p class="sub">مجموعة أدوات شخصية بسيطة ومفيدة</p>
+  <header>
+    <div class="logo">🧰</div>
+    <h1>أدواتي</h1>
+    <p class="sub">مجموعة أدوات شخصية بسيطة ومفيدة</p>
+  </header>
 
-  <div class="tools">
+  <div class="search">
+    <input id="searchInput" type="search" placeholder="ابحث عن أداة..." autocomplete="off" />
+  </div>
 
-    <a href="./QuranMemorisingTool/" class="tool">
-      <div class="icon">📖</div>
-      <div class="info">
-        <h3>تَحفِيظ</h3>
-        <p>متابعة حفظ القرآن الكريم مع مزامنة Google Sheets</p>
-      </div>
-    </a>
-
-    <!-- أضف أدواتك الأخرى هنا بنفس النمط -->
-    <!--
-    <a href="./Tool2/" class="tool">
-      <div class="icon">🛠️</div>
-      <div class="info">
-        <h3>اسم الأداة</h3>
-        <p>وصف مختصر</p>
-      </div>
-    </a>
-    -->
-
+  <div id="toolsContainer">
+    <!-- سيتم ملؤه ديناميكياً -->
+    <div class="tools">
+      <div class="skeleton"><div class="sq"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+      <div class="skeleton"><div class="sq"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+      <div class="skeleton"><div class="sq"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+      <div class="skeleton"><div class="sq"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+    </div>
   </div>
 
   <footer>
-    Made with ❤️ · <a href="https://github.com/AnasBuMalik/simple-tools" style="color:#60a5fa;text-decoration:none">GitHub</a>
+    Made with ❤️ · <a href="https://github.com/AnasBuMalik/simple-tools" target="_blank" rel="noopener">GitHub Repository</a>
   </footer>
 </div>
+
+<script>
+/* ============================================================
+   فهرس الأدوات الديناميكي — يقرأ المستودع عبر GitHub API
+   ============================================================ */
+(() => {
+  'use strict';
+
+  /* -------- الإعدادات -------- */
+  const REPO_OWNER = 'AnasBuMalik';
+  const REPO_NAME  = 'simple-tools';
+  const BRANCH     = 'main';     // غيّرها إلى 'master' إن كان الفرع مختلفاً
+
+  /* مجلدات يجب تجاهلها */
+  const IGNORE = new Set([
+    '.github', '.git', 'node_modules', 'assets', 'images', 'img',
+    'docs', 'public', 'src', 'dist', 'build', 'css', 'js'
+  ]);
+
+  /* وصف مخصص لأدوات معروفة (اختياري) */
+  const KNOWN = {
+    'QuranMemorisingTool': {
+      title: 'تَحفِيظ',
+      desc: 'متابعة حفظ القرآن الكريم مع مزامنة Google Sheets ومجموعة تفاعلية.',
+      icon: '📖'
+    }
+  };
+
+  /* أيقونات حسب نمط الاسم (احتياطي) */
+  const ICON_RULES = [
+    { match: /quran|قرآن|مصحف/i,   icon: '📖' },
+    { match: /tool|أداة/i,         icon: '🛠️' },
+    { match: /calc|حاسب|حاسبة/i,   icon: '🧮' },
+    { match: /note|ملاحظ/i,        icon: '📝' },
+    { match: /todo|مهام/i,         icon: '✅' },
+    { match: /timer|مؤقت|ساعة/i,   icon: '⏱️' },
+    { match: /game|لعبة/i,         icon: '🎮' },
+    { match: /weather|طقس/i,       icon: '🌤️' },
+    { match: /image|صور|صورة/i,    icon: '🖼️' },
+    { match: /file|ملف/i,          icon: '📁' }
+  ];
+
+  /* -------- DOM -------- */
+  const container = document.getElementById('toolsContainer');
+  const searchInput = document.getElementById('searchInput');
+  let allTools = [];
+
+  /* -------- Helpers -------- */
+  const escapeHtml = s => String(s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /** تحويل "MyCoolTool" → "My Cool Tool" */
+  function prettify(name){
+    return name
+      .replace(/[-_]+/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function pickIcon(name){
+    for (const r of ICON_RULES){
+      if (r.match.test(name)) return r.icon;
+    }
+    return '🧩';
+  }
+
+  function buildTool(folder){
+    const known = KNOWN[folder.name] || {};
+    return {
+      name: folder.name,
+      title: known.title || prettify(folder.name),
+      desc: known.desc || 'انقر للدخول إلى الأداة',
+      icon: known.icon || pickIcon(folder.name),
+      url: `./${encodeURIComponent(folder.name)}/`,
+      updated: folder.updated || null
+    };
+  }
+
+  /* -------- Rendering -------- */
+  function renderLoading(){
+    container.innerHTML = `
+      <div class="tools">
+        ${Array(4).fill(0).map(() => `
+          <div class="skeleton">
+            <div class="sq"></div>
+            <div class="lines">
+              <div class="line"></div>
+              <div class="line short"></div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  function renderError(msg){
+    container.innerHTML = `
+      <div class="state error">
+        <p>⚠️ ${escapeHtml(msg)}</p>
+        <button id="retryBtn">إعادة المحاولة</button>
+      </div>`;
+    document.getElementById('retryBtn').addEventListener('click', load);
+  }
+
+  function renderTools(tools){
+    if (!tools.length){
+      container.innerHTML = `
+        <div class="state">
+          <p>لا توجد أدوات بعد في هذا المستودع.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="tools">
+        ${tools.map(t => `
+          <a class="tool" href="${t.url}" title="${escapeHtml(t.name)}">
+            <div class="icon">${t.icon}</div>
+            <div class="info">
+              <h3>${escapeHtml(t.title)}</h3>
+              <p>${escapeHtml(t.desc)}</p>
+            </div>
+            <div class="arrow">←</div>
+          </a>
+        `).join('')}
+      </div>`;
+  }
+
+  /* -------- Data Fetching -------- */
+  async function load(){
+    renderLoading();
+
+    const api = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/?ref=${BRANCH}`;
+
+    try {
+      const res = await fetch(api, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+
+      if (!res.ok){
+        if (res.status === 404) throw new Error('المستودع أو الفرع غير موجود');
+        if (res.status === 403) throw new Error('تجاوزت حد GitHub API — حاول لاحقاً');
+        throw new Error(`فشل الاتصال (HTTP ${res.status})`);
+      }
+
+      const items = await res.json();
+      if (!Array.isArray(items)) throw new Error('استجابة غير متوقعة من GitHub');
+
+      const tools = items
+        .filter(item => item.type === 'dir')
+        .filter(item => !item.name.startsWith('.'))
+        .filter(item => !IGNORE.has(item.name))
+        .map(buildTool)
+        .sort((a, b) => a.title.localeCompare(b.title, 'ar'));
+
+      allTools = tools;
+      renderTools(tools);
+      applyFilter();
+
+    } catch(err){
+      console.error('GitHub API error:', err);
+      renderError(err.message || 'تعذّر جلب قائمة الأدوات');
+    }
+  }
+
+  /* -------- Search -------- */
+  function applyFilter(){
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q){ renderTools(allTools); return; }
+    const filtered = allTools.filter(t =>
+      t.title.toLowerCase().includes(q) ||
+      t.name.toLowerCase().includes(q)
+    );
+    renderTools(filtered);
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+
+  /* -------- Start -------- */
+  load();
+})();
+</script>
 
 </body>
 </html>
