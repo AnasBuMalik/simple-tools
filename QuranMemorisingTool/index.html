@@ -482,6 +482,32 @@ body{
 
 <!-- ================= MODALS ================= -->
 
+<!-- Setup (First-run) -->
+<div class="modal" id="modalSetup">
+  <div class="modal-panel p-6">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 mx-auto rounded-2xl grid place-items-center mb-3" style="background:linear-gradient(145deg,#60a5fa,#3b82f6);box-shadow:0 14px 30px -14px #60a5fa">
+        <i data-lucide="plug" class="w-7 h-7 text-slate-900"></i>
+      </div>
+      <h2 class="text-lg font-extrabold">إعداد الخادم</h2>
+      <p class="text-xs text-slate-400 mt-1">أدخل رابط Google Apps Script للبدء</p>
+    </div>
+
+    <label class="text-xs font-bold text-slate-400 block mb-1.5">Web App URL</label>
+    <input id="setupSheetUrl" class="inp mb-3" dir="ltr"
+           placeholder="https://script.google.com/macros/s/AKfy.../exec" />
+
+    <p id="setupResult" class="text-xs mb-4 hidden"></p>
+
+    <button id="setupTestBtn" class="btn btn-ghost w-full mb-2">
+      <i data-lucide="plug-zap" class="w-4 h-4"></i> اختبار الاتصال
+    </button>
+    <button id="setupSaveBtn" class="btn btn-primary w-full py-3">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> حفظ ومتابعة للتسجيل
+    </button>
+  </div>
+</div>
+
 <!-- Auth -->
 <div class="modal" id="modalAuth">
   <div class="modal-panel p-6">
@@ -625,7 +651,6 @@ const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const DAY = 86400000;
 const LS_KEY = 'tahfeez_state_v1';
-const USERS_KEY = 'tahfeez_users_v1';
 
 const ar = n => String(n);  // Western Arabic numerals enforced
 
@@ -732,12 +757,6 @@ function loadState(){
     if (!S.members) S.members = [];
     return true;
   } catch(e){ return false; }
-}
-function loadUsers(){
-  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch(e){ return {}; }
-}
-function saveUsers(u){
-  try { localStorage.setItem(USERS_KEY, JSON.stringify(u)); } catch(e){}
 }
 
 /* ------------------------------ Page helpers ------------------------------ */
@@ -882,7 +901,7 @@ async function apiPost(body){
 
   const res = await fetch(url, {
     method: 'POST',
-    body: form,           // URLSearchParams → x-www-form-urlencoded تلقائياً
+    body: form,
     redirect: 'follow'
   });
   if (!res.ok) throw new Error('HTTP_' + res.status);
@@ -890,8 +909,7 @@ async function apiPost(body){
 }
 
 /**
- * ✅ تم إصلاحها: تدمج البيانات القادمة من الخادم بدل استبدالها،
- * مما يحفظ أي بيانات محلية لم تُرفع بعد.
+ * تدمج البيانات القادمة من الخادم بدل استبدالها.
  */
 async function pullFromServer(){
   if (!S.settings.sheetUrl) return false;
@@ -899,7 +917,6 @@ async function pullFromServer(){
   const res = await apiGet({ action: 'pull', user });
   if (!res || !res.ok) throw new Error(res && res.error || 'PULL_FAILED');
 
-  // دمج الصفحات: نأخذ الأحدث فقط (لا نمسح المحلي أبداً)
   const remotePages = (res.user && res.user.pages) || {};
   const merged = { ...S.pages };
   Object.keys(remotePages).forEach(k => {
@@ -909,7 +926,6 @@ async function pullFromServer(){
   });
   S.pages = merged;
 
-  // دمج النشاط: نأخذ القيمة الأكبر لكل يوم
   const remoteAct = (res.user && res.user.activity) || {};
   const mergedAct = { ...S.activity };
   Object.keys(remoteAct).forEach(k => {
@@ -945,25 +961,15 @@ async function pushToServer(){
   return true;
 }
 
-/**
- * ✅ دالة جديدة: مزامنة كاملة (سحب ثم رفع).
- * هذا يضمن أن أول اتصال بخادم فارغ يرفع البيانات المحلية.
- */
 async function fullSync(){
-  if (!S.settings.sheetUrl){
-    setSyncStatus('local');
-    return;
-  }
-  if (!navigator.onLine){
-    setSyncStatus('offline');
-    throw new Error('OFFLINE');
-  }
+  if (!S.settings.sheetUrl){ setSyncStatus('local'); return; }
+  if (!navigator.onLine){ setSyncStatus('offline'); throw new Error('OFFLINE'); }
 
   setSyncStatus('syncing');
   setBusy(true);
   try {
-    await pullFromServer();   // 1) اسحب من السحابة ودمج
-    await pushToServer();     // 2) ارفع الحالة المدمجة
+    await pullFromServer();
+    await pushToServer();
     setSyncStatus('ok');
     refreshAll();
   } catch(e){
@@ -1394,6 +1400,68 @@ document.addEventListener('keydown', e => {
 });
 
 /* ==========================================================================
+   SETUP MODAL (First-run)
+   ========================================================================== */
+function setupSetupModal(){
+  const urlInput = $('#setupSheetUrl');
+  const resultBox = $('#setupResult');
+
+  urlInput.value = S.settings.sheetUrl || '';
+
+  const showResult = (cls, text) => {
+    resultBox.className = 'text-xs mb-4 ' + cls + ' font-bold';
+    resultBox.textContent = text;
+    resultBox.classList.remove('hidden');
+  };
+
+  $('#setupTestBtn').addEventListener('click', async () => {
+    const url = urlInput.value.trim();
+    if (!url){ showResult('text-red-400', 'يرجى إدخال الرابط أولاً'); return; }
+    showResult('text-sky-300', 'جارٍ اختبار الاتصال...');
+    try {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'action=ping', { method: 'GET' });
+      const data = await res.json();
+      if (data && data.ok){
+        showResult('text-emerald-400', '✓ الاتصال ناجح — جاهز للعمل');
+      } else {
+        showResult('text-amber-400', '⚠ استجاب الخادم لكن الرد غير متوقع');
+      }
+    } catch(e){
+      showResult('text-red-400', '✗ فشل الاتصال — تأكد من نشر Web App بصلاحية «Anyone»');
+    }
+  });
+
+  $('#setupSaveBtn').addEventListener('click', async () => {
+    const url = urlInput.value.trim();
+    if (!url){
+      showResult('text-red-400', 'يجب إدخال الرابط للمتابعة');
+      return;
+    }
+    showResult('text-sky-300', 'جارٍ التحقق من الرابط...');
+
+    try {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'action=ping', { method: 'GET' });
+      const data = await res.json();
+      if (!data || !data.ok){
+        showResult('text-red-400', '✗ الرابط لم يستجب بشكل صحيح');
+        return;
+      }
+    } catch(e){
+      showResult('text-red-400', '✗ فشل الاتصال — تحقّق من الرابط');
+      return;
+    }
+
+    S.settings.sheetUrl = url;
+    saveState();
+    setSyncStatus('ok');
+    closeModal('modalSetup');
+    toast('تم حفظ الرابط — أنشئ حساباً أو سجّل الدخول', 'success');
+
+    setTimeout(() => openModal('modalAuth'), 400);
+  });
+}
+
+/* ==========================================================================
    AUTH
    ========================================================================== */
 let authMode = 'login';
@@ -1417,68 +1485,99 @@ function setupAuth(){
     if (S.user){
       if (confirm('هل تريد تسجيل الخروج؟')) logout();
     } else {
-      openModal('modalAuth');
+      if (!S.settings.sheetUrl){
+        openModal('modalSetup');
+      } else {
+        openModal('modalAuth');
+      }
     }
   });
 }
 
-function doAuth(){
+async function doAuth(){
   const name = $('#authUser').value.trim();
-  const pin = $('#authPin').value.trim();
-  const err = $('#authError');
+  const pin  = $('#authPin').value.trim();
+  const err  = $('#authError');
 
   if (!name || name.length < 2){ showAuthErr('يرجى إدخال اسم مستخدم صحيح (حرفان على الأقل)'); return; }
-  if (!pin || pin.length < 3){ showAuthErr('الرقم السري يجب أن يكون 3 خانات على الأقل'); return; }
+  if (!pin  || pin.length < 3) { showAuthErr('الرقم السري يجب أن يكون 3 خانات على الأقل'); return; }
 
-  const users = loadUsers();
+  if (!S.settings.sheetUrl){
+    showAuthErr('يجب ضبط رابط الخادم أولاً');
+    setTimeout(() => { closeModal('modalAuth'); openModal('modalSetup'); }, 800);
+    return;
+  }
 
-  if (authMode === 'login'){
-    const u = users[name];
-    if (!u){ showAuthErr('لا يوجد حساب بهذا الاسم — جرّب إنشاء حساب جديد'); return; }
-    if (String(u.pin) !== pin){ showAuthErr('الرقم السري غير صحيح'); return; }
-    loginAs(name);
-  } else {
-    if (users[name]){ showAuthErr('هذا الاسم مستخدم بالفعل — سجّل الدخول بدلاً من ذلك'); return; }
-    users[name] = { pin, created: Date.now() };
-    saveUsers(users);
-    loginAs(name, true);
+  setBusy(true);
+  try {
+    const action = authMode === 'login' ? 'login' : 'register';
+    const res = await apiGet({ action, user: name, pin });
+
+    if (!res || !res.ok){
+      const code = res && res.error;
+      const map = {
+        'USER_NOT_FOUND':      'لا يوجد حساب بهذا الاسم — جرّب إنشاء حساب جديد',
+        'INVALID_PIN':         'الرقم السري غير صحيح',
+        'USER_EXISTS':         'هذا الاسم مستخدم بالفعل — سجّل الدخول بدلاً من ذلك',
+        'INVALID_USERNAME':    'اسم المستخدم غير صالح',
+        'MISSING_CREDENTIALS': 'يرجى إدخال جميع البيانات',
+        'SERVER_BUSY':         'الخادم مشغول — حاول بعد لحظة'
+      };
+      showAuthErr(map[code] || code || 'تعذّرت العملية');
+      return;
+    }
+
+    // نجاح
+    if (authMode === 'register'){
+      // حساب جديد → امسح كل البيانات المحلية
+      S.pages = {};
+      S.activity = {};
+      S.members = [];
+    } else {
+      // تسجيل دخول → حمّل البيانات من الخادم
+      S.pages = (res.user && res.user.pages) || {};
+      S.activity = (res.user && res.user.activity) || {};
+      S.members = Array.isArray(res.members) ? res.members : [];
+    }
+
+    S.user = { name };
+    S.settings.lastSync = Date.now();
+
+    saveState();
+    closeModal('modalAuth');
+    $('#authUser').value = '';
+    $('#authPin').value = '';
+    $('#authError').classList.add('hidden');
+    setSyncStatus('ok');
+    refreshAll();
+
+    toast(authMode === 'register'
+      ? `أهلاً بك ${name} 👋 — تم إنشاء حسابك بنجاح`
+      : `مرحباً بعودتك ${name}`, 'success');
+
+  } catch (e){
+    showAuthErr('تعذّر الاتصال بالخادم — تحقّق من الرابط');
+    setSyncStatus('error');
+  } finally {
+    setBusy(false);
   }
 }
+
 function showAuthErr(msg){
   const err = $('#authError');
   err.textContent = msg;
   err.classList.remove('hidden');
 }
 
-/**
- * ✅ بعد تسجيل الدخول: مزامنة كاملة (سحب + رفع)
- */
-async function loginAs(name, isNew){
-  S.user = { name };
-  saveState();
-  closeModal('modalAuth');
-  $('#authUser').value = '';
-  $('#authPin').value = '';
-  refreshAll();
-
-  if (S.settings.sheetUrl){
-    try {
-      await fullSync();
-      toast(isNew ? `أهلاً بك ${name} 👋 — تم إنشاء حسابك` : `مرحباً بعودتك ${name}`, 'success');
-    } catch(e){
-      toast('تم الدخول — لكن تعذّر الاتصال بالخادم', 'warn');
-    }
-  } else {
-    toast('تم تسجيل الدخول — اضبط رابط الخادم لتفعيل المزامنة', 'info');
-    setTimeout(() => openModal('modalSettings'), 600);
-  }
-}
-
 function logout(){
   S.user = null;
   saveState();
   refreshAll();
-  openModal('modalAuth');
+  if (S.settings.sheetUrl){
+    openModal('modalAuth');
+  } else {
+    openModal('modalSetup');
+  }
   toast('تم تسجيل الخروج', 'info');
 }
 
@@ -1538,9 +1637,6 @@ function setupSettings(){
     openModal('modalSettings');
   });
 
-  /**
-   * ✅ عند حفظ الرابط: مزامنة كاملة (سحب + رفع)
-   */
   $('#btnSaveUrl').addEventListener('click', async () => {
     const url = $('#inputSheetUrl').value.trim();
     S.settings.sheetUrl = url;
@@ -1590,11 +1686,9 @@ function setupSettings(){
     }
   });
 
-  /**
-   * ✅ زر المزامنة: سحب + رفع
-   */
   $('#btnSync').addEventListener('click', async () => {
     if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
+    if (!S.user){ toast('يرجى تسجيل الدخول أولاً', 'warn'); return; }
     try {
       await fullSync();
       toast('تمت المزامنة بنجاح ✓', 'success');
@@ -1630,7 +1724,7 @@ function setupSettings(){
         S.activity = data.activity || {};
         if (Array.isArray(data.members)) S.members = data.members;
         saveState();
-        if (S.settings.sheetUrl){
+        if (S.settings.sheetUrl && S.user){
           try {
             await pushToServer();
             toast('تم الاستيراد والرفع للسحابة', 'success');
@@ -1655,7 +1749,6 @@ function setupSettings(){
   $('#btnResetAll').addEventListener('click', () => {
     if (!confirm('سيتم حذف كل تقدمك المحلي نهائياً. (لن تُحذف بيانات السحابة). هل أنت متأكد؟')) return;
     localStorage.removeItem(LS_KEY);
-    localStorage.removeItem(USERS_KEY);
     location.reload();
   });
 }
@@ -1818,6 +1911,7 @@ async function init(){
   setupPageModal();
   setupMemberModal();
   setupSettings();
+  setupSetupModal();
   setupAuth();
 
   setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
@@ -1829,12 +1923,13 @@ async function init(){
   renderGroup();
   refreshIcons();
 
-  // إن لم يكن هناك مستخدم — اطلب الدخول
-  if (!S.user){
+  // التدفق: رابط أولاً → تسجيل دخول → مزامنة
+  if (!S.settings.sheetUrl){
+    setTimeout(() => openModal('modalSetup'), 350);
+  } else if (!S.user){
     setTimeout(() => openModal('modalAuth'), 350);
-  } else if (S.settings.sheetUrl){
-    // ✅ مستخدم موجود + رابط — مزامنة كاملة
-    try { await fullSync(); } catch(e){ /* الحالة تُعلَن عبر sync status */ }
+  } else {
+    try { await fullSync(); } catch(e){ /* sync status يُظهر الحالة */ }
   }
 
   // مزامنة عند عودة الاتصال
