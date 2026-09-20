@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>حافظ · دليل الاستخدام السريع</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css">
+
+<style>
+:root{
+  --bg:#0f172a; --panel:#1e293b; --panel2:#26344a;
+  --line:#334155; --txt:#e2e8f0; --muted:#94a3b8;
+  --gold:#f5c451; --green:#34d399; --blue:#60a5fa;
+  --amber:#fbbf24; --red:#f87171; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(56,189,248,.10), transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, rgba(245,196,81,.07), transparent 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:'Tajawal',system-ui,-apple-system,sans-serif;
+  line-height:1.75;
+  padding:0 1rem 4rem;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+code{
+  background:#0b1424;border:1px solid #24334a;color:#93c5fd;
+  padding:.1rem .45rem;border-radius:.35rem;font-size:.85em;
+  font-family:'Consolas','Monaco',monospace;direction:ltr;display:inline-block;
+}
+
+/* ═══════ الحاوية ═══════ */
+.wrap{max-width:860px;margin:0 auto}
+
+/* ═══════ الترويسة ═══════ */
+header{
+  text-align:center;padding:3rem 1rem 2rem;
+}
+.logo{
+  width:72px;height:72px;border-radius:20px;margin:0 auto 1rem;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#f5c451,#c98f1d);
+  box-shadow:0 20px 44px -20px #f5c451;
+  font-size:2.2rem;
+}
+h1{font-size:1.8rem;font-weight:800;margin:0 0 .4rem;letter-spacing:-.02em}
+header p{color:var(--muted);margin:0;font-size:.95rem}
+.meta{
+  display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;
+  padding:.35rem .9rem;border-radius:999px;
+  background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);
+  color:#a7f3d0;font-size:.78rem;font-weight:700;
+}
+
+/* ═══════ التنبيهات ═══════ */
+.alert{
+  display:flex;gap:.85rem;padding:1rem 1.15rem;border-radius:.9rem;
+  margin:1.25rem 0;font-size:.9rem;line-height:1.7;
+}
+.alert b{font-weight:800}
+.alert-info{background:rgba(96,165,250,.10);border:1px solid rgba(96,165,250,.32)}
+.alert-warn{background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.32)}
+.alert-success{background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.32)}
+.alert-danger{background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.32)}
+.alert .ico{font-size:1.3rem;line-height:1;flex-shrink:0}
+
+/* ═══════ الأقسام ═══════ */
+.section{
+  background:linear-gradient(180deg,rgba(30,41,59,.9),rgba(30,41,59,.55));
+  border:1px solid rgba(51,65,85,.85);
+  border-radius:1.15rem;
+  padding:1.75rem 1.5rem;
+  margin:1.5rem 0;
+  backdrop-filter:blur(8px);
+}
+.section h2{
+  font-size:1.15rem;font-weight:800;margin:0 0 1.25rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.section h2 .num{
+  width:34px;height:34px;border-radius:.7rem;flex-shrink:0;
+  display:grid;place-items:center;font-size:.95rem;
+  background:linear-gradient(145deg,#f5c451,#dda62b);
+  color:#1a1206;font-weight:800;
+}
+.section h2 .sub{font-weight:500;color:var(--muted);font-size:.82rem;margin-inline-start:auto}
+
+/* ═══════ الخطوات ═══════ */
+.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{
+  position:relative;padding:.85rem 2.6rem .85rem 0;
+  border-bottom:1px dashed rgba(51,65,85,.7);
+}
+.steps li:last-child{border-bottom:0}
+.steps li::before{
+  counter-increment:s;content:counter(s);
+  position:absolute;right:0;top:.95rem;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(96,165,250,.16);border:1.5px solid #60a5fa;
+  color:#bfdbfe;font-size:.78rem;font-weight:800;
+  display:grid;place-items:center;
+}
+.steps li strong{color:#fff;font-weight:800}
+
+/* ═══════ صناديق الكود ═══════ */
+.codebox{
+  position:relative;margin:1rem 0;
+  background:#0b1424;border:1px solid #24334a;border-radius:.85rem;
+  overflow:hidden;
+}
+.codebox-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem .9rem;
+  background:rgba(30,41,59,.85);border-bottom:1px solid #24334a;
+  font-size:.72rem;font-weight:700;color:var(--muted);
+}
+.codebox-head .dots{display:flex;gap:.35rem}
+.codebox-head .dots i{width:9px;height:9px;border-radius:50%;display:block}
+.copy-btn{
+  display:inline-flex;align-items:center;gap:.35rem;
+  padding:.28rem .65rem;border-radius:.45rem;
+  background:rgba(245,196,81,.14);border:1px solid rgba(245,196,81,.35);
+  color:#fde68a;font-size:.7rem;font-weight:800;cursor:pointer;
+  transition:all .15s;font-family:inherit;
+}
+.copy-btn:hover{background:rgba(245,196,81,.28);color:#fff}
+.copy-btn:active{transform:scale(.94)}
+.copy-btn.copied{background:rgba(52,211,153,.22);border-color:rgba(52,211,153,.5);color:#a7f3d0}
+.codebox pre{
+  margin:0;padding:1rem 1.1rem;overflow-x:auto;
+  font-family:'Consolas','Monaco',monospace;font-size:.78rem;
+  line-height:1.65;color:#cbd5e1;direction:ltr;text-align:left;
+}
+.codebox pre::-webkit-scrollbar{height:8px}
+.codebox pre::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+
+/* ═══════ شبكة الخيارات ═══════ */
+.grid2{display:grid;gap:1rem;grid-template-columns:1fr}
+@media(min-width:680px){.grid2{grid-template-columns:1fr 1fr}}
+
+.opt{
+  padding:1.1rem;border-radius:.9rem;
+  background:rgba(148,163,184,.06);border:1px solid #334155;
+  transition:all .2s;
+}
+.opt:hover{border-color:#64748b;background:rgba(148,163,184,.10)}
+.opt h3{margin:0 0 .45rem;font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
+.opt p{margin:0;color:var(--muted);font-size:.85rem}
+
+/* ═══════ جدول التحقق ═══════ */
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.5rem}
+th,td{padding:.65rem .75rem;text-align:right;border-bottom:1px solid #24334a}
+th{background:rgba(30,41,59,.85);color:var(--muted);font-weight:800;font-size:.78rem}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;color:#e2e8f0}
+.ok{color:#34d399;font-weight:800}
+.bad{color:#f87171;font-weight:800}
+
+/* ═══════ الأسئلة الشائعة ═══════ */
+.faq{
+  border:1px solid #334155;border-radius:.85rem;margin-bottom:.75rem;
+  overflow:hidden;background:rgba(148,163,184,.04);
+}
+.faq summary{
+  padding:.85rem 1.1rem;cursor:pointer;font-weight:800;font-size:.9rem;
+  list-style:none;display:flex;align-items:center;gap:.6rem;
+  transition:background .18s;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:'▸';transition:transform .2s;display:inline-block;color:var(--gold)}
+.faq[open] summary::before{transform:rotate(90deg)}
+.faq summary:hover{background:rgba(148,163,184,.08)}
+.faq .ans{padding:0 1.1rem 1rem;color:var(--muted);font-size:.87rem;line-height:1.8}
+
+/* ═══════ الأزرار ═══════ */
+.btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.65rem 1.25rem;border-radius:.7rem;font-weight:800;font-size:.85rem;
+  border:none;cursor:pointer;font-family:inherit;transition:all .15s;
+  text-decoration:none;
+}
+.btn-primary{background:linear-gradient(180deg,#f5c451,#dda62b);color:#1a1206}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-ghost{background:rgba(148,163,184,.10);border:1px solid #334155;color:#cbd5e1}
+.btn-ghost:hover{background:rgba(148,163,184,.20);color:#fff}
+
+.cta{
+  display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-top:1.5rem;
+}
+
+/* ═══════ الفوتر ═══════ */
+footer{
+  text-align:center;margin-top:3rem;padding-top:1.5rem;
+  border-top:1px solid #24334a;color:#64748b;font-size:.8rem;
+}
+
+/* ═══════ مؤشر التقدم ═══════ */
+.toc{
+  display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.5rem 0 2rem;
+}
+.toc a{
+  padding:.4rem .85rem;border-radius:999px;
+  background:rgba(148,163,184,.08);border:1px solid #334155;
+  color:#cbd5e1;font-size:.78rem;font-weight:700;
+  transition:all .18s;text-decoration:none;
+}
+.toc a:hover{background:rgba(96,165,250,.16);border-color:#60a5fa;color:#bfdbfe;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ═══════ الترويسة ═══════ -->
+  <header>
+    <div class="logo">📖</div>
+    <h1>دليل استخدام أداة حافظ</h1>
+    <p>خطوات بسيطة لتفعيل المزامنة السحابية بين أجهزة مجموعتك</p>
+    <span class="meta">
+      <span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block"></span>
+      ⏱️ الوقت المتوقع: ٥ دقائق فقط
+    </span>
+  </header>
+
+  <!-- ═══════ فهرس سريع ═══════ -->
+  <nav class="toc">
+    <a href="#before">قبل أن تبدأ</a>
+    <a href="#step1">١. أنشئ الجدول</a>
+    <a href="#step2">٢. افتح Apps Script</a>
+    <a href="#step3">٣. الصق الكود</a>
+    <a href="#step4">٤. انشر الخادم</a>
+    <a href="#step5">٥. اربط الأداة</a>
+    <a href="#check">✅ تحقق نهائي</a>
+    <a href="#faq">❓ أسئلة شائعة</a>
+  </nav>
+
+  <!-- ═══════ قبل أن تبدأ ═══════ -->
+  <div class="alert alert-info" id="before">
+    <span class="ico">💡</span>
+    <div>
+      <b>هل أحتاج لهذا الدليل فعلاً؟</b><br>
+      الأداة تعمل بدون أي إعداد وتخزّن تقدمك على جهازك فقط. لكن لتشارك تقدمك مع مجموعتك وتزامن البيانات بين أجهزتك — تحتاج لربط خادم Google Sheets، وهذه الخطوات تشرح ذلك.
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="ico">📌</span>
+    <div>
+      <b>ما ستحتاجه:</b>
+      <ul style="margin:.4rem 0 0;padding-inline-start:1.2rem">
+        <li>حساب Google (Gmail) — أي حساب مجاني يكفي</li>
+        <li>متصفح حديث (Chrome، Safari، Firefox، Edge)</li>
+        <li>ملف <code>index.html</code> الخاص بالتطبيق (جاهز على جهازك)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════ الخطوة ١ ═══════ -->
+  <section class="section" id="step1">
+    <h2>
+      <span class="num">١</span>
+      أنشئ جدول Google Sheets
+      <span class="sub">~ ٣٠ ثانية</span>
+    </h2>
+
+    <ol class="steps">
+      <li>افتح <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> في متصفحك (سيُنشئ جدولاً جديداً فوراً).</li>
+      <li>اضغط على اسم الجدول في الأعلى وسمِّه: <strong>حافظ - قاعدة البيانات</strong>.</li>
+      <li>اترك الجدول مفتوحاً — سنعود إليه بعد قليل. <strong>لا تحتاج لإنشاء أوراق يدوياً</strong>، الخادم سيفعل ذلك تلقائياً.</li>
+    </ol>
+
+    <div class="alert alert-info" style="margin-bottom:0">
+      <span class="ico">ℹ️</span>
+      <div>إذا طلب منك Google تسجيل الدخول — سجّل بحسابك المعتاد، فهو من سيستضيف بياناتك.</div>
+    </div>
+  </section>
+
+  <!-- ═══════ الخطوة ٢ ═══════ -->
+  <section class="section" id="step2">
+    <h2>
+      <span class="num">٢</span>
+      افتح محرر Apps Script
+      <span class="sub">~ ٢٠ ثانية</span>
+    </h2>
+
+    <ol class="steps">
+      <li>من داخل الجدول، اضغط من القائمة العلوية على <strong>Extensions</strong> ← <strong>Apps Script</strong>.</li>
+      <li>ستُفتح نافذة جديدة فيها محرر أكواد. احذف كل المحتوى الموجود فيه (عادة يكون دالة فارغة اسمها <code>myFunction</code>).</li>
+      <li>اضغط على <strong>Untitled project</strong> أعلى الصفحة وأعطه اسماً: <strong>Hafiz Backend</strong>.</li>
+    </ol>
+
+    <div class="alert alert-warn" style="margin-bottom:0">
+      <span class="ico">⚠️</span>
+      <div><b>لا تغلق تبويب الجدول.</b> سنحتاجه في الخطوات القادمة.</div>
+    </div>
+  </section>
+
+  <!-- ═══════ الخطوة ٣ ═══════ -->
+  <section class="section" id="step3">
+    <h2>
+      <span class="num">٣</span>
+      الصق كود الخادم
+      <span class="sub">~ ٦٠ ثانية</span>
+    </h2>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-top:0">
+      انسخ الكود التالي بالكامل والصقه في محرر Apps Script (استبدل أي شيء موجود):
+    </p>
+
+    <div class="codebox">
+      <div class="codebox-head">
+        <span class="dots">
+          <i style="background:#ef4444"></i>
+          <i style="background:#fbbf24"></i>
+          <i style="background:#34d399"></i>
+        </span>
+        <span>HafizBackend.gs</span>
+        <button class="copy-btn" onclick="copyBlock(this)">📋 نسخ الكود</button>
+      </div>
+<pre id="backendCode">/**
+ * ═══════════════════════════════════════════════════════════════
+ *  حافظ — الخادم الخلفي (Google Apps Script)
+ * ═══════════════════════════════════════════════════════════════
+ */
+const CONFIG = {
+  USERS_SHEET: 'Users',
+  PAGES_SHEET: 'Pages',
+  LOG_SHEET:   'SyncLog',
+  VERSION:     '1.0.0',
+  LOCK_TIMEOUT_MS: 20000,
+  MAX_PAGES:   604
+};
+
+function doGet(e)  { return route_(e, null); }
+function doPost(e) {
+  let body = null;
+  try { body = JSON.parse(e.postData.contents); }
+  catch (err) { return json_({ ok: false, error: 'Invalid JSON body' }); }
+  return route_(e, body);
+}
+
+function route_(e, body) {
+  const params = (e && e.parameter) || {};
+  const action = (body && body.action) || params.action || 'ping';
+  try {
+    switch (action) {
+      case 'ping': return handlePing_();
+      case 'pull': return handlePull_(body ? body.user : params.user);
+      case 'push': return handlePush_(body);
+      default:     return json_({ ok: false, error: 'Unknown action: ' + action });
+    }
+  } catch (err) {
+    logError_(action, err);
+    return json_({ ok: false, error: String((err && err.message) || err) });
+  }
+}
+
+function handlePing_() {
+  return json_({ ok: true, app: 'حافظ', version: CONFIG.VERSION, time: new Date().toISOString() });
+}
+
+function handlePull_(username) {
+  if (!username) return json_({ ok: false, error: 'Missing username' });
+  const usersSheet = getUsersSheet_();
+  const pagesSheet = getPagesSheet_();
+  const uname = String(username).toLowerCase();
+  const usersData = usersSheet.getDataRange().getValues();
+  let userRow = null;
+  for (let i = 1; i < usersData.length; i++) {
+    if (String(usersData[i][0]).toLowerCase() === uname) {
+      userRow = { rowIdx: i + 1, data: usersData[i] };
+      break;
+    }
+  }
+  if (!userRow) {
+    return json_({
+      ok: true,
+      user: { username: String(username), pages: {}, activity: {}, stats: {} },
+      members: collectMembers_(usersData, pagesSheet, uname)
+    });
+  }
+  const pages = {};
+  const pagesData = pagesSheet.getDataRange().getValues();
+  for (let i = 1; i < pagesData.length; i++) {
+    const r = pagesData[i];
+    if (String(r[0]).toLowerCase() !== uname) continue;
+    pages[String(r[1])] = {
+      state:        String(r[2] || 'none'),
+      lastReviewed: r[3] ? new Date(r[3]).getTime() : null,
+      updatedAt:    r[4] ? new Date(r[4]).getTime() : null
+    };
+  }
+  return json_({
+    ok: true,
+    user: {
+      username: String(userRow.data[0]),
+      pages: pages,
+      activity: safeParse_(userRow.data[2], {}),
+      stats: safeParse_(userRow.data[3], {})
+    },
+    members: collectMembers_(usersData, pagesSheet, uname)
+  });
+}
+
+function handlePush_(body) {
+  if (!body || !body.user) return json_({ ok: false, error: 'Missing user' });
+  const lock = LockService.getScriptLock();
+  try { lock.waitLock(CONFIG.LOCK_TIMEOUT_MS); }
+  catch (e) { return json_({ ok: false, error: 'Server busy, please retry' }); }
+  try {
+    const username = String(body.user).trim();
+    if (!username) return json_({ ok: false, error: 'Empty username' });
+    const pages = body.pages || {};
+    const activity = body.activity || {};
+    const stats = body.stats || {};
+    const now = new Date();
+    const usersSheet = getUsersSheet_();
+    const pagesSheet = getPagesSheet_();
+    const usersData = usersSheet.getDataRange().getValues();
+    let userRowIdx = -1;
+    for (let i = 1; i < usersData.length; i++) {
+      if (String(usersData[i][0]).toLowerCase() === username.toLowerCase()) {
+        userRowIdx = i + 1; break;
+      }
+    }
+    if (userRowIdx === -1) {
+      usersSheet.appendRow([username, '', JSON.stringify(activity), JSON.stringify(stats), now, now]);
+    } else {
+      const created = usersData[userRowIdx - 1][4] || now;
+      usersSheet.getRange(userRowIdx, 3, 1, 4).setValues([[
+        JSON.stringify(activity), JSON.stringify(stats), created, now
+      ]]);
+    }
+    const written = rewritePagesForUser_(pagesSheet, username, pages, now);
+    return json_({ ok: true, saved: true, pagesWritten: written, time: now.toISOString() });
+  } finally { lock.releaseLock(); }
+}
+
+function rewritePagesForUser_(sheet, username, pages, now) {
+  const uname = username.toLowerCase();
+  const data = sheet.getDataRange().getValues();
+  const others = [];
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).toLowerCase() !== uname) others.push(data[i]);
+  }
+  const mine = [];
+  const pageNums = Object.keys(pages).map(Number)
+    .filter(p => p >= 1 && p <= CONFIG.MAX_PAGES).sort((a, b) => a - b);
+  for (const p of pageNums) {
+    const pg = pages[p];
+    if (!pg || pg.state === 'none' || !pg.state) continue;
+    mine.push([
+      username, p, pg.state,
+      pg.lastReviewed ? new Date(pg.lastReviewed) : '',
+      pg.updatedAt ? new Date(pg.updatedAt) : now
+    ]);
+  }
+  const all = others.concat(mine);
+  if (data.length > 1) sheet.getRange(2, 1, data.length - 1, 5).clearContent();
+  if (all.length > 0) sheet.getRange(2, 1, all.length, 5).setValues(all);
+  return mine.length;
+}
+
+function collectMembers_(usersData, pagesSheet, excludeUsername) {
+  const pagesData = pagesSheet.getDataRange().getValues();
+  const pagesByUser = {};
+  for (let i = 1; i < pagesData.length; i++) {
+    const r = pagesData[i];
+    const uname = String(r[0]).toLowerCase();
+    if (!uname) continue;
+    if (excludeUsername && uname === excludeUsername) continue;
+    if (!pagesByUser[uname]) pagesByUser[uname] = {};
+    pagesByUser[uname][String(r[1])] = {
+      state: String(r[2] || 'none'),
+      lastReviewed: r[3] ? new Date(r[3]).getTime() : null,
+      updatedAt: r[4] ? new Date(r[4]).getTime() : null
+    };
+  }
+  const members = [];
+  for (let i = 1; i < usersData.length; i++) {
+    const r = usersData[i];
+    const uname = String(r[0]);
+    if (!uname) continue;
+    if (excludeUsername && uname.toLowerCase() === excludeUsername) continue;
+    members.push({
+      id: 'u_' + uname, name: uname, color: colorFromName_(uname),
+      pages: pagesByUser[uname.toLowerCase()] || {},
+      activity: safeParse_(r[2], {})
+    });
+  }
+  return members;
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function safeParse_(str, fallback) {
+  if (str === null || str === undefined || str === '') return fallback;
+  if (typeof str === 'object') return str;
+  try { return JSON.parse(str); } catch (e) { return fallback; }
+}
+function colorFromName_(name) {
+  const palette = ['#60a5fa','#f472b6','#34d399','#fbbf24','#a78bfa','#22d3ee','#fb923c','#4ade80'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  return palette[Math.abs(h) % palette.length];
+}
+function getSS_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error('Script not bound to a spreadsheet');
+  return ss;
+}
+function getUsersSheet_() {
+  const ss = getSS_();
+  let sh = ss.getSheetByName(CONFIG.USERS_SHEET);
+  if (!sh) sh = createUsersSheet_(ss);
+  return sh;
+}
+function getPagesSheet_() {
+  const ss = getSS_();
+  let sh = ss.getSheetByName(CONFIG.PAGES_SHEET);
+  if (!sh) sh = createPagesSheet_(ss);
+  return sh;
+}
+function getLogSheet_() {
+  const ss = getSS_();
+  let sh = ss.getSheetByName(CONFIG.LOG_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(CONFIG.LOG_SHEET);
+    sh.getRange(1, 1, 1, 3).setValues([['Time','Action','Error']]);
+    sh.getRange(1, 1, 1, 3).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+function createUsersSheet_(ss) {
+  const sh = ss.insertSheet(CONFIG.USERS_SHEET);
+  sh.getRange(1, 1, 1, 6).setValues([['Username','PIN','Activity','Stats','Created','Updated']]);
+  sh.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#1e293b').setFontColor('#f5c451');
+  sh.setFrozenRows(1);
+  sh.setColumnWidth(1, 200);
+  sh.setColumnWidth(3, 320);
+  sh.setColumnWidth(4, 320);
+  return sh;
+}
+function createPagesSheet_(ss) {
+  const sh = ss.insertSheet(CONFIG.PAGES_SHEET);
+  sh.getRange(1, 1, 1, 5).setValues([['Username','Page','State','LastReviewed','UpdatedAt']]);
+  sh.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#1e293b').setFontColor('#f5c451');
+  sh.setFrozenRows(1);
+  sh.setColumnWidth(1, 200);
+  sh.setColumnWidth(3, 120);
+  sh.setColumnWidth(4, 180);
+  sh.setColumnWidth(5, 180);
+  return sh;
+}
+function logError_(action, err) {
+  try {
+    const sh = getLogSheet_();
+    sh.appendRow([new Date(), action, String((err && err.message) || err)]);
+  } catch (e) {}
+}
+function setupSheets() {
+  const ss = getSS_();
+  const def = ss.getSheetByName('Sheet1') || ss.getSheetByName('ورقة1');
+  if (def && def.getLastRow() === 0 && ss.getSheets().length === 1) ss.deleteSheet(def);
+  getUsersSheet_();
+  getPagesSheet_();
+  getLogSheet_();
+  SpreadsheetApp.getUi().alert('✓ تم إعداد الأوراق بنجاح — يمكنك الآن النشر كـ Web App.');
+}
+function testPing() { Logger.log(handlePing_().getContent()); }</pre>
+    </div>
+
+    <ol class="steps">
+      <li>الصق الكود في المحرر.</li>
+      <li>اضغط <strong>Ctrl + S</strong> (أو ⌘ + S على Mac) للحفظ.</li>
+      <li>إن ظهرت لك نافذة طلب الأذونات لاحقاً — سنتعامل معها في الخطوة القادمة.</li>
+    </ol>
+  </section>
+
+  <!-- ═══════ الخطوة ٤ ═══════ -->
+  <section class="section" id="step4">
+    <h2>
+      <span class="num">٤</span>
+      انشر الخادم كـ Web App
+      <span class="sub">~ ٩٠ ثانية · الأهم</span>
+    </h2>
+
+    <ol class="steps">
+      <li>في أعلى يمين المحرر، اضغط زر <strong>Deploy</strong> (نشْر) ← اختر <strong>New deployment</strong>.</li>
+      <li>بجانب كلمة «Select type» اضغط أيقونة الترس ⚙️ ← اختر <strong>Web app</strong>.</li>
+      <li>املأ الحقول كالتالي بدقة:
+        <div style="margin:.6rem 0;padding:.75rem 1rem;background:#0b1424;border:1px solid #24334a;border-radius:.6rem;font-size:.82rem;line-height:1.9">
+          <div><b style="color:#fde68a">Description:</b> Hafiz Sync API</div>
+          <div><b style="color:#fde68a">Execute as:</b> <span style="color:#a7f3d0">Me</span> (أنا)</div>
+          <div><b style="color:#fde68a">Who has access:</b> <span style="color:#a7f3d0">Anyone</span> (أي شخص)</div>
+        </div>
+      </li>
+      <li>اضغط <strong>Deploy</strong>. قد يطلب منك Google <strong>Authorize access</strong> — اضغط:
+        <ul style="margin:.4rem 0 0;padding-inline-start:1.2rem;color:var(--muted);font-size:.85rem">
+          <li>اختر حسابك.</li>
+          <li>إن ظهرت شاشة «Google hasn't verified this app» — اضغط <strong>Advanced</strong> ثم <strong>Go to Hafiz Backend (unsafe)</strong>. هذا طبيعي لأنك أنت المطوّر.</li>
+          <li>اضغط <strong>Allow</strong> (السماح).</li>
+        </ul>
+      </li>
+      <li>بعد نجاح النشر ستظهر نافذة فيها حقل <strong>Web app URL</strong> — انسخه (يبدأ بـ <code>https://script.google.com/macros/s/...</code>).</li>
+    </ol>
+
+    <div class="alert alert-danger">
+      <span class="ico">🚨</span>
+      <div>
+        <b>احتفظ بالرابط جيداً!</b> هذا هو المفتاح الذي ستربط به الأداة بالخادم. إذا فقدته يمكنك استعادته من Deploy ← Manage deployments.
+      </div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-bottom:0">
+      <span class="ico">🔁</span>
+      <div>
+        <b>عند تحديث الكود لاحقاً:</b> لا تستخدم New deployment مرة أخرى. بل <strong>Deploy ← Manage deployments ← ✏️ ← Version: New version ← Deploy</strong>. بهذه الطريقة يبقى الرابط نفسه ثابتاً.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ الخطوة ٥ ═══════ -->
+  <section class="section" id="step5">
+    <h2>
+      <span class="num">٥</span>
+      اربط الأداة بالخادم
+      <span class="sub">~ ٣٠ ثانية</span>
+    </h2>
+
+    <ol class="steps">
+      <li>افتح ملف <strong>index.html</strong> في متصفحك (بالنقر المزدوج عليه).</li>
+      <li>اضغط أيقونة ⚙️ <strong>الإعدادات</strong> في أعلى الصفحة.</li>
+      <li>الصق <strong>Web App URL</strong> الذي نسخته في الحقل الأول.</li>
+      <li>اضغط <strong>اختبار الاتصال</strong>. يجب أن تظهر رسالة خضراء: <span class="ok">✓ الاتصال ناجح</span>.</li>
+      <li>اضغط <strong>حفظ</strong> — انتهى! 🎉</li>
+    </ol>
+
+    <div class="alert alert-success" style="margin-bottom:0">
+      <span class="ico">✨</span>
+      <div>
+        الآن سيبدأ التطبيق بمزامنة تقدمك تلقائياً كل ٣ دقائق. يمكنك أيضاً الضغط على أيقونة 🔄 في الأعلى للمزامنة الفورية.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ التحقق النهائي ═══════ -->
+  <section class="section" id="check">
+    <h2>
+      <span class="num">✓</span>
+      تحقق سريع: هل كل شيء يعمل؟
+    </h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ما يجب أن تراه</th>
+          <th>النتيجة المتوقعة</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>اضغط «اختبار الاتصال» في الإعدادات</td>
+          <td class="ok">✓ الاتصال ناجح</td>
+        </tr>
+        <tr>
+          <td>أيقونة 🔄 في الترويسة (بجانب كلمة «محلي»)</td>
+          <td class="ok">تتحول إلى «متزامن» بالأخضر</td>
+        </tr>
+        <tr>
+          <td>افتح جدول Google Sheets</td>
+          <td class="ok">تظهر أوراق Users و Pages و SyncLog</td>
+        </tr>
+        <tr>
+          <td>علّم صفحة جديدة في الأداة ثم زامن</td>
+          <td class="ok">يظهر صف جديد في ورقة Pages</td>
+        </tr>
+        <tr>
+          <td>افتح نفس الرابط من جهاز آخر</td>
+          <td class="ok">تظهر نفس بياناتك بعد المزامنة</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════ الأسئلة الشائعة ═══════ -->
+  <section class="section" id="faq">
+    <h2>
+      <span class="num">؟</span>
+      أسئلة شائعة
+    </h2>
+
+    <details class="faq">
+      <summary>🔴 «اختبار الاتصال» يفشل دائماً</summary>
+      <div class="ans">
+        تحقق من ثلاث نقاط:<br>
+        <b>١.</b> هل اخترت <code>Who has access: Anyone</code> عند النشر؟ (أكثر سبب شيوعاً)<br>
+        <b>٢.</b> هل الرابط ينتهي بكلمة <code>/exec</code> وليس <code>/dev</code>؟<br>
+        <b>٣.</b> جرّب فتح الرابط مباشرة في المتصفح — يجب أن ترى <code>{"ok":true,...}</code>. إن ظهرت رسالة خطأ، أعد النشر من البداية.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>🟡 بياناتي لا تظهر على الجهاز الآخر</summary>
+      <div class="ans">
+        تأكد من:<br>
+        • تسجيل الدخول بنفس <b>اسم المستخدم</b> بالضبط (حساس لحالة الأحرف الكبيرة/الصغيرة).<br>
+        • الضغط على 🔄 «مزامنة الآن» يدوياً في الجهاز الثاني.<br>
+        • انتظار ٣ دقائق على الأقل — أو تفعيل المزامنة التلقائية من الإعدادات.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>🔵 هل بياناتي آمنة؟</summary>
+      <div class="ans">
+        نعم — البيانات تُخزَّن في <b>جدولك الخاص</b> على Google Drive، ولا يصل إليها أحد غيرك. الأداة تتصل مباشرة بـ Google ولا تمر عبر أي خادم وسيط.<br>
+        <b>ملاحظة:</b> الأداة لا تُرسل كلمة السر PIN إلى الخادم — التحقق منها يتم محلياً على جهازك فقط.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>🟠 هل يمكن استخدامها بدون إنترنت؟</summary>
+      <div class="ans">
+        نعم بامتياز. الأداة تعمل بكامل طاقتها بدون اتصال وتحفظ كل شيء في متصفحك. عندما يعود الاتصال، ترفع كل التغييرات المعلّقة تلقائياً إلى Google Sheets.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>🟣 كيف يشارك أصدقائي نفس المجموعة؟</summary>
+      <div class="ans">
+        كل ما عليهم فعله:<br>
+        <b>١.</b> فتح نفس ملف <code>index.html</code>.<br>
+        <b>٢.</b> إدخال نفس رابط <b>Web App URL</b> في الإعدادات.<br>
+        <b>٣.</b> إنشاء حساب باسمهم الخاص (PIN خاص بهم).<br>
+        بعدها سيظهر الجميع في تبويب «المجموعة» ويمكن تسميع بعضكم البعض.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>⚫ نسيت أن أضغط Deploy بعد تعديل الكود</summary>
+      <div class="ans">
+        التعديلات لن تُطبَّق حتى تنشر <b>New version</b>. اذهب إلى <strong>Deploy ← Manage deployments ← أيقونة ✏️ ← Version: New version ← Deploy</strong>. الرابط لن يتغير.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>⚪ هل يمكن حذف البيانات والبدء من جديد؟</summary>
+      <div class="ans">
+        من داخل الأداة: الإعدادات ← «حذف كل البيانات المحلية».<br>
+        لحذف البيانات السحابية: امسح الصفوف من أوراق <code>Users</code> و <code>Pages</code> في Google Sheets.
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════ الخاتمة ═══════ -->
+  <section class="section" style="text-align:center;background:linear-gradient(145deg,rgba(245,196,81,.12),rgba(245,196,81,.03));border-color:rgba(245,196,81,.35)">
+    <h2 style="justify-content:center;margin-bottom:.6rem">
+      <span class="num" style="background:linear-gradient(145deg,#34d399,#0ea472)">✓</span>
+      كل شيء جاهز!
+    </h2>
+    <p style="color:var(--muted);margin:.5rem 0 1.25rem;font-size:.92rem">
+      ابدأ رحلتك في حفظ كتاب الله — وتذكّر أن الاستمرارية أهم من السرعة.
+    </p>
+    <div class="cta">
+      <a href="index.html" class="btn btn-primary">🚀 افتح التطبيق الآن</a>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ اطبع الدليل</button>
+    </div>
+  </section>
+
+  <footer>
+    صُنع بـ ❤️ لخدمة كتاب الله · <b>حافظ</b> — الإصدار ١.٠.٠<br>
+    <span style="opacity:.6">آخر تحديث: فبراير ٢٠٢٥</span>
+  </footer>
+
+</div>
+
+<!-- ═══════ زر العودة للأعلى ═══════ -->
+<button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+  style="position:fixed;bottom:1.5rem;left:1.5rem;width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(145deg,#f5c451,#dda62b);color:#1a1206;border:none;
+  cursor:pointer;font-size:1.1rem;box-shadow:0 10px 24px -8px #f5c451;
+  opacity:0;pointer-events:none;transition:all .3s;z-index:50"
+  title="العودة للأعلى">↑</button>
+
+<script>
+/* زر النسخ */
+function copyBlock(btn){
+  const box = btn.closest('.codebox');
+  const pre = box.querySelector('pre');
+  const text = pre.innerText;
+
+  const done = () => {
+    const old = btn.innerHTML;
+    btn.innerHTML = '✓ تم النسخ';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = old; btn.classList.remove('copied'); }, 1800);
+  };
+
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(pre, done));
+  } else {
+    fallbackCopy(pre, done);
+  }
+}
+
+function fallbackCopy(pre, cb){
+  const range = document.createRange();
+  range.selectNodeContents(pre);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  try {
+    document.execCommand('copy');
+    cb();
+  } catch(e){
+    alert('تعذّر النسخ تلقائياً — يرجى تحديد الكود يدوياً ونسخه.');
+  }
+  sel.removeAllRanges();
+}
+
+/* تمرير سلس للفهرس */
+document.querySelectorAll('.toc a').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el){
+      e.preventDefault();
+      const y = el.getBoundingClientRect().top + window.scrollY - 20;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  });
+});
+
+/* زر العودة للأعلى */
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  const show = window.scrollY > 400;
+  backTop.style.opacity = show ? '1' : '0';
+  backTop.style.pointerEvents = show ? 'auto' : 'none';
+});
+
+/* فتح أول سؤالين افتراضياً للتوضيح */
+document.querySelectorAll('.faq')[0].open = true;
+</script>
+
+</body>
+</html>

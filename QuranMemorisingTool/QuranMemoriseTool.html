@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>تَحفِيظ · متابعة حفظ القرآن الكريم</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f172a;
+  --panel:#1e293b;
+  --panel2:#26344a;
+  --line:#334155;
+  --txt:#e2e8f0;
+  --muted:#94a3b8;
+  --gold:#f5c451;
+  --green:#34d399;
+  --blue:#60a5fa;
+  --amber:#fbbf24;
+  --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;}
+body{
+  background:
+    radial-gradient(1100px 600px at 100% -10%, rgba(56,189,248,.08), transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, rgba(245,196,81,.05), transparent 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:'Inter','Tajawal',system-ui,-apple-system,sans-serif;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#475569}
+.scroll{scrollbar-width:thin;scrollbar-color:#334155 transparent}
+
+/* ---------- App shell ---------- */
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#views{position:relative;flex:1;min-height:0}
+.view{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .26s ease, transform .26s ease;
+  scrollbar-width:thin;scrollbar-color:#334155 transparent;
+}
+.view.active{opacity:1;transform:none;pointer-events:auto}
+.view::-webkit-scrollbar{width:8px}
+.view::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+
+/* ---------- Tabs ---------- */
+.tab{
+  position:relative;display:inline-flex;align-items:center;gap:.45rem;
+  padding:.5rem .9rem;border-radius:.75rem;color:var(--muted);
+  font-weight:700;font-size:.83rem;transition:all .2s ease;white-space:nowrap;
+  background:transparent;border:1px solid transparent;cursor:pointer;
+}
+.tab:hover{color:#e2e8f0;background:rgba(148,163,184,.10)}
+.tab.active{
+  color:#1a1206;
+  background:linear-gradient(180deg,#f5c451,#dda62b);
+  box-shadow:0 8px 22px -10px rgba(245,196,81,.9);
+}
+
+/* ---------- Cards ---------- */
+.card{
+  background:linear-gradient(180deg,rgba(30,41,59,.85),rgba(30,41,59,.55));
+  border:1px solid rgba(51,65,85,.75);
+  border-radius:1.1rem;
+  backdrop-filter:blur(8px);
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.55rem 1rem;border-radius:.7rem;font-weight:700;font-size:.8rem;
+  border:1px solid transparent;cursor:pointer;transition:all .16s ease;
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(180deg,#f5c451,#dda62b);color:#1a1206;box-shadow:0 8px 20px -12px #f5c451}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:rgba(148,163,184,.08);border-color:#334155;color:#cbd5e1}
+.btn-ghost:hover{background:rgba(148,163,184,.18);color:#fff}
+.btn-danger{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.4);color:#fca5a5}
+.btn-danger:hover{background:rgba(248,113,113,.22)}
+.icon-btn{
+  width:36px;height:36px;display:grid;place-items:center;border-radius:.7rem;
+  border:1px solid #334155;background:rgba(148,163,184,.08);color:#cbd5e1;
+  cursor:pointer;transition:all .16s ease;
+}
+.icon-btn:hover{background:rgba(148,163,184,.2);color:#fff}
+.icon-btn:active{transform:scale(.94)}
+
+/* ---------- Chips ---------- */
+.chip{
+  padding:.34rem .78rem;border-radius:999px;border:1px solid var(--line);
+  font-size:.74rem;font-weight:700;color:var(--muted);cursor:pointer;
+  transition:all .18s ease;user-select:none;background:transparent;
+}
+.chip:hover{border-color:#64748b;color:#e2e8f0}
+.chip.active{background:rgba(96,165,250,.16);border-color:#60a5fa;color:#bfdbfe}
+
+/* ---------- Tiles ---------- */
+.tile{
+  position:relative;aspect-ratio:1/1;min-width:44px;min-height:44px;
+  border-radius:.5rem;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:700;cursor:pointer;user-select:none;
+  font-variant-numeric:tabular-nums;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .22s ease, border-color .18s;
+  will-change:transform;
+}
+.tile:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 10px 20px -10px #000;z-index:3}
+.tile:active{transform:scale(.94)}
+.tile.dim{opacity:.08;pointer-events:none}
+.tile.gold{box-shadow:0 0 0 1px rgba(245,196,81,.5), 0 0 12px -4px rgba(245,196,81,.8)}
+
+/* ---------- Juz accordion ---------- */
+.juz-section{
+  background:linear-gradient(180deg,rgba(30,41,59,.85),rgba(30,41,59,.55));
+  border:1px solid rgba(51,65,85,.75);
+  border-radius:1.1rem;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.juz-section:hover{border-color:rgba(71,85,105,.9)}
+.juz-header{
+  width:100%;padding:1rem 1.25rem;
+  display:flex;align-items:center;gap:.85rem;
+  background:transparent;border:none;cursor:pointer;
+  color:inherit;font-family:inherit;text-align:right;
+  transition:background .18s;
+}
+.juz-header:hover{background:rgba(148,163,184,.04)}
+.juz-section.open .juz-header{background:rgba(148,163,184,.05)}
+.juz-chevron{transition:transform .24s ease}
+.juz-section.open .juz-chevron{transform:rotate(180deg)}
+.juz-body{
+  display:none;
+  padding:0 1.25rem 1.25rem;
+  animation:fadeIn .22s ease;
+}
+.juz-section.open .juz-body{display:block}
+.juz-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(48px, 1fr));
+  gap:8px;
+}
+
+/* ---------- Heatmap ---------- */
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:2px}
+.heat i{width:12px;height:12px;border-radius:2px;display:block;background:#1b2537;transition:transform .12s}
+.heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
+
+/* ---------- Modal ---------- */
+.modal{
+  position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  padding:1rem;background:rgba(2,6,23,.74);backdrop-filter:blur(7px);
+}
+.modal.open{display:flex}
+.modal-panel{
+  width:100%;max-width:540px;max-height:88vh;overflow-y:auto;
+  background:#182234;border:1px solid #334155;border-radius:1.15rem;
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.95);
+  animation:pop .22s cubic-bezier(.2,.9,.3,1.2);
+  scrollbar-width:thin;scrollbar-color:#334155 transparent;
+}
+.modal-panel::-webkit-scrollbar{width:8px}
+.modal-panel::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.modal-panel.wide{max-width:780px}
+
+/* ---------- State buttons ---------- */
+.state-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.35rem;
+  padding:.75rem .5rem;border-radius:.8rem;border:1px solid #334155;
+  background:rgba(148,163,184,.06);cursor:pointer;transition:all .16s ease;
+  font-size:.72rem;font-weight:700;color:#cbd5e1;
+}
+.state-btn:hover:not([disabled]){background:rgba(148,163,184,.16);transform:translateY(-2px)}
+.state-btn:active:not([disabled]){transform:scale(.96)}
+.state-btn.sel{border-color:currentColor;background:rgba(255,255,255,.06)}
+.state-btn[disabled]{opacity:.42;cursor:not-allowed;transform:none}
+
+/* ---------- Inputs ---------- */
+.inp{
+  width:100%;padding:.65rem .9rem;border-radius:.7rem;background:#111c2e;
+  border:1px solid #334155;color:#e2e8f0;font-family:inherit;font-size:.85rem;
+  transition:border-color .18s, box-shadow .18s;
+}
+.inp:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.16)}
+.inp::placeholder{color:#64748b}
+
+/* ---------- Toast ---------- */
+#toasts{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
+.toast{
+  padding:.65rem 1.05rem;border-radius:.8rem;font-size:.8rem;font-weight:700;
+  background:#1e293b;border:1px solid #334155;color:#e2e8f0;
+  box-shadow:0 20px 40px -20px #000;animation:toastIn .25s ease;
+  display:flex;align-items:center;gap:.5rem;max-width:90vw;
+}
+.toast.success{border-color:rgba(52,211,153,.6);color:#a7f3d0}
+.toast.error{border-color:rgba(248,113,113,.6);color:#fecaca}
+.toast.warn{border-color:rgba(251,191,36,.6);color:#fde68a}
+.toast.info{border-color:rgba(96,165,250,.6);color:#bfdbfe}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- Misc ---------- */
+.pbar{height:6px;border-radius:99px;background:#16202f;overflow:hidden}
+.pbar > i{display:block;height:100%;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.rank-badge{width:30px;height:30px;border-radius:.6rem;display:grid;place-items:center;font-weight:800;font-size:.75rem}
+.stat-pill{
+  display:flex;align-items:center;gap:.5rem;padding:.4rem .75rem;border-radius:.75rem;
+  background:rgba(148,163,184,.06);border:1px solid rgba(51,65,85,.8);
+}
+.stat-pill b{font-size:.92rem;font-weight:800}
+.stat-pill span{font-size:.65rem;color:var(--muted);font-weight:700}
+.avatar{width:34px;height:34px;border-radius:.7rem;display:grid;place-items:center;font-weight:800;font-size:.8rem;color:#0f172a}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sync-dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+.pulse{animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.busy-overlay{
+  position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;
+}
+.busy-overlay.on{display:flex}
+.spinner{
+  width:44px;height:44px;border-radius:50%;
+  border:3px solid rgba(148,163,184,.2);border-top-color:#f5c451;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.warn-bar{
+  padding:.6rem 1rem;font-size:.76rem;font-weight:700;
+  background:rgba(251,191,36,.10);border-bottom:1px solid rgba(251,191,36,.3);
+  color:#fde68a;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ================= HEADER ================= -->
+  <header class="flex-none border-b border-slate-700/50 bg-slate-900/75 backdrop-blur-md z-30">
+    <div class="mx-auto max-w-[1400px] px-3 sm:px-6 py-3 flex items-center gap-3">
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-10 h-10 rounded-xl grid place-items-center" style="background:linear-gradient(145deg,#f5c451,#c98f1d);box-shadow:0 10px 24px -12px #f5c451">
+          <i data-lucide="book-open" class="w-5 h-5 text-slate-900"></i>
+        </div>
+        <div class="leading-tight hidden sm:block">
+          <h1 class="font-extrabold text-[15px] tracking-tight">تَحفِيظ</h1>
+          <p class="text-[10px] text-slate-400 font-medium">متابعة حفظ القرآن الكريم</p>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Desktop stats -->
+      <div class="hidden lg:flex items-center gap-2">
+        <div class="stat-pill" title="نسبة الحفظ الكلية">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
+          <div class="leading-none"><b id="statPct">0%</b><br><span>الإنجاز</span></div>
+        </div>
+        <div class="stat-pill" title="الصفحات المحفوظة">
+          <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+          <div class="leading-none"><b id="statPages">0</b><br><span>صفحة</span></div>
+        </div>
+        <div class="stat-pill" title="السور المكتملة">
+          <i data-lucide="bookmark-check" class="w-4 h-4 text-violet-400"></i>
+          <div class="leading-none"><b id="statSurahs">0</b><br><span>سورة</span></div>
+        </div>
+        <div class="stat-pill" title="سلسلة الأيام المتواصلة">
+          <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+          <div class="leading-none"><b id="statStreak">0</b><br><span>يوم</span></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-1.5">
+        <button id="btnSync" class="icon-btn" title="مزامنة الآن">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+        <button id="btnSettings" class="icon-btn" title="إعدادات التطبيق">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+        <button id="btnUser" class="btn btn-ghost" title="الحساب">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="userName" class="max-w-[80px] truncate">دخول</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile stats -->
+    <div class="lg:hidden px-3 pb-2 flex items-center gap-2 overflow-x-auto scroll">
+      <div class="stat-pill shrink-0"><i data-lucide="pie-chart" class="w-3.5 h-3.5 text-emerald-400"></i><div class="leading-none"><b id="statPctM">0%</b><br><span>الإنجاز</span></div></div>
+      <div class="stat-pill shrink-0"><i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i><div class="leading-none"><b id="statPagesM">0</b><br><span>صفحة</span></div></div>
+      <div class="stat-pill shrink-0"><i data-lucide="bookmark-check" class="w-3.5 h-3.5 text-violet-400"></i><div class="leading-none"><b id="statSurahsM">0</b><br><span>سورة</span></div></div>
+      <div class="stat-pill shrink-0"><i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i><div class="leading-none"><b id="statStreakM">0</b><br><span>يوم</span></div></div>
+      <div class="stat-pill shrink-0" id="syncPillM"><span class="sync-dot" id="syncDotM" style="background:#64748b"></span><span id="syncTextM" class="text-[11px] font-bold">محلي</span></div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="h-[3px] w-full bg-slate-800">
+      <div id="topProgress" class="h-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#34d399,#f5c451)"></div>
+    </div>
+  </header>
+
+  <!-- ================= TABS ================= -->
+  <nav class="flex-none border-b border-slate-700/50 bg-slate-900/45 z-20">
+    <div class="mx-auto max-w-[1400px] px-2 sm:px-6 flex gap-1 overflow-x-auto scroll py-1.5">
+      <button class="tab active" data-view="stats"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> الإحصائيات</button>
+      <button class="tab" data-view="mushaf"><i data-lucide="layout-grid" class="w-4 h-4"></i> المصحف التفاعلي</button>
+      <button class="tab" data-view="surahs"><i data-lucide="book-marked" class="w-4 h-4"></i> السور</button>
+      <button class="tab" data-view="group"><i data-lucide="users" class="w-4 h-4"></i> المجموعة</button>
+    </div>
+  </nav>
+
+  <!-- ================= VIEWS ================= -->
+  <main id="views">
+
+    <!-- ---------- STATS (default) ---------- -->
+    <section id="view-stats" class="view active">
+      <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
+        <div id="noUrlBanner" class="warn-bar rounded-xl hidden">
+          ⚠️ لم يتم ضبط رابط Google Sheets — التطبيق يعمل محلياً فقط. اضغط ⚙️ لربط الخادم.
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div class="card p-6 lg:col-span-1">
+            <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> توزيع الحالات</h3>
+            <div class="relative" style="height:210px"><canvas id="chartDonut"></canvas></div>
+          </div>
+
+          <div class="card p-6 lg:col-span-2">
+            <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-sky-400"></i> نشاط آخر 14 يوماً</h3>
+            <div class="relative" style="height:210px"><canvas id="chartActivity"></canvas></div>
+          </div>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div class="card p-6 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
+              <i data-lucide="flame" class="w-7 h-7 text-amber-400"></i>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold text-amber-300" id="streakBig">0</div>
+              <div class="text-xs text-slate-400 font-bold">شعلة الاستمرارية (يوم متواصل)</div>
+            </div>
+          </div>
+          <div class="card p-6 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.04));border:1px solid rgba(52,211,153,.3)">
+              <i data-lucide="check-check" class="w-7 h-7 text-emerald-400"></i>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold text-emerald-300" id="verifiedBig">0</div>
+              <div class="text-xs text-slate-400 font-bold">صفحات تم تسميعها</div>
+            </div>
+          </div>
+          <div class="card p-6 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
+              <i data-lucide="calendar-clock" class="w-7 h-7 text-sky-400"></i>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold text-sky-300" id="avgBig">0</div>
+              <div class="text-xs text-slate-400 font-bold">متوسط الصفحات اليومي</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i> خريطة النشاط (آخر 26 أسبوعاً)</h3>
+          <div class="overflow-x-auto scroll pb-1">
+            <div id="heatmap" class="heat"></div>
+          </div>
+          <div class="flex items-center gap-2 mt-4 text-[11px] text-slate-400">
+            <span>أقل</span>
+            <span class="w-3 h-3 rounded-sm" style="background:#1b2537"></span>
+            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.35)"></span>
+            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.6)"></span>
+            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.82)"></span>
+            <span class="w-3 h-3 rounded-sm" style="background:#34d399"></span>
+            <span>أكثر</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ---------- MUSHAF (accordion by Juz) ---------- -->
+    <section id="view-mushaf" class="view">
+      <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
+        <div class="card p-5 flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-2 text-sm font-extrabold">
+            <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+            الأجزاء الثلاثون
+          </div>
+          <div class="flex-1"></div>
+          <div class="flex flex-wrap items-center gap-1.5" id="stateFilters">
+            <button class="chip active" data-filter="all">الكل</button>
+            <button class="chip" data-filter="todo">واجب</button>
+            <button class="chip" data-filter="memorized">محفوظ</button>
+            <button class="chip" data-filter="review">مراجعة</button>
+            <button class="chip" data-filter="verified">تم التسميع</button>
+            <button class="chip" data-filter="none">لم يبدأ</button>
+          </div>
+          <button id="btnExpandAll" class="chip" title="فتح/إغلاق الكل">فتح الكل</button>
+        </div>
+
+        <div class="flex items-center gap-4 px-1 text-[11px] text-slate-400 flex-wrap">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background:#3b82f6"></span>واجب</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background:#34d399"></span>محفوظ</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background:#fbbf24"></span>مراجعة</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background:#f5c451"></span>تم التسميع</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm" style="background:#1b2537"></span>لم يبدأ</span>
+        </div>
+
+        <div id="mushafBody" class="space-y-4"></div>
+
+      </div>
+    </section>
+
+    <!-- ---------- SURAHS ---------- -->
+    <section id="view-surahs" class="view">
+      <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
+        <div class="card p-5 flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[180px]">
+            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2"></i>
+            <input id="surahSearch" class="inp pr-9" placeholder="ابحث عن سورة..." />
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5" id="surahFilters">
+            <button class="chip active" data-sfilter="all">الكل</button>
+            <button class="chip" data-sfilter="done">مكتملة</button>
+            <button class="chip" data-sfilter="progress">قيد الحفظ</button>
+            <button class="chip" data-sfilter="none">لم تبدأ</button>
+          </div>
+        </div>
+
+        <div id="surahList" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
+      </div>
+    </section>
+
+    <!-- ---------- GROUP ---------- -->
+    <section id="view-group" class="view">
+      <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
+        <div class="card p-6">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+            <h3 class="font-extrabold text-sm flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i> لوحة الصدارة</h3>
+            <span class="text-[11px] text-slate-400">انقر على أي عضو لعرض ملفه وتأكيد تسميعه</span>
+          </div>
+          <div id="leaderboard" class="space-y-2"></div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-400"></i> مقارنة الصفحات المحفوظة</h3>
+          <div class="relative" style="height:280px"><canvas id="chartGroup"></canvas></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Auth -->
+<div class="modal" id="modalAuth">
+  <div class="modal-panel p-6">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 mx-auto rounded-2xl grid place-items-center mb-3" style="background:linear-gradient(145deg,#f5c451,#c98f1d);box-shadow:0 14px 30px -14px #f5c451">
+        <i data-lucide="book-open" class="w-7 h-7 text-slate-900"></i>
+      </div>
+      <h2 class="text-lg font-extrabold">مرحباً بك في تَحفِيظ</h2>
+      <p class="text-xs text-slate-400 mt-1">سجّل دخولك لمزامنة تقدمك مع مجموعتك</p>
+    </div>
+
+    <div class="flex gap-1 p-1 rounded-xl bg-slate-800/70 border border-slate-700 mb-5">
+      <button class="chip active flex-1 text-center" data-authtab="login">تسجيل الدخول</button>
+      <button class="chip flex-1 text-center" data-authtab="register">حساب جديد</button>
+    </div>
+
+    <div class="space-y-3">
+      <div>
+        <label class="text-xs font-bold text-slate-400 block mb-1.5">اسم المستخدم</label>
+        <input id="authUser" class="inp" placeholder="مثال: أحمد" autocomplete="username" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-400 block mb-1.5">الرقم السري (PIN)</label>
+        <input id="authPin" type="password" class="inp" placeholder="••••" autocomplete="current-password" />
+      </div>
+      <p id="authError" class="text-xs text-red-400 font-bold hidden"></p>
+      <button id="authSubmit" class="btn btn-primary w-full py-3">دخول</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page action -->
+<div class="modal" id="modalPage">
+  <div class="modal-panel p-6">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <h2 class="text-lg font-extrabold flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-sky-400"></i>
+          صفحة <span id="pgNum">1</span>
+        </h2>
+        <p class="text-xs text-slate-400 mt-1" id="pgMeta">—</p>
+      </div>
+      <button class="icon-btn" data-close="modalPage"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5" id="pgStates"></div>
+
+    <div class="card p-4 mb-4">
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-bold">آخر مراجعة</span>
+        <span class="font-bold" id="pgLastReview">—</span>
+      </div>
+      <div class="pbar mt-2.5"><i id="pgDecayBar" style="width:0%;background:linear-gradient(90deg,#34d399,#fbbf24,#ef4444)"></i></div>
+      <p class="text-[11px] text-slate-500 mt-2.5" id="pgDecayText">—</p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-ghost flex-1" id="pgReviewedNow"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> تحديث تاريخ المراجعة</button>
+      <button class="btn btn-ghost" id="pgReset"><i data-lucide="eraser" class="w-4 h-4"></i> إعادة تعيين</button>
+    </div>
+
+    <p class="text-[11px] text-amber-300/80 bg-amber-400/10 border border-amber-400/20 rounded-lg p-3 mt-4 leading-relaxed">
+      <b>ملاحظة:</b> حالة «تم التسميع» الذهبية لا يمكن منحها لنفسك — يجب أن يؤكدها عضو آخر من المجموعة.
+    </p>
+  </div>
+</div>
+
+<!-- Member profile -->
+<div class="modal" id="modalMember">
+  <div class="modal-panel wide p-6">
+    <div class="flex items-start justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <div class="avatar" id="memAvatar" style="width:44px;height:44px">؟</div>
+        <div>
+          <h2 class="text-lg font-extrabold" id="memName">عضو</h2>
+          <p class="text-xs text-slate-400" id="memMeta">—</p>
+        </div>
+      </div>
+      <button class="icon-btn" data-close="modalMember"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 mb-5">
+      <div class="card p-4 text-center"><div class="text-xl font-extrabold text-emerald-300" id="memPages">0</div><div class="text-[11px] text-slate-400 font-bold">صفحة محفوظة</div></div>
+      <div class="card p-4 text-center"><div class="text-xl font-extrabold text-amber-300" id="memStreak">0</div><div class="text-[11px] text-slate-400 font-bold">يوم متواصل</div></div>
+      <div class="card p-4 text-center"><div class="text-xl font-extrabold text-yellow-300" id="memVerified">0</div><div class="text-[11px] text-slate-400 font-bold">تم تسميعها</div></div>
+    </div>
+
+    <p class="text-xs text-slate-400 font-bold mb-2">صفحات بانتظار تأكيد التسميع — انقر للتأكيد:</p>
+    <div id="memGrid" class="grid gap-2 mb-3" style="grid-template-columns:repeat(auto-fill,minmax(44px,1fr))"></div>
+    <p class="text-[11px] text-slate-500">لا توجد صفحات بانتظار التأكيد.</p>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal" id="modalSettings">
+  <div class="modal-panel p-6">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <h2 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-slate-300"></i> إعدادات التطبيق</h2>
+        <p class="text-xs text-slate-400 mt-1">اربط التطبيق بـ Google Sheets للمزامنة السحابية</p>
+      </div>
+      <button class="icon-btn" data-close="modalSettings"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <label class="text-xs font-bold text-slate-400 block mb-1.5">Google Apps Script Web App URL</label>
+    <input id="inputSheetUrl" class="inp mb-3" dir="ltr" placeholder="https://script.google.com/macros/s/AKfy.../exec" />
+
+    <div class="flex gap-2 mb-4">
+      <button id="btnTestConn" class="btn btn-ghost flex-1"><i data-lucide="plug-zap" class="w-4 h-4"></i> اختبار الاتصال</button>
+      <button id="btnSaveUrl" class="btn btn-primary flex-1"><i data-lucide="save" class="w-4 h-4"></i> حفظ</button>
+    </div>
+    <p id="connResult" class="text-xs mb-4 hidden"></p>
+
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <button id="btnExport" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> تصدير البيانات</button>
+      <button id="btnImport" class="btn btn-ghost"><i data-lucide="upload" class="w-4 h-4"></i> استيراد البيانات</button>
+      <input type="file" id="fileImport" accept="application/json" class="hidden" />
+    </div>
+
+    <div class="card p-4 text-[11px] text-slate-400 leading-relaxed">
+      <b class="text-slate-300">ملاحظة:</b> Google Sheets هو المصدر الوحيد للبيانات. أي تعديل يُرسَل مباشرة إلى الخادم، ولا يُعتمد محلياً إلا بعد تأكيد الاستجابة.
+    </div>
+
+    <button id="btnResetAll" class="btn btn-danger w-full mt-4"><i data-lucide="trash-2" class="w-4 h-4"></i> حذف كل البيانات المحلية</button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div class="busy-overlay" id="busyOverlay"><div class="spinner"></div></div>
+
+<script>
+/* ==========================================================================
+   تَحفِيظ — Quran Memorization Tracker
+   Google Sheets = Single Source of Truth
+   ========================================================================== */
+(() => {
+'use strict';
+
+/* ------------------------------ Utilities ------------------------------ */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const DAY = 86400000;
+const LS_KEY = 'tahfeez_state_v1';
+const USERS_KEY = 'tahfeez_users_v1';
+
+const ar = n => String(n);  // Western Arabic numerals enforced
+
+function dayKey(d = new Date()){
+  const x = new Date(d); x.setHours(0,0,0,0);
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+}
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ------------------------------ Quran Data ------------------------------ */
+const SURAH_DATA = [
+["الفاتحة",1,7],["البقرة",2,286],["آل عمران",50,200],["النساء",77,176],["المائدة",106,120],
+["الأنعام",128,165],["الأعراف",151,206],["الأنفال",177,75],["التوبة",187,129],["يونس",208,109],
+["هود",221,123],["يوسف",235,111],["الرعد",249,43],["إبراهيم",255,52],["الحجر",262,99],
+["النحل",267,128],["الإسراء",282,111],["الكهف",293,110],["مريم",305,98],["طه",312,135],
+["الأنبياء",322,112],["الحج",332,78],["المؤمنون",342,118],["النور",350,64],["الفرقان",359,77],
+["الشعراء",367,227],["النمل",377,93],["القصص",385,88],["العنكبوت",396,69],["الروم",404,60],
+["لقمان",411,34],["السجدة",415,30],["الأحزاب",418,73],["سبأ",428,54],["فاطر",434,45],
+["يس",440,83],["الصافات",446,182],["ص",453,88],["الزمر",458,75],["غافر",467,85],
+["فصلت",477,54],["الشورى",483,53],["الزخرف",489,89],["الدخان",496,59],["الجاثية",499,37],
+["الأحقاف",502,35],["محمد",507,38],["الفتح",511,29],["الحجرات",515,18],["ق",518,45],
+["الذاريات",520,60],["الطور",523,49],["النجم",526,62],["القمر",528,55],["الرحمن",531,78],
+["الواقعة",534,96],["الحديد",537,29],["المجادلة",542,22],["الحشر",545,24],["الممتحنة",549,13],
+["الصف",551,14],["الجمعة",553,11],["المنافقون",554,11],["التغابن",556,18],["الطلاق",558,12],
+["التحريم",560,12],["الملك",562,30],["القلم",564,52],["الحاقة",566,52],["المعارج",568,44],
+["نوح",570,28],["الجن",572,28],["المزمل",574,20],["المدثر",575,56],["القيامة",577,40],
+["الإنسان",578,31],["المرسلات",580,50],["النبأ",582,40],["النازعات",583,46],["عبس",585,42],
+["التكوير",586,29],["الانفطار",587,19],["المطففين",587,36],["الانشقاق",589,25],["البروج",590,22],
+["الطارق",591,17],["الأعلى",591,19],["الغاشية",592,26],["الفجر",593,30],["البلد",594,20],
+["الشمس",595,15],["الليل",595,21],["الضحى",596,11],["الشرح",596,8],["التين",597,8],
+["العلق",597,19],["القدر",598,5],["البينة",598,8],["الزلزلة",599,8],["العاديات",599,11],
+["القارعة",600,11],["التكاثر",600,8],["العصر",601,3],["الهمزة",601,9],["الفيل",601,5],
+["قريش",602,4],["الماعون",602,7],["الكوثر",602,3],["الكافرون",603,6],["النصر",603,3],
+["المسد",603,5],["الإخلاص",604,4],["الفلق",604,5],["الناس",604,6]
+];
+
+const SURAHS = SURAH_DATA.map(([name, start, ayahs], i) => {
+  const nextStart = i < 113 ? SURAH_DATA[i+1][1] : 605;
+  const end = clamp(Math.max(start, nextStart - 1), start, 604);
+  return { num: i+1, name, start, end, ayahs, pages: end - start + 1 };
+});
+
+const JUZ_STARTS = [1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+const JUZ = JUZ_STARTS.map((start, i) => ({
+  num: i + 1,
+  start,
+  end: i < 29 ? JUZ_STARTS[i+1] - 1 : 604
+}));
+
+const JUZ_NAMES = [
+  'الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر',
+  'الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر',
+  'الثامن عشر','التاسع عشر','العشرون','الحادي والعشرون','الثاني والعشرون','الثالث والعشرون',
+  'الرابع والعشرون','الخامس والعشرون','السادس والعشرون','السابع والعشرون','الثامن والعشرون',
+  'التاسع والعشرون','الثلاثون'
+];
+
+const PAGE_SURAH = new Array(605).fill(1);
+const PAGE_JUZ = new Array(605).fill(1);
+SURAHS.forEach(s => { for (let p = s.start; p <= s.end; p++) PAGE_SURAH[p] = s.num; });
+JUZ.forEach(j => { for (let p = j.start; p <= j.end; p++) PAGE_JUZ[p] = j.num; });
+
+/* ------------------------------ States ------------------------------ */
+const STATES = {
+  none:      { label: 'لم يبدأ',     color: '#64748b', icon: 'circle' },
+  todo:      { label: 'واجب',        color: '#60a5fa', icon: 'bookmark' },
+  memorized: { label: 'محفوظ',       color: '#34d399', icon: 'check' },
+  review:    { label: 'مراجعة',      color: '#fbbf24', icon: 'rotate-ccw' },
+  verified:  { label: 'تم التسميع',  color: '#f5c451', icon: 'badge-check' }
+};
+
+/* ------------------------------ App State ------------------------------ */
+let S = {
+  user: null,
+  pages: {},
+  activity: {},
+  members: [],
+  settings: { sheetUrl: '', lastSync: null }
+};
+
+let mushafFilter = 'all';
+let surahFilter = 'all';
+let surahQuery = '';
+let currentPage = null;
+let currentMember = null;
+let charts = {};
+let isBusy = false;
+let openJuz = { 1: true };
+
+/* ------------------------------ Local Persistence ------------------------------ */
+function saveState(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e){}
+}
+function loadState(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    S = Object.assign(S, parsed);
+    S.settings = Object.assign({ sheetUrl:'', lastSync:null }, parsed.settings || {});
+    if (!S.pages) S.pages = {};
+    if (!S.activity) S.activity = {};
+    if (!S.members) S.members = [];
+    return true;
+  } catch(e){ return false; }
+}
+function loadUsers(){
+  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch(e){ return {}; }
+}
+function saveUsers(u){
+  try { localStorage.setItem(USERS_KEY, JSON.stringify(u)); } catch(e){}
+}
+
+/* ------------------------------ Page helpers ------------------------------ */
+function getPage(p){
+  return S.pages[p] || { state: 'none', lastReviewed: null, updatedAt: null };
+}
+
+function buildPageRecord(state, ts){
+  if (state === 'none') return null;
+  const reviewStates = ['memorized','review','verified'];
+  return {
+    state,
+    lastReviewed: reviewStates.includes(state) ? (ts || Date.now()) : null,
+    updatedAt: Date.now()
+  };
+}
+
+/* ------------------------------ Color decay ------------------------------ */
+function pageStyle(page){
+  const st = page.state || 'none';
+  if (st === 'none'){
+    return { bg: 'rgba(27,37,55,.9)', border: 'rgba(51,65,85,.9)', text: '#64748b' };
+  }
+  if (st === 'todo'){
+    return { bg: 'rgba(59,130,246,.20)', border: 'rgba(59,130,246,.6)', text: '#bfdbfe' };
+  }
+  if (st === 'verified'){
+    return { bg: 'rgba(245,196,81,.22)', border: 'rgba(245,196,81,.85)', text: '#fde68a' };
+  }
+
+  const days = page.lastReviewed ? (Date.now() - page.lastReviewed) / DAY : 60;
+  const d = clamp(days / 45, 0, 1);
+
+  if (st === 'memorized'){
+    const hue = 158 - 118 * d;
+    const light = 46 - 16 * d;
+    return {
+      bg: `hsla(${hue}, 62%, ${light}%, .34)`,
+      border: `hsla(${hue}, 68%, ${light + 10}%, .85)`,
+      text: `hsl(${hue}, 85%, ${82 - 8 * d}%)`
+    };
+  }
+  const hue = 42 - 42 * d;
+  const light = 47 - 17 * d;
+  return {
+    bg: `hsla(${hue}, 72%, ${light}%, .34)`,
+    border: `hsla(${hue}, 78%, ${light + 9}%, .85)`,
+    text: `hsl(${hue}, 90%, ${82 - 8 * d}%)`
+  };
+}
+
+function decayPercent(page){
+  if (!page.lastReviewed) return 100;
+  return clamp(Math.round(((Date.now() - page.lastReviewed) / DAY) / 45 * 100), 0, 100);
+}
+
+/* ------------------------------ Statistics ------------------------------ */
+function pageStats(pages){
+  const c = { none:0, todo:0, memorized:0, review:0, verified:0 };
+  for (let p = 1; p <= 604; p++){
+    const st = (pages[p] && pages[p].state) || 'none';
+    c[st] = (c[st] || 0) + 1;
+  }
+  return c;
+}
+function memorizedCount(pages){ const c = pageStats(pages); return c.memorized + c.verified; }
+
+function surahProgress(surah, pages){
+  let done = 0;
+  for (let p = surah.start; p <= surah.end; p++){
+    const st = (pages[p] && pages[p].state) || 'none';
+    if (st === 'memorized' || st === 'verified') done++;
+  }
+  return { done, total: surah.pages, pct: Math.round(done / surah.pages * 100) };
+}
+function completedSurahs(pages){
+  return SURAHS.filter(s => {
+    for (let p = s.start; p <= s.end; p++){
+      const st = (pages[p] && pages[p].state) || 'none';
+      if (st !== 'memorized' && st !== 'verified') return false;
+    }
+    return true;
+  }).length;
+}
+function computeStreak(activity){
+  let streak = 0;
+  const d = new Date(); d.setHours(0,0,0,0);
+  if (!activity[dayKey(d)]) d.setDate(d.getDate() - 1);
+  while (activity[dayKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+
+/* ------------------------------ Toast ------------------------------ */
+function toast(msg, type = 'info', icon = null){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const ic = icon || (type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : type === 'warn' ? 'alert-triangle' : 'info');
+  el.innerHTML = `<i data-lucide="${ic}" class="w-4 h-4"></i><span>${escapeHtml(msg)}</span>`;
+  $('#toasts').appendChild(el);
+  if (window.lucide) lucide.createIcons({ nodes: [el] });
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s, transform .3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    setTimeout(() => el.remove(), 320);
+  }, 2800);
+}
+
+function setBusy(on){
+  isBusy = on;
+  const ov = $('#busyOverlay');
+  if (ov) ov.classList.toggle('on', on);
+}
+
+function refreshIcons(){
+  if (window.lucide) { try { lucide.createIcons(); } catch(e){} }
+}
+
+/* ==========================================================================
+   API — Google Sheets
+   ========================================================================== */
+async function apiGet(params){
+  const url = S.settings.sheetUrl;
+  if (!url) throw new Error('NO_URL');
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(url + (url.includes('?') ? '&' : '?') + qs, { method: 'GET' });
+  if (!res.ok) throw new Error('HTTP_' + res.status);
+  return await res.json();
+}
+
+async function apiPost(body){
+  const url = S.settings.sheetUrl;
+  if (!url) throw new Error('NO_URL');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('HTTP_' + res.status);
+  return await res.json();
+}
+
+/**
+ * ✅ تم إصلاحها: تدمج البيانات القادمة من الخادم بدل استبدالها،
+ * مما يحفظ أي بيانات محلية لم تُرفع بعد.
+ */
+async function pullFromServer(){
+  if (!S.settings.sheetUrl) return false;
+  const user = S.user ? S.user.name : 'guest';
+  const res = await apiGet({ action: 'pull', user });
+  if (!res || !res.ok) throw new Error(res && res.error || 'PULL_FAILED');
+
+  // دمج الصفحات: نأخذ الأحدث فقط (لا نمسح المحلي أبداً)
+  const remotePages = (res.user && res.user.pages) || {};
+  const merged = { ...S.pages };
+  Object.keys(remotePages).forEach(k => {
+    const rp = remotePages[k];
+    const lp = merged[k];
+    if (!lp || (rp.updatedAt || 0) > (lp.updatedAt || 0)) merged[k] = rp;
+  });
+  S.pages = merged;
+
+  // دمج النشاط: نأخذ القيمة الأكبر لكل يوم
+  const remoteAct = (res.user && res.user.activity) || {};
+  const mergedAct = { ...S.activity };
+  Object.keys(remoteAct).forEach(k => {
+    mergedAct[k] = Math.max(mergedAct[k] || 0, remoteAct[k] || 0);
+  });
+  S.activity = mergedAct;
+
+  S.members = Array.isArray(res.members) ? res.members : [];
+  S.settings.lastSync = Date.now();
+  saveState();
+  return true;
+}
+
+async function pushToServer(){
+  if (!S.settings.sheetUrl) return false;
+  const user = S.user ? S.user.name : 'guest';
+  const res = await apiPost({
+    action: 'push',
+    user,
+    pages: S.pages,
+    activity: S.activity,
+    stats: {
+      memorized: memorizedCount(S.pages),
+      verified: pageStats(S.pages).verified,
+      streak: computeStreak(S.activity),
+      surahs: completedSurahs(S.pages),
+      updatedAt: Date.now()
+    }
+  });
+  if (!res || !res.ok) throw new Error(res && res.error || 'PUSH_FAILED');
+  S.settings.lastSync = Date.now();
+  saveState();
+  return true;
+}
+
+/**
+ * ✅ دالة جديدة: مزامنة كاملة (سحب ثم رفع).
+ * هذا يضمن أن أول اتصال بخادم فارغ يرفع البيانات المحلية.
+ */
+async function fullSync(){
+  if (!S.settings.sheetUrl){
+    setSyncStatus('local');
+    return;
+  }
+  if (!navigator.onLine){
+    setSyncStatus('offline');
+    throw new Error('OFFLINE');
+  }
+
+  setSyncStatus('syncing');
+  setBusy(true);
+  try {
+    await pullFromServer();   // 1) اسحب من السحابة ودمج
+    await pushToServer();     // 2) ارفع الحالة المدمجة
+    setSyncStatus('ok');
+    refreshAll();
+  } catch(e){
+    setSyncStatus('error');
+    throw e;
+  } finally {
+    setBusy(false);
+  }
+}
+
+/* ==========================================================================
+   SYNC STATUS
+   ========================================================================== */
+function setSyncStatus(st){
+  const map = {
+    local:   { color: '#64748b', text: 'محلي' },
+    syncing: { color: '#60a5fa', text: 'جارٍ المزامنة' },
+    ok:      { color: '#34d399', text: 'متزامن' },
+    error:   { color: '#f87171', text: 'خطأ' },
+    offline: { color: '#fbbf24', text: 'غير متصل' }
+  };
+  const m = map[st] || map.local;
+  const dot = $('#syncDotM'), txt = $('#syncTextM');
+  if (dot) dot.style.background = m.color;
+  if (txt) txt.textContent = m.text;
+  if (dot) dot.classList.toggle('pulse', st === 'syncing');
+
+  const btn = $('#btnSync');
+  if (btn){ btn.style.color = m.color; btn.style.borderColor = m.color + '66'; }
+}
+
+/* ==========================================================================
+   RENDERING
+   ========================================================================== */
+
+function renderHeader(){
+  const c = pageStats(S.pages);
+  const done = c.memorized + c.verified;
+  const pct = Math.round(done / 604 * 100);
+  const surahsDone = completedSurahs(S.pages);
+  const streak = computeStreak(S.activity);
+
+  const set = (id, val) => { const el = $('#' + id); if (el) el.textContent = val; };
+  set('statPct', pct + '%');      set('statPctM', pct + '%');
+  set('statPages', done);         set('statPagesM', done);
+  set('statSurahs', surahsDone);  set('statSurahsM', surahsDone);
+  set('statStreak', streak);      set('statStreakM', streak);
+
+  const bar = $('#topProgress');
+  if (bar) bar.style.width = pct + '%';
+
+  const un = $('#userName');
+  if (un) un.textContent = S.user ? S.user.name : 'دخول';
+
+  const banner = $('#noUrlBanner');
+  if (banner) banner.classList.toggle('hidden', !!S.settings.sheetUrl);
+}
+
+function renderMushaf(){
+  const body = $('#mushafBody');
+  if (!body) return;
+
+  let html = '';
+  JUZ.forEach(j => {
+    let done = 0, total = j.end - j.start + 1;
+    for (let p = j.start; p <= j.end; p++){
+      const st = getPage(p).state;
+      if (st === 'memorized' || st === 'verified') done++;
+    }
+    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    const isOpen = !!openJuz[j.num];
+
+    let tiles = '';
+    for (let p = j.start; p <= j.end; p++){
+      const pg = getPage(p);
+      const st = pageStyle(pg);
+      const dim = (mushafFilter !== 'all' && pg.state !== mushafFilter) ? ' dim' : '';
+      const gold = pg.state === 'verified' ? ' gold' : '';
+      tiles += `<div class="tile${dim}${gold}" data-page="${p}"
+        style="background:${st.bg};border-color:${st.border};color:${st.text}"
+        title="صفحة ${p} · ${STATES[pg.state].label}">${p}</div>`;
+    }
+
+    html += `
+      <div class="juz-section${isOpen ? ' open' : ''}" data-juz-section="${j.num}">
+        <button class="juz-header" data-juz-toggle="${j.num}">
+          <div class="w-11 h-11 rounded-xl grid place-items-center font-extrabold text-sm shrink-0"
+               style="background:linear-gradient(145deg,rgba(245,196,81,.20),rgba(245,196,81,.04));border:1px solid rgba(245,196,81,.30);color:#f5c451">
+            ${j.num}
+          </div>
+          <div class="flex-1 text-right min-w-0">
+            <div class="font-extrabold text-sm truncate">الجزء ${JUZ_NAMES[j.num - 1]}</div>
+            <div class="text-[11px] text-slate-400">الصفحات ${j.start} - ${j.end}</div>
+          </div>
+          <div class="text-right shrink-0 hidden sm:block">
+            <div class="text-sm font-extrabold" style="color:${pct === 100 ? '#f5c451' : '#a7f3d0'}">${done}/${total}</div>
+            <div class="text-[10px] text-slate-500">محفوظ</div>
+          </div>
+          <div class="w-20 shrink-0 hidden md:block">
+            <div class="pbar"><i style="width:${pct}%;background:linear-gradient(90deg,#34d399,#f5c451)"></i></div>
+          </div>
+          <i data-lucide="chevron-down" class="juz-chevron w-5 h-5 text-slate-400 shrink-0"></i>
+        </button>
+        <div class="juz-body">
+          <div class="juz-grid">${tiles}</div>
+        </div>
+      </div>`;
+  });
+
+  body.innerHTML = html;
+  refreshIcons();
+}
+
+function renderSurahs(){
+  const list = $('#surahList');
+  if (!list) return;
+
+  const filtered = SURAHS.filter(s => {
+    if (surahQuery && !s.name.includes(surahQuery) && !String(s.num).includes(surahQuery)) return false;
+    const pr = surahProgress(s, S.pages);
+    if (surahFilter === 'done') return pr.pct === 100;
+    if (surahFilter === 'progress') return pr.pct > 0 && pr.pct < 100;
+    if (surahFilter === 'none') return pr.pct === 0;
+    return true;
+  });
+
+  if (!filtered.length){
+    list.innerHTML = `<div class="card p-8 text-center text-slate-400 text-sm col-span-full">لا توجد نتائج مطابقة</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => {
+    const pr = surahProgress(s, S.pages);
+    const hue = 158 - 118 * (1 - pr.pct / 100) * 0.5;
+    const done = pr.pct === 100;
+    return `
+      <div class="card p-4 flex items-center gap-3 hover:brightness-110 transition fade-in">
+        <div class="w-10 h-10 rounded-lg grid place-items-center shrink-0 border font-extrabold text-xs"
+             style="background:${done ? 'rgba(245,196,81,.16)' : 'rgba(148,163,184,.08)'};border-color:${done ? 'rgba(245,196,81,.5)' : '#334155'};color:${done ? '#f5c451' : '#94a3b8'}">
+          ${done ? '<i data-lucide="check" class="w-4 h-4"></i>' : s.num}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-extrabold text-sm truncate">${s.name}</span>
+            <span class="text-[10px] text-slate-400 shrink-0">${s.ayahs} آية · ص ${s.start}</span>
+          </div>
+          <div class="pbar mt-2.5"><i style="width:${pr.pct}%;background:hsl(${hue},68%,52%)"></i></div>
+        </div>
+        <div class="text-[11px] font-extrabold w-10 text-left shrink-0" style="color:hsl(${hue},70%,68%)">${pr.pct}%</div>
+      </div>`;
+  }).join('');
+  refreshIcons();
+}
+
+function renderStats(){
+  const c = pageStats(S.pages);
+
+  makeChart('chartDonut', {
+    type: 'doughnut',
+    data: {
+      labels: ['محفوظ', 'تم التسميع', 'مراجعة', 'واجب', 'لم يبدأ'],
+      datasets: [{
+        data: [c.memorized, c.verified, c.review, c.todo, c.none],
+        backgroundColor: ['#34d399', '#f5c451', '#fbbf24', '#60a5fa', '#334155'],
+        borderColor: '#182234', borderWidth: 3, hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '66%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter, Tajawal', size: 11, weight: '700' }, boxWidth: 10, padding: 12 } },
+        tooltip: { backgroundColor: '#0f172a', borderColor: '#334155', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#cbd5e1',
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} صفحة` } }
+      }
+    }
+  });
+
+  const labels = [], values = [];
+  for (let d = 13; d >= 0; d--){
+    const dt = new Date(Date.now() - d * DAY);
+    labels.push(dt.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }));
+    values.push(S.activity[dayKey(dt)] || 0);
+  }
+  makeChart('chartActivity', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'صفحات', data: values, borderColor: '#38bdf8',
+        backgroundColor: (ctx) => {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 210);
+          g.addColorStop(0, 'rgba(56,189,248,.45)');
+          g.addColorStop(1, 'rgba(56,189,248,0)');
+          return g;
+        },
+        fill: true, tension: .38, borderWidth: 2.5,
+        pointBackgroundColor: '#0f172a', pointBorderColor: '#38bdf8', pointBorderWidth: 2,
+        pointRadius: 3.5, pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0f172a', borderColor: '#334155', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#cbd5e1' } },
+      scales: {
+        x: { grid: { color: 'rgba(51,65,85,.35)' }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(51,65,85,.35)' }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 }, precision: 0 } }
+      }
+    }
+  });
+
+  const streak = computeStreak(S.activity);
+  const activeDays = Object.keys(S.activity).length || 1;
+  const totalActs = Object.values(S.activity).reduce((a, b) => a + b, 0);
+  $('#streakBig').textContent = streak;
+  $('#verifiedBig').textContent = c.verified;
+  $('#avgBig').textContent = Math.round(totalActs / activeDays);
+
+  renderHeatmap();
+}
+
+function renderHeatmap(){
+  const wrap = $('#heatmap');
+  if (!wrap) return;
+
+  const WEEKS = 26;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const start = new Date(today);
+  start.setDate(start.getDate() - (WEEKS * 7 - 1));
+  const dow = start.getDay();
+  const offset = (dow + 1) % 7;
+  start.setDate(start.getDate() - offset);
+
+  let html = '';
+  const cursor = new Date(start);
+  while (cursor <= today){
+    const k = dayKey(cursor);
+    const v = S.activity[k] || 0;
+    let bg = '#1b2537';
+    if (v > 0 && v <= 2)       bg = 'rgba(52,211,153,.35)';
+    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';
+    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';
+    else if (v > 9)            bg = '#34d399';
+
+    const label = `${cursor.toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' })} — ${v ? v + ' صفحة' : 'لا نشاط'}`;
+    html += `<i style="background:${bg}" title="${label}"></i>`;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  wrap.innerHTML = html;
+}
+
+function renderGroup(){
+  const board = $('#leaderboard');
+  if (!board) return;
+
+  const rows = [];
+  if (S.user){
+    rows.push({
+      id: 'me', name: S.user.name + ' (أنت)', color: '#f5c451',
+      pages: memorizedCount(S.pages), verified: pageStats(S.pages).verified,
+      streak: computeStreak(S.activity),
+      lastActive: Object.keys(S.activity).sort().pop() || null, isMe: true
+    });
+  }
+  S.members.forEach(m => {
+    if (S.user && m.name === S.user.name) return;
+    const c = pageStats(m.pages || {});
+    rows.push({
+      id: m.id, name: m.name, color: m.color || '#60a5fa',
+      pages: c.memorized + c.verified, verified: c.verified,
+      streak: computeStreak(m.activity || {}),
+      lastActive: Object.keys(m.activity || {}).sort().pop() || null, isMe: false
+    });
+  });
+
+  if (!rows.length){
+    board.innerHTML = `<div class="text-center text-slate-500 text-sm py-6">لا يوجد أعضاء بعد — شارك رابط الخادم مع مجموعتك</div>`;
+    makeChart('chartGroup', { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false } });
+    return;
+  }
+
+  rows.sort((a, b) => b.pages - a.pages || b.streak - a.streak);
+  const medal = i => i === 0 ? '#f5c451' : i === 1 ? '#cbd5e1' : i === 2 ? '#d97706' : '#334155';
+
+  board.innerHTML = rows.map((r, i) => `
+    <div class="card p-4 flex items-center gap-3 cursor-pointer hover:brightness-110 transition fade-in" data-member="${r.id}">
+      <div class="rank-badge" style="background:${medal(i)}22;border:1px solid ${medal(i)}66;color:${medal(i)}">${i + 1}</div>
+      <div class="avatar" style="background:${r.color}">${escapeHtml(r.name.trim().charAt(0))}</div>
+      <div class="flex-1 min-w-0">
+        <div class="font-extrabold text-sm truncate">${escapeHtml(r.name)}</div>
+        <div class="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
+          <span class="flex items-center gap-1"><i data-lucide="layers" class="w-3 h-3"></i>${r.pages} صفحة</span>
+          <span class="flex items-center gap-1"><i data-lucide="badge-check" class="w-3 h-3 text-yellow-400"></i>${r.verified}</span>
+          <span class="flex items-center gap-1"><i data-lucide="flame" class="w-3 h-3 text-amber-400"></i>${r.streak}</span>
+        </div>
+      </div>
+      <div class="w-24 sm:w-40 shrink-0">
+        <div class="pbar"><i style="width:${Math.round(r.pages / 604 * 100)}%;background:linear-gradient(90deg,#34d399,#f5c451)"></i></div>
+        <div class="text-[10px] text-slate-500 mt-1 text-left">${Math.round(r.pages / 604 * 100)}%</div>
+      </div>
+    </div>`).join('');
+
+  refreshIcons();
+
+  makeChart('chartGroup', {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.name.replace(' (أنت)', '')),
+      datasets: [
+        { label: 'محفوظ', data: rows.map(r => r.pages - r.verified), backgroundColor: 'rgba(52,211,153,.75)', borderRadius: 6, stack: 'a' },
+        { label: 'تم التسميع', data: rows.map(r => r.verified), backgroundColor: 'rgba(245,196,81,.85)', borderRadius: 6, stack: 'a' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { family: 'Inter, Tajawal', size: 11, weight: '700' }, boxWidth: 10 } },
+        tooltip: { backgroundColor: '#0f172a', borderColor: '#334155', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#cbd5e1' }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 } } },
+        y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(51,65,85,.35)' }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 } } }
+      }
+    }
+  });
+}
+
+function makeChart(id, cfg){
+  const el = document.getElementById(id);
+  if (!el || !window.Chart) return;
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+
+/* ==========================================================================
+   PAGE MODAL
+   ========================================================================== */
+function openPageModal(p){
+  currentPage = p;
+  const pg = getPage(p);
+  const surah = SURAHS[PAGE_SURAH[p] - 1];
+  const juz = PAGE_JUZ[p];
+
+  $('#pgNum').textContent = p;
+  $('#pgMeta').textContent = `سورة ${surah.name} · الجزء ${juz} · ${STATES[pg.state].label}`;
+
+  const decay = decayPercent(pg);
+  $('#pgDecayBar').style.width = decay + '%';
+  $('#pgLastReview').textContent = pg.lastReviewed
+    ? new Date(pg.lastReviewed).toLocaleDateString('ar-EG', { day:'numeric', month:'long', year:'numeric' })
+    : 'لم تُراجع بعد';
+
+  const days = pg.lastReviewed ? Math.floor((Date.now() - pg.lastReviewed) / DAY) : null;
+  $('#pgDecayText').textContent = days === null
+    ? 'لم يتم تسجيل مراجعة لهذه الصفحة بعد.'
+    : (days === 0 ? 'تمت المراجعة اليوم — الحفظ في أقوى حالاته ✨'
+      : days < 7 ? `مضى ${days} يوم على آخر مراجعة — لا تنسَ المراجعة القريبة.`
+      : days < 21 ? `مضى ${days} يوماً — يُنصح بمراجعة عاجلة قبل أن يبدأ اللون بالبهتان.`
+      : `مضى ${days} يوماً — خطر نسيان مرتفع! راجع هذه الصفحة اليوم.`);
+
+  $('#pgStates').innerHTML = Object.entries(STATES).map(([key, st]) => {
+    const sel = pg.state === key ? ' sel' : '';
+    const disabled = (key === 'verified') ? ' disabled' : '';
+    const title = (key === 'verified') ? 'title="لا يمكنك تسميع نفسك — يمنحها عضو آخر من المجموعة"' : '';
+    return `<button class="state-btn${sel}" data-setstate="${key}" ${disabled} ${title} style="color:${st.color}">
+      <i data-lucide="${st.icon}" class="w-5 h-5"></i>
+      <span>${st.label}</span>
+    </button>`;
+  }).join('');
+
+  refreshIcons();
+  openModal('modalPage');
+}
+
+/* ==========================================================================
+   MEMBER MODAL
+   ========================================================================== */
+function openMemberModal(id){
+  const m = S.members.find(x => x.id === id);
+  if (!m){ toast('هذا العضو غير متاح', 'info'); return; }
+  currentMember = m;
+  const c = pageStats(m.pages || {});
+
+  $('#memAvatar').style.background = m.color || '#60a5fa';
+  $('#memAvatar').textContent = (m.name || '؟').charAt(0);
+  $('#memName').textContent = m.name;
+  const lastA = Object.keys(m.activity || {}).sort().pop();
+  $('#memMeta').textContent = `آخر نشاط: ${lastA ? new Date(lastA).toLocaleDateString('ar-EG', { day:'numeric', month:'long' }) : '—'}`;
+  $('#memPages').textContent = c.memorized + c.verified;
+  $('#memStreak').textContent = computeStreak(m.activity || {});
+  $('#memVerified').textContent = c.verified;
+
+  const pending = Object.keys(m.pages || {})
+    .map(Number)
+    .filter(p => m.pages[p].state === 'memorized')
+    .sort((a, b) => a - b);
+
+  const grid = $('#memGrid');
+  const emptyMsg = grid.nextElementSibling;
+
+  if (!pending.length){
+    grid.innerHTML = '';
+    emptyMsg.classList.remove('hidden');
+  } else {
+    emptyMsg.classList.add('hidden');
+    grid.innerHTML = pending.map(p => `
+      <div class="tile" data-verify="${p}" title="صفحة ${p} — انقر لتأكيد التسميع"
+           style="background:rgba(52,211,153,.25);border-color:rgba(52,211,153,.7);color:#a7f3d0">${p}</div>
+    `).join('');
+  }
+
+  refreshIcons();
+  openModal('modalMember');
+}
+
+/* ==========================================================================
+   MODAL HELPERS
+   ========================================================================== */
+function openModal(id){ const el = document.getElementById(id); if (el) el.classList.add('open'); }
+function closeModal(id){ const el = document.getElementById(id); if (el) el.classList.remove('open'); }
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-close]');
+  if (btn) closeModal(btn.getAttribute('data-close'));
+  if (e.target.classList && e.target.classList.contains('modal')) e.target.classList.remove('open');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $$('.modal.open').forEach(m => m.classList.remove('open'));
+});
+
+/* ==========================================================================
+   AUTH
+   ========================================================================== */
+let authMode = 'login';
+
+function setupAuth(){
+  $$('[data-authtab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('[data-authtab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      authMode = btn.getAttribute('data-authtab');
+      $('#authSubmit').textContent = authMode === 'login' ? 'دخول' : 'إنشاء الحساب';
+      $('#authError').classList.add('hidden');
+    });
+  });
+
+  $('#authSubmit').addEventListener('click', doAuth);
+  $('#authPin').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
+  $('#authUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('#authPin').focus(); });
+
+  $('#btnUser').addEventListener('click', () => {
+    if (S.user){
+      if (confirm('هل تريد تسجيل الخروج؟')) logout();
+    } else {
+      openModal('modalAuth');
+    }
+  });
+}
+
+function doAuth(){
+  const name = $('#authUser').value.trim();
+  const pin = $('#authPin').value.trim();
+  const err = $('#authError');
+
+  if (!name || name.length < 2){ showAuthErr('يرجى إدخال اسم مستخدم صحيح (حرفان على الأقل)'); return; }
+  if (!pin || pin.length < 3){ showAuthErr('الرقم السري يجب أن يكون 3 خانات على الأقل'); return; }
+
+  const users = loadUsers();
+
+  if (authMode === 'login'){
+    const u = users[name];
+    if (!u){ showAuthErr('لا يوجد حساب بهذا الاسم — جرّب إنشاء حساب جديد'); return; }
+    if (String(u.pin) !== pin){ showAuthErr('الرقم السري غير صحيح'); return; }
+    loginAs(name);
+  } else {
+    if (users[name]){ showAuthErr('هذا الاسم مستخدم بالفعل — سجّل الدخول بدلاً من ذلك'); return; }
+    users[name] = { pin, created: Date.now() };
+    saveUsers(users);
+    loginAs(name, true);
+  }
+}
+function showAuthErr(msg){
+  const err = $('#authError');
+  err.textContent = msg;
+  err.classList.remove('hidden');
+}
+
+/**
+ * ✅ بعد تسجيل الدخول: مزامنة كاملة (سحب + رفع)
+ */
+async function loginAs(name, isNew){
+  S.user = { name };
+  saveState();
+  closeModal('modalAuth');
+  $('#authUser').value = '';
+  $('#authPin').value = '';
+  refreshAll();
+
+  if (S.settings.sheetUrl){
+    try {
+      await fullSync();
+      toast(isNew ? `أهلاً بك ${name} 👋 — تم إنشاء حسابك` : `مرحباً بعودتك ${name}`, 'success');
+    } catch(e){
+      toast('تم الدخول — لكن تعذّر الاتصال بالخادم', 'warn');
+    }
+  } else {
+    toast('تم تسجيل الدخول — اضبط رابط الخادم لتفعيل المزامنة', 'info');
+    setTimeout(() => openModal('modalSettings'), 600);
+  }
+}
+
+function logout(){
+  S.user = null;
+  saveState();
+  refreshAll();
+  openModal('modalAuth');
+  toast('تم تسجيل الخروج', 'info');
+}
+
+/* ==========================================================================
+   COMMIT PAGE CHANGE (Push immediately, roll back on failure)
+   ========================================================================== */
+async function commitPageChange(page, newState, opts = {}){
+  if (isBusy) return;
+  setBusy(true);
+
+  const snapshot = {
+    pages: JSON.parse(JSON.stringify(S.pages)),
+    activity: JSON.parse(JSON.stringify(S.activity))
+  };
+
+  const nextPages = { ...S.pages };
+  const rec = buildPageRecord(newState, opts.lastReviewed);
+  if (rec) nextPages[page] = rec;
+  else delete nextPages[page];
+
+  const nextActivity = { ...S.activity };
+  if (!opts.silentActivity){
+    const k = dayKey();
+    nextActivity[k] = (nextActivity[k] || 0) + 1;
+  }
+
+  S.pages = nextPages;
+  S.activity = nextActivity;
+
+  try {
+    if (S.settings.sheetUrl){
+      setSyncStatus('syncing');
+      await pushToServer();
+      setSyncStatus('ok');
+    }
+    saveState();
+    refreshAll();
+    toast(`تم تحديث الصفحة ${page} إلى «${STATES[newState].label}»`, 'success');
+  } catch(e){
+    S.pages = snapshot.pages;
+    S.activity = snapshot.activity;
+    saveState();
+    setSyncStatus('error');
+    toast('فشل الحفظ — لم يتم تحديث البيانات', 'error');
+  } finally {
+    setBusy(false);
+  }
+}
+
+/* ==========================================================================
+   SETTINGS
+   ========================================================================== */
+function setupSettings(){
+  $('#btnSettings').addEventListener('click', () => {
+    $('#inputSheetUrl').value = S.settings.sheetUrl || '';
+    $('#connResult').classList.add('hidden');
+    openModal('modalSettings');
+  });
+
+  /**
+   * ✅ عند حفظ الرابط: مزامنة كاملة (سحب + رفع)
+   */
+  $('#btnSaveUrl').addEventListener('click', async () => {
+    const url = $('#inputSheetUrl').value.trim();
+    S.settings.sheetUrl = url;
+    saveState();
+    closeModal('modalSettings');
+
+    if (url){
+      setSyncStatus('ok');
+      try {
+        await fullSync();
+        toast('تم الربط والمزامنة بنجاح ✓', 'success');
+      } catch(e){
+        toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn');
+      }
+    } else {
+      setSyncStatus('local');
+      toast('تم إزالة الرابط — الوضع المحلي', 'info');
+    }
+    refreshAll();
+  });
+
+  $('#btnTestConn').addEventListener('click', async () => {
+    const url = $('#inputSheetUrl').value.trim();
+    const box = $('#connResult');
+    if (!url){
+      box.className = 'text-xs mb-4 text-red-400 font-bold';
+      box.textContent = 'يرجى إدخال الرابط أولاً';
+      box.classList.remove('hidden');
+      return;
+    }
+    box.className = 'text-xs mb-4 text-sky-300 font-bold';
+    box.textContent = 'جارٍ اختبار الاتصال...';
+    box.classList.remove('hidden');
+    try {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'action=ping', { method: 'GET' });
+      const data = await res.json();
+      if (data && data.ok){
+        box.className = 'text-xs mb-4 text-emerald-400 font-bold';
+        box.textContent = '✓ الاتصال ناجح — الخادم جاهز للمزامنة';
+      } else {
+        box.className = 'text-xs mb-4 text-amber-400 font-bold';
+        box.textContent = '⚠ استجاب الخادم لكن الرد غير متوقع';
+      }
+    } catch(e){
+      box.className = 'text-xs mb-4 text-red-400 font-bold';
+      box.textContent = '✗ فشل الاتصال — تأكد من نشر الـ Web App بصلاحية «Anyone»';
+    }
+  });
+
+  /**
+   * ✅ زر المزامنة: سحب + رفع
+   */
+  $('#btnSync').addEventListener('click', async () => {
+    if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
+    try {
+      await fullSync();
+      toast('تمت المزامنة بنجاح ✓', 'success');
+    } catch(e){
+      if (String(e.message) === 'OFFLINE'){
+        toast('لا يوجد اتصال بالإنترنت', 'warn');
+      } else {
+        toast('فشلت المزامنة — تحقّق من الرابط والصلاحيات', 'error');
+      }
+    }
+  });
+
+  $('#btnExport').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `tahfeez-backup-${dayKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('تم تصدير النسخة الاحتياطية', 'success');
+  });
+
+  $('#btnImport').addEventListener('click', () => $('#fileImport').click());
+  $('#fileImport').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.pages) throw new Error('bad');
+        S.pages = data.pages || {};
+        S.activity = data.activity || {};
+        if (Array.isArray(data.members)) S.members = data.members;
+        saveState();
+        if (S.settings.sheetUrl){
+          try {
+            await pushToServer();
+            toast('تم الاستيراد والرفع للسحابة', 'success');
+            setSyncStatus('ok');
+          } catch(e){
+            toast('تم الاستيراد محلياً — فشل الرفع', 'warn');
+            setSyncStatus('error');
+          }
+        } else {
+          toast('تم الاستيراد محلياً', 'success');
+        }
+        refreshAll();
+        closeModal('modalSettings');
+      } catch(err){
+        toast('ملف غير صالح', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  $('#btnResetAll').addEventListener('click', () => {
+    if (!confirm('سيتم حذف كل تقدمك المحلي نهائياً. (لن تُحذف بيانات السحابة). هل أنت متأكد؟')) return;
+    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem(USERS_KEY);
+    location.reload();
+  });
+}
+
+/* ==========================================================================
+   EVENT WIRING
+   ========================================================================== */
+function setupTabs(){
+  $$('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const view = tab.getAttribute('data-view');
+      $$('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      $$('.view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + view);
+      if (target) target.classList.add('active');
+
+      if (view === 'stats') renderStats();
+      if (view === 'group') renderGroup();
+      if (view === 'surahs') renderSurahs();
+      if (view === 'mushaf') renderMushaf();
+    });
+  });
+}
+
+function setupMushaf(){
+  $('#stateFilters').addEventListener('click', e => {
+    const btn = e.target.closest('[data-filter]');
+    if (!btn) return;
+    $$('#stateFilters .chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    mushafFilter = btn.getAttribute('data-filter');
+    renderMushaf();
+  });
+
+  $('#btnExpandAll').addEventListener('click', () => {
+    const anyClosed = Object.keys(openJuz).length < 30 || Object.values(openJuz).some(v => !v);
+    const newState = {};
+    JUZ.forEach(j => { newState[j.num] = anyClosed; });
+    openJuz = newState;
+    renderMushaf();
+    $('#btnExpandAll').textContent = anyClosed ? 'إغلاق الكل' : 'فتح الكل';
+  });
+
+  $('#mushafBody').addEventListener('click', e => {
+    const toggle = e.target.closest('[data-juz-toggle]');
+    if (toggle){
+      const n = Number(toggle.getAttribute('data-juz-toggle'));
+      openJuz[n] = !openJuz[n];
+      renderMushaf();
+      return;
+    }
+    const tile = e.target.closest('.tile');
+    if (tile && tile.dataset.page){
+      openPageModal(Number(tile.dataset.page));
+    }
+  });
+}
+
+function setupSurahs(){
+  $('#surahSearch').addEventListener('input', e => {
+    surahQuery = e.target.value.trim();
+    renderSurahs();
+  });
+  $('#surahFilters').addEventListener('click', e => {
+    const btn = e.target.closest('[data-sfilter]');
+    if (!btn) return;
+    $$('#surahFilters .chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    surahFilter = btn.getAttribute('data-sfilter');
+    renderSurahs();
+  });
+}
+
+function setupPageModal(){
+  $('#pgStates').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-setstate]');
+    if (!btn || btn.hasAttribute('disabled')) return;
+    const state = btn.getAttribute('data-setstate');
+    if (state === 'verified'){
+      toast('لا يمكنك تسميع نفسك — اطلب من زميل تأكيدها', 'warn');
+      return;
+    }
+    const p = currentPage;
+    closeModal('modalPage');
+    await commitPageChange(p, state, { lastReviewed: Date.now() });
+    openPageModal(p);
+  });
+
+  $('#pgReviewedNow').addEventListener('click', async () => {
+    const cur = getPage(currentPage);
+    const st = cur.state === 'none' ? 'review' : cur.state;
+    const p = currentPage;
+    closeModal('modalPage');
+    await commitPageChange(p, st, { lastReviewed: Date.now() });
+    openPageModal(p);
+  });
+
+  $('#pgReset').addEventListener('click', async () => {
+    const p = currentPage;
+    closeModal('modalPage');
+    await commitPageChange(p, 'none');
+    openPageModal(p);
+  });
+}
+
+function setupMemberModal(){
+  $('#memGrid').addEventListener('click', async e => {
+    const tile = e.target.closest('[data-verify]');
+    if (!tile || !currentMember) return;
+    const p = Number(tile.dataset.verify);
+    if (!confirm(`تأكيد تسميع الصفحة ${p} لـ ${currentMember.name}؟`)) return;
+
+    const m = currentMember;
+    const pg = m.pages[p];
+    if (!pg || pg.state !== 'memorized') return;
+    pg.state = 'verified';
+    pg.lastReviewed = Date.now();
+    pg.verifiedBy = S.user ? S.user.name : 'عضو';
+    pg.updatedAt = Date.now();
+
+    saveState();
+    toast(`تم تأكيد تسميع الصفحة ${p} لـ ${m.name} ✓`, 'success');
+    openMemberModal(m.id);
+    renderGroup();
+    renderHeader();
+  });
+
+  $('#leaderboard').addEventListener('click', e => {
+    const row = e.target.closest('[data-member]');
+    if (!row) return;
+    const id = row.getAttribute('data-member');
+    if (id === 'me'){ toast('هذه أنت! استخدم المصحف التفاعلي لتحديث صفحاتك', 'info'); return; }
+    openMemberModal(id);
+  });
+}
+
+/* ==========================================================================
+   REFRESH
+   ========================================================================== */
+function refreshAll(){
+  renderHeader();
+  const active = $('.view.active');
+  if (!active) return;
+  if (active.id === 'view-stats') renderStats();
+  if (active.id === 'view-mushaf') renderMushaf();
+  if (active.id === 'view-surahs') renderSurahs();
+  if (active.id === 'view-group') renderGroup();
+}
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+async function init(){
+  loadState();
+
+  setupTabs();
+  setupMushaf();
+  setupSurahs();
+  setupPageModal();
+  setupMemberModal();
+  setupSettings();
+  setupAuth();
+
+  setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
+
+  renderHeader();
+  renderStats();
+  renderMushaf();
+  renderSurahs();
+  renderGroup();
+  refreshIcons();
+
+  // إن لم يكن هناك مستخدم — اطلب الدخول
+  if (!S.user){
+    setTimeout(() => openModal('modalAuth'), 350);
+  } else if (S.settings.sheetUrl){
+    // ✅ مستخدم موجود + رابط — مزامنة كاملة
+    try { await fullSync(); } catch(e){ /* الحالة تُعلَن عبر sync status */ }
+  }
+
+  // مزامنة عند عودة الاتصال
+  window.addEventListener('online', async () => {
+    if (S.settings.sheetUrl && S.user){
+      toast('عاد الاتصال — جارٍ المزامنة', 'info');
+      try { await fullSync(); } catch(e){}
+    }
+  });
+  window.addEventListener('offline', () => setSyncStatus('offline'));
+
+  window.addEventListener('beforeunload', saveState);
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === '1') $('[data-view="stats"]').click();
+    if (e.key === '2') $('[data-view="mushaf"]').click();
+    if (e.key === '3') $('[data-view="surahs"]').click();
+    if (e.key === '4') $('[data-view="group"]').click();
+  });
+
+  let rz;
+  window.addEventListener('resize', () => {
+    clearTimeout(rz);
+    rz = setTimeout(() => {
+      const active = $('.view.active');
+      if (active && active.id === 'view-stats') renderStats();
+      if (active && active.id === 'view-group') renderGroup();
+    }, 250);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+</script>
+</body>
+</html>
