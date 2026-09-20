@@ -871,10 +871,19 @@ async function apiGet(params){
 async function apiPost(body){
   const url = S.settings.sheetUrl;
   if (!url) throw new Error('NO_URL');
+
+  // استخدام form-encoded لتجاوز preflight و302 redirect
+  const form = new URLSearchParams();
+  Object.keys(body).forEach(k => {
+    const v = body[k];
+    if (v === null || v === undefined) return;
+    form.append(k, (typeof v === 'string') ? v : JSON.stringify(v));
+  });
+
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(body)
+    body: form,           // URLSearchParams → x-www-form-urlencoded تلقائياً
+    redirect: 'follow'
   });
   if (!res.ok) throw new Error('HTTP_' + res.status);
   return await res.json();
