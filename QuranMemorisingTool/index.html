@@ -307,6 +307,75 @@ body{
   background:rgba(251,191,36,.10);border-bottom:1px solid rgba(251,191,36,.3);
   color:#fde68a;text-align:center;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   ✅ Mobile-only overrides  (max-width: 767px = Tailwind 'md' - 1px)
+   سطح المكتب (md+): لا يتأثر بأي من هذه القواعد
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px){
+
+  /* ✅ بطاقات الإحصائيات — تصغير الحشوات والأحجام */
+  .stat-card{
+    padding:.7rem .8rem !important;
+    gap:.55rem;
+    min-height:auto;
+  }
+  .stat-card .stat-icon{
+    width:38px;
+    height:38px;
+    border-radius:.7rem;
+  }
+  .stat-card .stat-value{
+    font-size:1.35rem;
+  }
+  .stat-card .stat-label{
+    font-size:.62rem;
+    margin-top:.15rem;
+    line-height:1.25;
+  }
+
+  /* ✅ التبويبات — حشوة أقل */
+  .tab{
+    padding:.5rem .65rem;
+  }
+
+  /* ✅ شارة المزامنة المدمجة في السطر الأول */
+  .sync-chip-mobile{
+    padding:.25rem .5rem;
+    gap:.3rem;
+    border-radius:.6rem;
+  }
+  .sync-chip-mobile span{
+    font-size:.6rem;
+  }
+
+  /* ✅ بطاقات الأرقام السريعة (4 أعمدة) */
+  .mobile-stat{
+    padding:.4rem .25rem !important;
+    gap:.3rem !important;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+  }
+  .mobile-stat i,
+  .mobile-stat svg{
+    width:12px;
+    height:12px;
+    margin:0 auto;
+  }
+  .mobile-stat b{
+    font-size:.85rem !important;
+    display:block;
+    line-height:1;
+  }
+  .mobile-stat .lbl{
+    font-size:.55rem !important;
+    display:block;
+    line-height:1;
+    margin-top:.15rem;
+    color:var(--muted);
+  }
+}
 </style>
 </head>
 <body>
@@ -329,7 +398,7 @@ body{
 
       <div class="flex-1"></div>
 
-      <!-- Desktop stats -->
+      <!-- Desktop stats (unchanged) -->
       <div class="hidden lg:flex items-center gap-2">
         <div class="stat-pill" title="نسبة الحفظ الكلية">
           <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
@@ -353,8 +422,13 @@ body{
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- ✅ Actions — مع شارة المزامنة على الجوال في السطر الأول -->
       <div class="flex items-center gap-1.5">
+        <!-- شارة المزامنة (جوال فقط — تظهر < lg) -->
+        <div class="stat-pill sync-chip-mobile lg:hidden" id="syncPillM" title="حالة المزامنة">
+          <span class="sync-dot" id="syncDotM" style="background:#64748b"></span>
+          <span id="syncTextM" class="font-bold">محلي</span>
+        </div>
         <button id="btnSync" class="icon-btn" title="مزامنة الآن">
           <i data-lucide="rotate-cw" class="w-[18px] h-[18px]"></i>
         </button>
@@ -363,18 +437,41 @@ body{
         </button>
         <button id="btnUser" class="btn btn-ghost gap-1.5" title="الحساب">
           <i data-lucide="circle-user-round" class="w-[18px] h-[18px]"></i>
-          <span id="userName" class="max-w-[80px] truncate">دخول</span>
+          <span id="userName" class="max-w-[80px] truncate hidden sm:inline">دخول</span>
         </button>
       </div>
     </div>
 
-    <!-- Mobile stats -->
-    <div class="lg:hidden px-3 pb-2 flex items-center gap-2 overflow-x-auto scroll">
-      <div class="stat-pill shrink-0"><i data-lucide="pie-chart" class="w-3.5 h-3.5 text-emerald-400"></i><div class="leading-none"><b id="statPctM">0%</b><br><span>الإنجاز</span></div></div>
-      <div class="stat-pill shrink-0"><i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i><div class="leading-none"><b id="statPagesM">0</b><br><span>صفحة</span></div></div>
-      <div class="stat-pill shrink-0"><i data-lucide="bookmark-check" class="w-3.5 h-3.5 text-violet-400"></i><div class="leading-none"><b id="statSurahsM">0</b><br><span>سورة</span></div></div>
-      <div class="stat-pill shrink-0"><i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i><div class="leading-none"><b id="statStreakM">0</b><br><span>يوم</span></div></div>
-      <div class="stat-pill shrink-0" id="syncPillM"><span class="sync-dot" id="syncDotM" style="background:#64748b"></span><span id="syncTextM" class="text-[11px] font-bold">محلي</span></div>
+    <!-- ✅ Mobile stats — 4 أعمدة بدون تمرير أفقي -->
+    <div class="lg:hidden px-3 pb-2 grid grid-cols-4 gap-1.5">
+      <div class="stat-pill mobile-stat" title="نسبة الحفظ الكلية">
+        <i data-lucide="pie-chart" class="text-emerald-400"></i>
+        <div>
+          <b id="statPctM">0%</b>
+          <span class="lbl">الإنجاز</span>
+        </div>
+      </div>
+      <div class="stat-pill mobile-stat" title="الصفحات المحفوظة">
+        <i data-lucide="layers" class="text-sky-400"></i>
+        <div>
+          <b id="statPagesM">0</b>
+          <span class="lbl">صفحة</span>
+        </div>
+      </div>
+      <div class="stat-pill mobile-stat" title="السور المكتملة">
+        <i data-lucide="bookmark-check" class="text-violet-400"></i>
+        <div>
+          <b id="statSurahsM">0</b>
+          <span class="lbl">سورة</span>
+        </div>
+      </div>
+      <div class="stat-pill mobile-stat" title="سلسلة الأيام المتواصلة">
+        <i data-lucide="flame" class="text-amber-400"></i>
+        <div>
+          <b id="statStreakM">0</b>
+          <span class="lbl">يوم</span>
+        </div>
+      </div>
     </div>
 
     <!-- Progress bar -->
@@ -385,11 +482,23 @@ body{
 
   <!-- ================= TABS ================= -->
   <nav class="flex-none border-b border-slate-700/50 bg-slate-900/45 z-20">
-    <div class="mx-auto max-w-[1400px] px-2 sm:px-6 flex gap-1 overflow-x-auto scroll py-1.5">
-      <button class="tab active" data-view="stats"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> الإحصائيات</button>
-      <button class="tab" data-view="mushaf"><i data-lucide="layout-grid" class="w-4 h-4"></i> المصحف التفاعلي</button>
-      <button class="tab" data-view="surahs"><i data-lucide="book-marked" class="w-4 h-4"></i> السور</button>
-      <button class="tab" data-view="group"><i data-lucide="users" class="w-4 h-4"></i> المجموعة</button>
+    <div class="mx-auto max-w-[1400px] px-2 sm:px-6 flex gap-1 overflow-x-auto scroll py-1.5 justify-center md:justify-start">
+      <button class="tab active" data-view="stats">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+        <span class="hidden md:inline">الإحصائيات</span>
+      </button>
+      <button class="tab" data-view="mushaf">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+        <span class="hidden md:inline">المصحف التفاعلي</span>
+      </button>
+      <button class="tab" data-view="surahs">
+        <i data-lucide="book-marked" class="w-4 h-4"></i>
+        <span class="hidden md:inline">السور</span>
+      </button>
+      <button class="tab" data-view="group">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span class="hidden md:inline">المجموعة</span>
+      </button>
     </div>
   </nav>
 
@@ -398,7 +507,7 @@ body{
 
     <!-- ---------- STATS ---------- -->
     <section id="view-stats" class="view active">
-      <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+      <div class="mx-auto max-w-[1400px] p-3 sm:p-6 space-y-4 sm:space-y-5">
 
         <div id="noUrlBanner" class="warn-bar rounded-xl hidden">
           ⚠️ لم يتم ضبط رابط Google Sheets — التطبيق يعمل محلياً فقط. اضغط ⚙️ لربط الخادم.
@@ -423,7 +532,7 @@ body{
           </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-5 items-stretch">
+        <div class="flex flex-col lg:flex-row gap-4 md:gap-5 items-stretch">
 
           <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
@@ -444,7 +553,8 @@ body{
             </div>
           </div>
 
-          <div class="flex-1 grid gap-5 sm:grid-cols-3">
+          <!-- ✅ الشبكة الجديدة: grid-cols-2 على الجوال، grid-cols-3 على md+ -->
+          <div class="flex-1 grid grid-cols-2 gap-2 md:gap-5 md:grid-cols-3">
             <div class="card stat-card">
               <div class="stat-icon" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
                 <i data-lucide="flame" class="w-7 h-7 text-amber-400"></i>
@@ -465,7 +575,7 @@ body{
               </div>
             </div>
 
-            <div class="card stat-card">
+            <div class="card stat-card col-span-2 md:col-span-1">
               <div class="stat-icon" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
                 <i data-lucide="calendar-clock" class="w-7 h-7 text-sky-400"></i>
               </div>
@@ -1032,7 +1142,6 @@ async function pushToServer(){
   return true;
 }
 
-/* ✅ المزامنة الكاملة — لا تحجب الواجهة */
 async function fullSync(){
   if (!S.settings.sheetUrl){ setSyncStatus('local'); return; }
   if (!navigator.onLine){ setSyncStatus('offline'); throw new Error('OFFLINE'); }
@@ -1049,7 +1158,6 @@ async function fullSync(){
   }
 }
 
-/* ✅ المزامنة في الخلفية — مُخمَّدة */
 function schedulePushInBackground(){
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(doPushInBackground, 500);
@@ -1072,7 +1180,6 @@ async function doPushInBackground(){
   }
 }
 
-/* ✅ تحديث قائمة الأعضاء فقط — لا يمسح التغييرات المحلية */
 async function refreshMembersInBackground(){
   if (!S.settings.sheetUrl || !S.user) return;
   try {
@@ -1089,9 +1196,7 @@ async function refreshMembersInBackground(){
         }
       }
     }
-  } catch(e){
-    // تجاهل — البيانات محفوظة على الخادم
-  }
+  } catch(e){}
 }
 
 /* ==========================================================================
@@ -1393,7 +1498,6 @@ function renderStats(){
   if (window.lucide) lucide.createIcons();
 }
 
-/* ✅ خريطة النشاط — آخر 5 أسابيع (≈ شهر) */
 function renderHeatmap(){
   const wrap = $('#heatmap');
   if (!wrap) return;
@@ -1619,7 +1723,6 @@ function openMemberModal(id){
   openModal('modalMember');
 }
 
-/* ✅ تأكيد تسميع صفحة لعضو آخر — مع optimistic update + مزامنة فعلية */
 async function verifyPeerPage(targetUser, page){
   if (!S.settings.sheetUrl || !S.user){
     toast('يرجى تسجيل الدخول أولاً', 'warn');
@@ -1637,7 +1740,6 @@ async function verifyPeerPage(targetUser, page){
 
   const snapshot = { ...pg };
 
-  // ✅ تحديث متفائل (UI فوري)
   pg.state = 'verified';
   pg.lastReviewed = Date.now();
   pg.verifiedBy = S.user.name;
@@ -1670,8 +1772,6 @@ async function verifyPeerPage(targetUser, page){
     }
 
     toast(`تم تأكيد تسميع الصفحة ${page} لـ ${targetUser} ✓`, 'success');
-
-    // ✅ جلب نسخة محدّثة من الأعضاء فقط (لا يمسح صفحاتي)
     refreshMembersInBackground();
     return true;
 
@@ -1987,7 +2087,6 @@ function setupSettings(){
     }
   });
 
-  /* ✅ زر المزامنة — بدون شاشة تحميل، التنقل حر */
   $('#btnSync').addEventListener('click', async () => {
     if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
     if (!S.user){ toast('يرجى تسجيل الدخول أولاً', 'warn'); return; }
@@ -2123,7 +2222,6 @@ function setupPageModal(){
 }
 
 function setupMemberModal(){
-  /* ✅ يستخدم verifyPeerPage الآن — يُحدّث الخادم فعلياً */
   $('#memGrid').addEventListener('click', async e => {
     const tile = e.target.closest('[data-verify]');
     if (!tile || !currentMember) return;
