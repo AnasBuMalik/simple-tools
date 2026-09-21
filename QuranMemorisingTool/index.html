@@ -47,6 +47,7 @@ body{
 ::-webkit-scrollbar-thumb:hover{background:#475569}
 .scroll{scrollbar-width:thin;scrollbar-color:#334155 transparent}
 
+/* ---------- App shell ---------- */
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 #views{position:relative;flex:1;min-height:0}
 .view{
@@ -59,6 +60,7 @@ body{
 .view::-webkit-scrollbar{width:8px}
 .view::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
 
+/* ---------- Tabs ---------- */
 .tab{
   position:relative;display:inline-flex;align-items:center;gap:.45rem;
   padding:.5rem .9rem;border-radius:.75rem;color:var(--muted);
@@ -72,6 +74,7 @@ body{
   box-shadow:0 8px 22px -10px rgba(245,196,81,.9);
 }
 
+/* ---------- Cards ---------- */
 .card{
   background:linear-gradient(180deg,rgba(30,41,59,.85),rgba(30,41,59,.55));
   border:1px solid rgba(51,65,85,.75);
@@ -79,6 +82,7 @@ body{
   backdrop-filter:blur(8px);
 }
 
+/* ---------- Buttons ---------- */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
   padding:.55rem 1rem;border-radius:.7rem;font-weight:700;font-size:.8rem;
@@ -99,6 +103,7 @@ body{
 .icon-btn:hover{background:rgba(148,163,184,.2);color:#fff;border-color:#475569}
 .icon-btn:active{transform:scale(.94)}
 
+/* ---------- Chips ---------- */
 .chip{
   padding:.34rem .78rem;border-radius:999px;border:1px solid var(--line);
   font-size:.74rem;font-weight:700;color:var(--muted);cursor:pointer;
@@ -107,6 +112,7 @@ body{
 .chip:hover{border-color:#64748b;color:#e2e8f0}
 .chip.active{background:rgba(96,165,250,.16);border-color:#60a5fa;color:#bfdbfe}
 
+/* ---------- Tiles ---------- */
 .tile{
   position:relative;aspect-ratio:1/1;min-width:44px;min-height:44px;
   border-radius:.5rem;border:1px solid var(--line);
@@ -121,6 +127,7 @@ body{
 .tile.dim{opacity:.08;pointer-events:none}
 .tile.gold{box-shadow:0 0 0 1px rgba(245,196,81,.5), 0 0 12px -4px rgba(245,196,81,.8)}
 
+/* ---------- Juz accordion ---------- */
 .juz-section{
   background:linear-gradient(180deg,rgba(30,41,59,.85),rgba(30,41,59,.55));
   border:1px solid rgba(51,65,85,.75);
@@ -140,7 +147,11 @@ body{
 .juz-section.open .juz-header{background:rgba(148,163,184,.05)}
 .juz-chevron{transition:transform .24s ease}
 .juz-section.open .juz-chevron{transform:rotate(180deg)}
-.juz-body{display:none;padding:0 1.25rem 1.25rem;animation:fadeIn .22s ease}
+.juz-body{
+  display:none;
+  padding:0 1.25rem 1.25rem;
+  animation:fadeIn .22s ease;
+}
 .juz-section.open .juz-body{display:block}
 .juz-grid{
   display:grid;
@@ -148,6 +159,7 @@ body{
   gap:8px;
 }
 
+/* ---------- Heatmap ---------- */
 .heat{
   display:grid;
   grid-auto-flow:column;
@@ -157,21 +169,54 @@ body{
   width:fit-content;
 }
 .heat i{
-  width:12px;height:12px;border-radius:2px;display:block;
-  background:#1b2537;border:1px solid rgba(100,116,139,.30);
+  width:12px;
+  height:12px;
+  border-radius:2px;
+  display:block;
+  background:#1b2537;
+  border:1px solid rgba(100,116,139,.30);
   transition:transform .12s;
 }
 .heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
-.heat i.ghost{background:#1b2537 !important;border-color:rgba(100,116,139,.18) !important}
+
+/* ✅ المربعات الشبحية (خريطة فارغة) */
+.heat i.ghost{
+  background:#1b2537 !important;
+  border-color:rgba(100,116,139,.18) !important;
+}
 .heat i.ghost-lv1{background:rgba(52,211,153,.14) !important;border-color:rgba(100,116,139,.22) !important}
 .heat i.ghost-lv2{background:rgba(52,211,153,.22) !important;border-color:rgba(100,116,139,.24) !important}
 .heat i.ghost-lv3{background:rgba(52,211,153,.30) !important;border-color:rgba(100,116,139,.28) !important}
 
-.stat-card{padding:1.75rem 1.5rem !important;display:flex;align-items:center;gap:1.25rem;min-height:120px}
-.stat-card .stat-icon{width:60px;height:60px;border-radius:1.1rem;display:grid;place-items:center;flex-shrink:0}
-.stat-card .stat-value{font-size:2rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
-.stat-card .stat-label{font-size:.72rem;font-weight:700;color:var(--muted);margin-top:.35rem;line-height:1.4}
+/* ✅ تحسين بطاقات الإحصائيات */
+.stat-card{
+  padding:1.75rem 1.5rem !important;
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  min-height:120px;
+}
+.stat-card .stat-icon{
+  width:60px;height:60px;
+  border-radius:1.1rem;
+  display:grid;place-items:center;
+  flex-shrink:0;
+}
+.stat-card .stat-value{
+  font-size:2rem;
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+}
+.stat-card .stat-label{
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--muted);
+  margin-top:.35rem;
+  line-height:1.4;
+}
 
+/* ---------- Modal ---------- */
 .modal{
   position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
   padding:1rem;background:rgba(2,6,23,.74);backdrop-filter:blur(7px);
@@ -189,6 +234,7 @@ body{
 @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
 .modal-panel.wide{max-width:780px}
 
+/* ---------- State buttons ---------- */
 .state-btn{
   display:flex;flex-direction:column;align-items:center;gap:.35rem;
   padding:.75rem .5rem;border-radius:.8rem;border:1px solid #334155;
@@ -200,6 +246,7 @@ body{
 .state-btn.sel{border-color:currentColor;background:rgba(255,255,255,.06)}
 .state-btn[disabled]{opacity:.42;cursor:not-allowed;transform:none}
 
+/* ---------- Inputs ---------- */
 .inp{
   width:100%;padding:.65rem .9rem;border-radius:.7rem;background:#111c2e;
   border:1px solid #334155;color:#e2e8f0;font-family:inherit;font-size:.85rem;
@@ -208,6 +255,7 @@ body{
 .inp:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.16)}
 .inp::placeholder{color:#64748b}
 
+/* ---------- Toast ---------- */
 #toasts{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
 .toast{
   padding:.65rem 1.05rem;border-radius:.8rem;font-size:.8rem;font-weight:700;
@@ -221,10 +269,14 @@ body{
 .toast.info{border-color:rgba(96,165,250,.6);color:#bfdbfe}
 @keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
+/* ---------- Misc ---------- */
 .pbar{height:6px;border-radius:99px;background:#16202f;overflow:hidden}
 .pbar > i{display:block;height:100%;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
 .rank-badge{width:30px;height:30px;border-radius:.6rem;display:grid;place-items:center;font-weight:800;font-size:.75rem}
-.stat-pill{display:flex;align-items:center;gap:.5rem;padding:.4rem .75rem;border-radius:.75rem;background:rgba(148,163,184,.06);border:1px solid rgba(51,65,85,.8)}
+.stat-pill{
+  display:flex;align-items:center;gap:.5rem;padding:.4rem .75rem;border-radius:.75rem;
+  background:rgba(148,163,184,.06);border:1px solid rgba(51,65,85,.8);
+}
 .stat-pill b{font-size:.92rem;font-weight:800}
 .stat-pill span{font-size:.65rem;color:var(--muted);font-weight:700}
 .avatar{width:34px;height:34px;border-radius:.7rem;display:grid;place-items:center;font-weight:800;font-size:.8rem;color:#0f172a}
@@ -233,19 +285,32 @@ body{
 .sync-dot{width:8px;height:8px;border-radius:99px;display:inline-block}
 .pulse{animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.busy-overlay{position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center}
+.busy-overlay{
+  position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;
+}
 .busy-overlay.on{display:flex}
-.spinner{width:44px;height:44px;border-radius:50%;border:3px solid rgba(148,163,184,.2);border-top-color:#f5c451;animation:spin .8s linear infinite}
+.spinner{
+  width:44px;height:44px;border-radius:50%;
+  border:3px solid rgba(148,163,184,.2);border-top-color:#f5c451;
+  animation:spin .8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.warn-bar{padding:.6rem 1rem;font-size:.76rem;font-weight:700;background:rgba(251,191,36,.10);border-bottom:1px solid rgba(251,191,36,.3);color:#fde68a;text-align:center}
+.warn-bar{
+  padding:.6rem 1rem;font-size:.76rem;font-weight:700;
+  background:rgba(251,191,36,.10);border-bottom:1px solid rgba(251,191,36,.3);
+  color:#fde68a;text-align:center;
+}
 </style>
 </head>
 <body>
 
 <div id="app">
 
+  <!-- ================= HEADER ================= -->
   <header class="flex-none border-b border-slate-700/50 bg-slate-900/75 backdrop-blur-md z-30">
     <div class="mx-auto max-w-[1400px] px-3 sm:px-6 py-3 flex items-center gap-3">
+
       <div class="flex items-center gap-2.5 shrink-0">
         <div class="w-10 h-10 rounded-xl grid place-items-center" style="background:linear-gradient(145deg,#f5c451,#c98f1d);box-shadow:0 10px 24px -12px #f5c451">
           <i data-lucide="book-open" class="w-5 h-5 text-slate-900"></i>
@@ -258,16 +323,39 @@ body{
 
       <div class="flex-1"></div>
 
+      <!-- Desktop stats -->
       <div class="hidden lg:flex items-center gap-2">
-        <div class="stat-pill"><i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i><div class="leading-none"><b id="statPct">0%</b><br><span>الإنجاز</span></div></div>
-        <div class="stat-pill"><i data-lucide="layers" class="w-4 h-4 text-sky-400"></i><div class="leading-none"><b id="statPages">0</b><br><span>صفحة</span></div></div>
-        <div class="stat-pill"><i data-lucide="bookmark-check" class="w-4 h-4 text-violet-400"></i><div class="leading-none"><b id="statSurahs">0</b><br><span>سورة</span></div></div>
-        <div class="stat-pill"><i data-lucide="flame" class="w-4 h-4 text-amber-400"></i><div class="leading-none"><b id="statStreak">0</b><br><span>يوم</span></div></div>
+        <div class="stat-pill" title="نسبة الحفظ الكلية">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
+          <div class="leading-none"><b id="statPct">0%</b><br><span>الإنجاز</span></div>
+        </div>
+        <div class="stat-pill" title="الصفحات المحفوظة">
+          <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+          <div class="leading-none"><b id="statPages">0</b><br><span>صفحة</span></div>
+        </div>
+        <div class="stat-pill" title="السور المكتملة">
+          <i data-lucide="bookmark-check" class="w-4 h-4 text-violet-400"></i>
+          <div class="leading-none"><b id="statSurahs">0</b><br><span>سورة</span></div>
+        </div>
+        <div class="stat-pill" title="سلسلة الأيام المتواصلة">
+          <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+          <div class="leading-none"><b id="statStreak">0</b><br><span>يوم</span></div>
+        </div>
+        <!-- ✅ مؤشر المزامنة على سطح المكتب -->
+        <div class="stat-pill" id="syncPillD" title="حالة المزامنة">
+          <span class="sync-dot" id="syncDotD" style="background:#64748b"></span>
+          <div class="leading-none"><b id="syncTextD" style="font-size:.78rem">محلي</b></div>
+        </div>
       </div>
 
+      <!-- Actions -->
       <div class="flex items-center gap-1.5">
-        <button id="btnSync" class="icon-btn" title="مزامنة الآن"><i data-lucide="rotate-cw" class="w-[18px] h-[18px]"></i></button>
-        <button id="btnSettings" class="icon-btn" title="إعدادات التطبيق"><i data-lucide="settings-2" class="w-[18px] h-[18px]"></i></button>
+        <button id="btnSync" class="icon-btn" title="مزامنة الآن">
+          <i data-lucide="rotate-cw" class="w-[18px] h-[18px]"></i>
+        </button>
+        <button id="btnSettings" class="icon-btn" title="إعدادات التطبيق">
+          <i data-lucide="settings-2" class="w-[18px] h-[18px]"></i>
+        </button>
         <button id="btnUser" class="btn btn-ghost gap-1.5" title="الحساب">
           <i data-lucide="circle-user-round" class="w-[18px] h-[18px]"></i>
           <span id="userName" class="max-w-[80px] truncate">دخول</span>
@@ -275,6 +363,7 @@ body{
       </div>
     </div>
 
+    <!-- Mobile stats -->
     <div class="lg:hidden px-3 pb-2 flex items-center gap-2 overflow-x-auto scroll">
       <div class="stat-pill shrink-0"><i data-lucide="pie-chart" class="w-3.5 h-3.5 text-emerald-400"></i><div class="leading-none"><b id="statPctM">0%</b><br><span>الإنجاز</span></div></div>
       <div class="stat-pill shrink-0"><i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i><div class="leading-none"><b id="statPagesM">0</b><br><span>صفحة</span></div></div>
@@ -283,11 +372,13 @@ body{
       <div class="stat-pill shrink-0" id="syncPillM"><span class="sync-dot" id="syncDotM" style="background:#64748b"></span><span id="syncTextM" class="text-[11px] font-bold">محلي</span></div>
     </div>
 
+    <!-- Progress bar -->
     <div class="h-[3px] w-full bg-slate-800">
       <div id="topProgress" class="h-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#34d399,#f5c451)"></div>
     </div>
   </header>
 
+  <!-- ================= TABS ================= -->
   <nav class="flex-none border-b border-slate-700/50 bg-slate-900/45 z-20">
     <div class="mx-auto max-w-[1400px] px-2 sm:px-6 flex gap-1 overflow-x-auto scroll py-1.5">
       <button class="tab active" data-view="stats"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> الإحصائيات</button>
@@ -297,8 +388,10 @@ body{
     </div>
   </nav>
 
+  <!-- ================= VIEWS ================= -->
   <main id="views">
 
+    <!-- ---------- STATS (default) ---------- -->
     <section id="view-stats" class="view active">
       <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
 
@@ -326,6 +419,7 @@ body{
         </div>
 
         <div class="flex flex-col lg:flex-row gap-5 items-stretch">
+
           <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
               <i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i>
@@ -376,15 +470,21 @@ body{
               </div>
             </div>
           </div>
+
         </div>
 
       </div>
     </section>
 
+    <!-- ---------- MUSHAF ---------- -->
     <section id="view-mushaf" class="view">
       <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
         <div class="card p-5 flex flex-wrap items-center gap-2">
-          <div class="flex items-center gap-2 text-sm font-extrabold"><i data-lucide="layers" class="w-4 h-4 text-sky-400"></i> الأجزاء الثلاثون</div>
+          <div class="flex items-center gap-2 text-sm font-extrabold">
+            <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+            الأجزاء الثلاثون
+          </div>
           <div class="flex-1"></div>
           <div class="flex flex-wrap items-center gap-1.5" id="stateFilters">
             <button class="chip active" data-filter="all">الكل</button>
@@ -406,11 +506,14 @@ body{
         </div>
 
         <div id="mushafBody" class="space-y-4"></div>
+
       </div>
     </section>
 
+    <!-- ---------- SURAHS ---------- -->
     <section id="view-surahs" class="view">
       <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
         <div class="card p-5 flex flex-wrap items-center gap-2">
           <div class="relative flex-1 min-w-[180px]">
             <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2"></i>
@@ -423,12 +526,15 @@ body{
             <button class="chip" data-sfilter="none">لم تبدأ</button>
           </div>
         </div>
+
         <div id="surahList" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
       </div>
     </section>
 
+    <!-- ---------- GROUP ---------- -->
     <section id="view-group" class="view">
       <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
+
         <div class="card p-6">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
             <h3 class="font-extrabold text-sm flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i> لوحة الصدارة</h3>
@@ -436,15 +542,19 @@ body{
           </div>
           <div id="leaderboard" class="space-y-2"></div>
         </div>
+
         <div class="card p-6">
           <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-400"></i> مقارنة الصفحات المحفوظة</h3>
           <div class="relative" style="height:280px"><canvas id="chartGroup"></canvas></div>
         </div>
+
       </div>
     </section>
 
   </main>
 </div>
+
+<!-- ================= MODALS ================= -->
 
 <!-- Setup (First-run) -->
 <div class="modal" id="modalSetup">
@@ -456,11 +566,19 @@ body{
       <h2 class="text-lg font-extrabold">إعداد الخادم</h2>
       <p class="text-xs text-slate-400 mt-1">أدخل رابط Google Apps Script للبدء</p>
     </div>
+
     <label class="text-xs font-bold text-slate-400 block mb-1.5">Web App URL</label>
-    <input id="setupSheetUrl" class="inp mb-3" dir="ltr" placeholder="https://script.google.com/macros/s/AKfy.../exec" />
+    <input id="setupSheetUrl" class="inp mb-3" dir="ltr"
+           placeholder="https://script.google.com/macros/s/AKfy.../exec" />
+
     <p id="setupResult" class="text-xs mb-4 hidden"></p>
-    <button id="setupTestBtn" class="btn btn-ghost w-full mb-2"><i data-lucide="plug-zap" class="w-4 h-4"></i> اختبار الاتصال</button>
-    <button id="setupSaveBtn" class="btn btn-primary w-full py-3"><i data-lucide="arrow-left" class="w-4 h-4"></i> حفظ ومتابعة للتسجيل</button>
+
+    <button id="setupTestBtn" class="btn btn-ghost w-full mb-2">
+      <i data-lucide="plug-zap" class="w-4 h-4"></i> اختبار الاتصال
+    </button>
+    <button id="setupSaveBtn" class="btn btn-primary w-full py-3">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> حفظ ومتابعة للتسجيل
+    </button>
   </div>
 </div>
 
@@ -474,10 +592,12 @@ body{
       <h2 class="text-lg font-extrabold">مرحباً بك في تَحفِيظ</h2>
       <p class="text-xs text-slate-400 mt-1">سجّل دخولك لمزامنة تقدمك مع مجموعتك</p>
     </div>
+
     <div class="flex gap-1 p-1 rounded-xl bg-slate-800/70 border border-slate-700 mb-5">
       <button class="chip active flex-1 text-center" data-authtab="login">تسجيل الدخول</button>
       <button class="chip flex-1 text-center" data-authtab="register">حساب جديد</button>
     </div>
+
     <div class="space-y-3">
       <div>
         <label class="text-xs font-bold text-slate-400 block mb-1.5">اسم المستخدم</label>
@@ -506,7 +626,9 @@ body{
       </div>
       <button class="icon-btn" data-close="modalPage"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5" id="pgStates"></div>
+
     <div class="card p-4 mb-4">
       <div class="flex items-center justify-between text-xs">
         <span class="text-slate-400 font-bold">آخر مراجعة</span>
@@ -515,10 +637,12 @@ body{
       <div class="pbar mt-2.5"><i id="pgDecayBar" style="width:0%;background:linear-gradient(90deg,#34d399,#fbbf24,#ef4444)"></i></div>
       <p class="text-[11px] text-slate-500 mt-2.5" id="pgDecayText">—</p>
     </div>
+
     <div class="flex flex-wrap gap-2">
       <button class="btn btn-ghost flex-1" id="pgReviewedNow"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> تحديث تاريخ المراجعة</button>
       <button class="btn btn-ghost" id="pgReset"><i data-lucide="eraser" class="w-4 h-4"></i> إعادة تعيين</button>
     </div>
+
     <p class="text-[11px] text-amber-300/80 bg-amber-400/10 border border-amber-400/20 rounded-lg p-3 mt-4 leading-relaxed">
       <b>ملاحظة:</b> حالة «تم التسميع» الذهبية لا يمكن منحها لنفسك — يجب أن يؤكدها عضو آخر من المجموعة.
     </p>
@@ -538,11 +662,13 @@ body{
       </div>
       <button class="icon-btn" data-close="modalMember"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+
     <div class="grid grid-cols-3 gap-2 mb-5">
       <div class="card p-4 text-center"><div class="text-xl font-extrabold text-emerald-300" id="memPages">0</div><div class="text-[11px] text-slate-400 font-bold">صفحة محفوظة</div></div>
       <div class="card p-4 text-center"><div class="text-xl font-extrabold text-amber-300" id="memStreak">0</div><div class="text-[11px] text-slate-400 font-bold">يوم متواصل</div></div>
       <div class="card p-4 text-center"><div class="text-xl font-extrabold text-yellow-300" id="memVerified">0</div><div class="text-[11px] text-slate-400 font-bold">تم تسميعها</div></div>
     </div>
+
     <p class="text-xs text-slate-400 font-bold mb-2">صفحات بانتظار تأكيد التسميع — انقر للتأكيد:</p>
     <div id="memGrid" class="grid gap-2 mb-3" style="grid-template-columns:repeat(auto-fill,minmax(44px,1fr))"></div>
     <p class="text-[11px] text-slate-500">لا توجد صفحات بانتظار التأكيد.</p>
@@ -559,21 +685,26 @@ body{
       </div>
       <button class="icon-btn" data-close="modalSettings"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+
     <label class="text-xs font-bold text-slate-400 block mb-1.5">Google Apps Script Web App URL</label>
     <input id="inputSheetUrl" class="inp mb-3" dir="ltr" placeholder="https://script.google.com/macros/s/AKfy.../exec" />
+
     <div class="flex gap-2 mb-4">
       <button id="btnTestConn" class="btn btn-ghost flex-1"><i data-lucide="plug-zap" class="w-4 h-4"></i> اختبار الاتصال</button>
       <button id="btnSaveUrl" class="btn btn-primary flex-1"><i data-lucide="save" class="w-4 h-4"></i> حفظ</button>
     </div>
     <p id="connResult" class="text-xs mb-4 hidden"></p>
+
     <div class="grid grid-cols-2 gap-2 mb-4">
       <button id="btnExport" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> تصدير البيانات</button>
       <button id="btnImport" class="btn btn-ghost"><i data-lucide="upload" class="w-4 h-4"></i> استيراد البيانات</button>
       <input type="file" id="fileImport" accept="application/json" class="hidden" />
     </div>
+
     <div class="card p-4 text-[11px] text-slate-400 leading-relaxed">
       <b class="text-slate-300">ملاحظة:</b> Google Sheets هو المصدر الوحيد للبيانات. أي تعديل يُرسَل مباشرة إلى الخادم، ولا يُعتمد محلياً إلا بعد تأكيد الاستجابة.
     </div>
+
     <button id="btnResetAll" class="btn btn-danger w-full mt-4"><i data-lucide="trash-2" class="w-4 h-4"></i> حذف كل البيانات المحلية</button>
   </div>
 </div>
@@ -584,11 +715,11 @@ body{
 <script>
 /* ==========================================================================
    تَحفِيظ — Quran Memorization Tracker
-   Google Sheets = Single Source of Truth
    ========================================================================== */
 (() => {
 'use strict';
 
+/* ------------------------------ Utilities ------------------------------ */
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const DAY = 86400000;
@@ -603,6 +734,7 @@ function dayKey(d = new Date()){
 function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/* ------------------------------ Quran Data ------------------------------ */
 const SURAH_DATA = [
 ["الفاتحة",1,7],["البقرة",2,286],["آل عمران",50,200],["النساء",77,176],["المائدة",106,120],
 ["الأنعام",128,165],["الأعراف",151,206],["الأنفال",177,75],["التوبة",187,129],["يونس",208,109],
@@ -655,6 +787,7 @@ const PAGE_JUZ = new Array(605).fill(1);
 SURAHS.forEach(s => { for (let p = s.start; p <= s.end; p++) PAGE_SURAH[p] = s.num; });
 JUZ.forEach(j => { for (let p = j.start; p <= j.end; p++) PAGE_JUZ[p] = j.num; });
 
+/* ------------------------------ States ------------------------------ */
 const STATES = {
   none:      { label: 'لم يبدأ',     color: '#64748b', icon: 'circle' },
   todo:      { label: 'واجب',        color: '#60a5fa', icon: 'bookmark' },
@@ -663,6 +796,7 @@ const STATES = {
   verified:  { label: 'تم التسميع',  color: '#f5c451', icon: 'badge-check' }
 };
 
+/* ------------------------------ App State ------------------------------ */
 let S = {
   user: null,
   pages: {},
@@ -677,9 +811,13 @@ let surahQuery = '';
 let currentPage = null;
 let currentMember = null;
 let charts = {};
-let isBusy = false;
 let openJuz = { 1: true };
 
+/* ✅ حالة المزامنة في الخلفية */
+let pushTimer = null;
+let pushInFlight = false;
+
+/* ------------------------------ Local Persistence ------------------------------ */
 function saveState(){
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e){}
 }
@@ -697,12 +835,13 @@ function loadState(){
   } catch(e){ return false; }
 }
 
+/* ------------------------------ Page helpers ------------------------------ */
 function getPage(p){
   return S.pages[p] || { state: 'none', lastReviewed: null, updatedAt: null };
 }
 
-/* ✅ إصلاح 1: بناء «شاهد قبر» بدل حذف الصفحة عند اختيار «لم يبدأ» */
 function buildPageRecord(state, ts){
+  // ✅ نحتفظ بسجل حتى لحالة "لم يبدأ" (شاهد قبر) لمنع المزامنة من إعادتها
   const reviewStates = ['memorized','review','verified'];
   return {
     state: state || 'none',
@@ -711,6 +850,7 @@ function buildPageRecord(state, ts){
   };
 }
 
+/* ------------------------------ Color decay ------------------------------ */
 function pageStyle(page){
   const st = page.state || 'none';
   if (st === 'none'){
@@ -749,6 +889,7 @@ function decayPercent(page){
   return clamp(Math.round(((Date.now() - page.lastReviewed) / DAY) / 45 * 100), 0, 100);
 }
 
+/* ------------------------------ Statistics ------------------------------ */
 function pageStats(pages){
   const c = { none:0, todo:0, memorized:0, review:0, verified:0 };
   for (let p = 1; p <= 604; p++){
@@ -784,6 +925,7 @@ function computeStreak(activity){
   return streak;
 }
 
+/* ------------------------------ Toast ------------------------------ */
 function toast(msg, type = 'info', icon = null){
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -800,7 +942,6 @@ function toast(msg, type = 'info', icon = null){
 }
 
 function setBusy(on){
-  isBusy = on;
   const ov = $('#busyOverlay');
   if (ov) ov.classList.toggle('on', on);
 }
@@ -809,6 +950,9 @@ function refreshIcons(){
   if (window.lucide) { try { lucide.createIcons(); } catch(e){} }
 }
 
+/* ==========================================================================
+   API — Google Sheets
+   ========================================================================== */
 async function apiGet(params){
   const url = S.settings.sheetUrl;
   if (!url) throw new Error('NO_URL');
@@ -821,13 +965,19 @@ async function apiGet(params){
 async function apiPost(body){
   const url = S.settings.sheetUrl;
   if (!url) throw new Error('NO_URL');
+
   const form = new URLSearchParams();
   Object.keys(body).forEach(k => {
     const v = body[k];
     if (v === null || v === undefined) return;
     form.append(k, (typeof v === 'string') ? v : JSON.stringify(v));
   });
-  const res = await fetch(url, { method: 'POST', body: form, redirect: 'follow' });
+
+  const res = await fetch(url, {
+    method: 'POST',
+    body: form,
+    redirect: 'follow'
+  });
   if (!res.ok) throw new Error('HTTP_' + res.status);
   return await res.json();
 }
@@ -882,12 +1032,12 @@ async function pushToServer(){
   return true;
 }
 
+/* ✅ المزامنة الكاملة — لا تحجب الواجهة */
 async function fullSync(){
   if (!S.settings.sheetUrl){ setSyncStatus('local'); return; }
   if (!navigator.onLine){ setSyncStatus('offline'); throw new Error('OFFLINE'); }
 
   setSyncStatus('syncing');
-  setBusy(true);
   try {
     await pullFromServer();
     await pushToServer();
@@ -896,11 +1046,37 @@ async function fullSync(){
   } catch(e){
     setSyncStatus('error');
     throw e;
-  } finally {
-    setBusy(false);
   }
 }
 
+/* ✅ المزامنة في الخلفية — مُخمَّدة (debounced) */
+function schedulePushInBackground(){
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(doPushInBackground, 500);
+}
+
+async function doPushInBackground(){
+  pushTimer = null;
+  if (pushInFlight) return;
+
+  if (!S.settings.sheetUrl || !navigator.onLine){ return; }
+
+  pushInFlight = true;
+  setSyncStatus('syncing');
+  try {
+    await pushToServer();
+    setSyncStatus('ok');
+  } catch(e){
+    setSyncStatus('error');
+    // لا نُرجع الحالة — نبقيها محلياً وسنعيد المحاولة عند الفرصة التالية
+  } finally {
+    pushInFlight = false;
+  }
+}
+
+/* ==========================================================================
+   SYNC STATUS
+   ========================================================================== */
 function setSyncStatus(st){
   const map = {
     local:   { color: '#64748b', text: 'محلي' },
@@ -910,14 +1086,26 @@ function setSyncStatus(st){
     offline: { color: '#fbbf24', text: 'غير متصل' }
   };
   const m = map[st] || map.local;
-  const dot = $('#syncDotM'), txt = $('#syncTextM');
-  if (dot) dot.style.background = m.color;
-  if (txt) txt.textContent = m.text;
-  if (dot) dot.classList.toggle('pulse', st === 'syncing');
+
+  // Mobile
+  const dotM = $('#syncDotM'), txtM = $('#syncTextM');
+  if (dotM) dotM.style.background = m.color;
+  if (txtM) txtM.textContent = m.text;
+  if (dotM) dotM.classList.toggle('pulse', st === 'syncing');
+
+  // Desktop
+  const dotD = $('#syncDotD'), txtD = $('#syncTextD');
+  if (dotD) dotD.style.background = m.color;
+  if (txtD) txtD.textContent = m.text;
+  if (dotD) dotD.classList.toggle('pulse', st === 'syncing');
 
   const btn = $('#btnSync');
   if (btn){ btn.style.color = m.color; btn.style.borderColor = m.color + '66'; }
 }
+
+/* ==========================================================================
+   RENDERING
+   ========================================================================== */
 
 function renderHeader(){
   const c = pageStats(S.pages);
@@ -1043,6 +1231,7 @@ function renderStats(){
   const totalTracked = c.memorized + c.verified + c.review + c.todo;
   const hasData = totalTracked > 0;
 
+  /* Donut */
   const donutEmpty = $('#donutEmpty');
   if (donutEmpty){
     if (!hasData){
@@ -1062,20 +1251,28 @@ function renderStats(){
         datasets: [{
           data: [c.memorized, c.verified, c.review, c.todo],
           backgroundColor: ['#34d399', '#f5c451', '#fbbf24', '#60a5fa'],
-          borderColor: '#182234', borderWidth: 3, hoverOffset: 8
+          borderColor: '#182234',
+          borderWidth: 3,
+          hoverOffset: 8
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '68%',
         plugins: {
-          legend: { position: 'bottom', labels: {
-            color: '#e2e8f0',
-            font: { family: 'Inter, Tajawal', size: 12, weight: '800' },
-            boxWidth: 12, boxHeight: 12, padding: 14,
-            usePointStyle: true, pointStyle: 'rectRounded'
-          }},
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e2e8f0',
+              font: { family: 'Inter, Tajawal', size: 12, weight: '800' },
+              boxWidth: 12, boxHeight: 12,
+              padding: 14,
+              usePointStyle: true,
+              pointStyle: 'rectRounded'
+            }
+          },
           tooltip: {
-            backgroundColor: 'rgba(15,23,42,.96)', borderColor: '#334155', borderWidth: 1,
+            backgroundColor: 'rgba(15,23,42,.96)',
+            borderColor: '#334155', borderWidth: 1,
             titleColor: '#e2e8f0', bodyColor: '#cbd5e1',
             padding: 12, cornerRadius: 10, displayColors: true,
             callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} صفحة` }
@@ -1087,6 +1284,7 @@ function renderStats(){
     if (charts['chartDonut']) { charts['chartDonut'].destroy(); delete charts['chartDonut']; }
   }
 
+  /* Activity Line */
   const labels = [], values = [];
   for (let d = 13; d >= 0; d--){
     const dt = new Date(Date.now() - d * DAY);
@@ -1168,6 +1366,7 @@ function renderStats(){
     }
   });
 
+  /* Big Numbers */
   const streak = computeStreak(S.activity);
   const activeDays = Object.keys(S.activity).length || 1;
   const totalActs = Object.values(S.activity).reduce((a, b) => a + b, 0);
@@ -1176,7 +1375,6 @@ function renderStats(){
   $('#avgBig').textContent = Math.round(totalActs / activeDays);
 
   renderHeatmap();
-
   if (window.lucide) lucide.createIcons();
 }
 
@@ -1324,6 +1522,9 @@ function makeChart(id, cfg){
   charts[id] = new Chart(el.getContext('2d'), cfg);
 }
 
+/* ==========================================================================
+   PAGE MODAL
+   ========================================================================== */
 function openPageModal(p){
   currentPage = p;
   const pg = getPage(p);
@@ -1361,6 +1562,9 @@ function openPageModal(p){
   openModal('modalPage');
 }
 
+/* ==========================================================================
+   MEMBER MODAL
+   ========================================================================== */
 function openMemberModal(id){
   const m = S.members.find(x => x.id === id);
   if (!m){ toast('هذا العضو غير متاح', 'info'); return; }
@@ -1399,6 +1603,9 @@ function openMemberModal(id){
   openModal('modalMember');
 }
 
+/* ==========================================================================
+   MODAL HELPERS
+   ========================================================================== */
 function openModal(id){ const el = document.getElementById(id); if (el) el.classList.add('open'); }
 function closeModal(id){ const el = document.getElementById(id); if (el) el.classList.remove('open'); }
 
@@ -1411,9 +1618,13 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') $$('.modal.open').forEach(m => m.classList.remove('open'));
 });
 
+/* ==========================================================================
+   SETUP MODAL (First-run)
+   ========================================================================== */
 function setupSetupModal(){
   const urlInput = $('#setupSheetUrl');
   const resultBox = $('#setupResult');
+
   urlInput.value = S.settings.sheetUrl || '';
 
   const showResult = (cls, text) => {
@@ -1429,8 +1640,11 @@ function setupSetupModal(){
     try {
       const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'action=ping', { method: 'GET' });
       const data = await res.json();
-      if (data && data.ok) showResult('text-emerald-400', '✓ الاتصال ناجح — جاهز للعمل');
-      else showResult('text-amber-400', '⚠ استجاب الخادم لكن الرد غير متوقع');
+      if (data && data.ok){
+        showResult('text-emerald-400', '✓ الاتصال ناجح — جاهز للعمل');
+      } else {
+        showResult('text-amber-400', '⚠ استجاب الخادم لكن الرد غير متوقع');
+      }
     } catch(e){
       showResult('text-red-400', '✗ فشل الاتصال — تأكد من نشر Web App بصلاحية «Anyone»');
     }
@@ -1438,25 +1652,37 @@ function setupSetupModal(){
 
   $('#setupSaveBtn').addEventListener('click', async () => {
     const url = urlInput.value.trim();
-    if (!url){ showResult('text-red-400', 'يجب إدخال الرابط للمتابعة'); return; }
+    if (!url){
+      showResult('text-red-400', 'يجب إدخال الرابط للمتابعة');
+      return;
+    }
     showResult('text-sky-300', 'جارٍ التحقق من الرابط...');
+
     try {
       const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'action=ping', { method: 'GET' });
       const data = await res.json();
-      if (!data || !data.ok){ showResult('text-red-400', '✗ الرابط لم يستجب بشكل صحيح'); return; }
+      if (!data || !data.ok){
+        showResult('text-red-400', '✗ الرابط لم يستجب بشكل صحيح');
+        return;
+      }
     } catch(e){
       showResult('text-red-400', '✗ فشل الاتصال — تحقّق من الرابط');
       return;
     }
+
     S.settings.sheetUrl = url;
     saveState();
     setSyncStatus('ok');
     closeModal('modalSetup');
     toast('تم حفظ الرابط — أنشئ حساباً أو سجّل الدخول', 'success');
+
     setTimeout(() => openModal('modalAuth'), 400);
   });
 }
 
+/* ==========================================================================
+   AUTH
+   ========================================================================== */
 let authMode = 'login';
 
 function setupAuth(){
@@ -1478,8 +1704,11 @@ function setupAuth(){
     if (S.user){
       if (confirm('هل تريد تسجيل الخروج؟')) logout();
     } else {
-      if (!S.settings.sheetUrl) openModal('modalSetup');
-      else openModal('modalAuth');
+      if (!S.settings.sheetUrl){
+        openModal('modalSetup');
+      } else {
+        openModal('modalAuth');
+      }
     }
   });
 }
@@ -1559,72 +1788,73 @@ function logout(){
   S.user = null;
   saveState();
   refreshAll();
-  if (S.settings.sheetUrl) openModal('modalAuth');
-  else openModal('modalSetup');
+  if (S.settings.sheetUrl){
+    openModal('modalAuth');
+  } else {
+    openModal('modalSetup');
+  }
   toast('تم تسجيل الخروج', 'info');
 }
 
 /* ==========================================================================
-   ✅ إصلاح 2: commitPageChange
-   - يحفظ «شاهد قبر» للصفحات المعيّنة «لم يبدأ»
-   - لا يحتسب النشاط إلا عند الانتقال الفعلي إلى حالة إيجابية
+   COMMIT PAGE CHANGE
+   ✅ منطق العدّاد الجديد + مزامنة في الخلفية
    ========================================================================== */
 async function commitPageChange(page, newState, opts = {}){
-  if (isBusy) return;
-  setBusy(true);
-
-  const snapshot = {
-    pages: JSON.parse(JSON.stringify(S.pages)),
-    activity: JSON.parse(JSON.stringify(S.activity))
-  };
-
-  // ✅ نحتفظ بالحالة القديمة لمعرفة هل تغيّرت فعلاً
   const oldState = getPage(page).state;
   const stateChanged = oldState !== newState;
 
-  // ✅ نحفظ الصفحة دائماً (حتى لو "لم يبدأ") — شاهد قبر يمنع الإحياء
+  // ✅ حساب الفارق حسب القاعدة الجديدة
+  // لم يبدأ → -1 (تراجع)
+  // واجب → 0 (لا يؤثر)
+  // محفوظ / مراجعة / تم التسميع → +1 (تقدم)
+  // نفس الحالة → 0
+  let delta = 0;
+  if (stateChanged){
+    if (newState === 'none')                    delta = -1;
+    else if (newState === 'todo')               delta =  0;
+    else if (newState === 'memorized')          delta = +1;
+    else if (newState === 'review')             delta = +1;
+    else if (newState === 'verified')           delta = +1;
+  }
+
+  // تحديث الصفحة (نُبقي سجل "شاهد قبر" حتى لو كانت الحالة "لم يبدأ")
   const nextPages = { ...S.pages };
   nextPages[page] = buildPageRecord(newState, opts.lastReviewed);
 
-  // ✅ قاعدة النشاط الجديدة: لا نحسب التصحيحات أو الإرجاع
-  // فقط عند الانتقال إلى حالة إيجابية (محفوظ/تم التسميع/مراجعة)
-  const positiveStates = ['memorized', 'verified', 'review'];
-  const shouldLogActivity = !opts.silentActivity && stateChanged && positiveStates.includes(newState);
-
+  // تحديث النشاط مع منع السالب
   const nextActivity = { ...S.activity };
-  if (shouldLogActivity){
+  if (delta !== 0 && !opts.silentActivity){
     const k = dayKey();
-    nextActivity[k] = (nextActivity[k] || 0) + 1;
+    const current = nextActivity[k] || 0;
+    const updated = Math.max(0, current + delta);
+    if (updated === 0) delete nextActivity[k];
+    else nextActivity[k] = updated;
   }
 
   S.pages = nextPages;
   S.activity = nextActivity;
 
-  try {
-    if (S.settings.sheetUrl){
-      setSyncStatus('syncing');
-      await pushToServer();
-      setSyncStatus('ok');
-    }
-    saveState();
-    refreshAll();
+  // ✅ تحديث الواجهة فوراً (لا انتظار)
+  saveState();
+  refreshAll();
 
-    if (stateChanged){
-      toast(`تم تحديث الصفحة ${page} إلى «${STATES[newState].label}»`, 'success');
-    } else {
-      toast(`تم تحديث تاريخ مراجعة الصفحة ${page}`, 'success');
-    }
-  } catch(e){
-    S.pages = snapshot.pages;
-    S.activity = snapshot.activity;
-    saveState();
-    setSyncStatus('error');
-    toast('فشل الحفظ — لم يتم تحديث البيانات', 'error');
-  } finally {
-    setBusy(false);
+  // إشعار
+  if (stateChanged){
+    toast(`تم تحديث الصفحة ${page} إلى «${STATES[newState].label}»`, 'success');
+  } else {
+    toast(`تم تحديث تاريخ مراجعة الصفحة ${page}`, 'success');
+  }
+
+  // ✅ المزامنة في الخلفية — لا تحجب المستخدم
+  if (S.settings.sheetUrl && S.user){
+    schedulePushInBackground();
   }
 }
 
+/* ==========================================================================
+   SETTINGS
+   ========================================================================== */
 function setupSettings(){
   $('#btnSettings').addEventListener('click', () => {
     $('#inputSheetUrl').value = S.settings.sheetUrl || '';
@@ -1640,12 +1870,10 @@ function setupSettings(){
 
     if (url){
       setSyncStatus('ok');
-      try {
-        await fullSync();
-        toast('تم الربط والمزامنة بنجاح ✓', 'success');
-      } catch(e){
-        toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn');
-      }
+      // ✅ المزامنة في الخلفية
+      fullSync()
+        .then(() => toast('تم الربط والمزامنة بنجاح ✓', 'success'))
+        .catch(() => toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn'));
     } else {
       setSyncStatus('local');
       toast('تم إزالة الرابط — الوضع المحلي', 'info');
@@ -1684,16 +1912,13 @@ function setupSettings(){
   $('#btnSync').addEventListener('click', async () => {
     if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
     if (!S.user){ toast('يرجى تسجيل الدخول أولاً', 'warn'); return; }
-    try {
-      await fullSync();
-      toast('تمت المزامنة بنجاح ✓', 'success');
-    } catch(e){
-      if (String(e.message) === 'OFFLINE'){
-        toast('لا يوجد اتصال بالإنترنت', 'warn');
-      } else {
-        toast('فشلت المزامنة — تحقّق من الرابط والصلاحيات', 'error');
-      }
-    }
+    // ✅ المزامنة في الخلفية — لا انتظار
+    fullSync()
+      .then(() => toast('تمت المزامنة بنجاح ✓', 'success'))
+      .catch((e) => {
+        if (String(e.message) === 'OFFLINE') toast('لا يوجد اتصال بالإنترنت', 'warn');
+        else toast('فشلت المزامنة — تحقّق من الرابط والصلاحيات', 'error');
+      });
   });
 
   $('#btnExport').addEventListener('click', () => {
@@ -1711,7 +1936,7 @@ function setupSettings(){
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async ev => {
+    reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
         if (!data.pages) throw new Error('bad');
@@ -1719,20 +1944,10 @@ function setupSettings(){
         S.activity = data.activity || {};
         if (Array.isArray(data.members)) S.members = data.members;
         saveState();
-        if (S.settings.sheetUrl && S.user){
-          try {
-            await pushToServer();
-            toast('تم الاستيراد والرفع للسحابة', 'success');
-            setSyncStatus('ok');
-          } catch(e){
-            toast('تم الاستيراد محلياً — فشل الرفع', 'warn');
-            setSyncStatus('error');
-          }
-        } else {
-          toast('تم الاستيراد محلياً', 'success');
-        }
         refreshAll();
         closeModal('modalSettings');
+        toast('تم الاستيراد بنجاح', 'success');
+        if (S.settings.sheetUrl && S.user) schedulePushInBackground();
       } catch(err){
         toast('ملف غير صالح', 'error');
       }
@@ -1748,6 +1963,9 @@ function setupSettings(){
   });
 }
 
+/* ==========================================================================
+   EVENT WIRING
+   ========================================================================== */
 function setupTabs(){
   $$('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -1826,6 +2044,7 @@ function setupPageModal(){
     }
     const p = currentPage;
     closeModal('modalPage');
+    // ✅ لا انتظار — يُحدَّث فوراً والمزامنة في الخلفية
     await commitPageChange(p, state, { lastReviewed: Date.now() });
     openPageModal(p);
   });
@@ -1878,6 +2097,9 @@ function setupMemberModal(){
   });
 }
 
+/* ==========================================================================
+   REFRESH
+   ========================================================================== */
 function refreshAll(){
   renderHeader();
   const active = $('.view.active');
@@ -1888,6 +2110,9 @@ function refreshAll(){
   if (active.id === 'view-group') renderGroup();
 }
 
+/* ==========================================================================
+   INIT
+   ========================================================================== */
 async function init(){
   loadState();
 
@@ -1902,6 +2127,7 @@ async function init(){
 
   setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
 
+  // ✅ عرض فوري من الكاش المحلي
   renderHeader();
   renderStats();
   renderMushaf();
@@ -1914,13 +2140,14 @@ async function init(){
   } else if (!S.user){
     setTimeout(() => openModal('modalAuth'), 350);
   } else {
-    try { await fullSync(); } catch(e){}
+    // ✅ المزامنة في الخلفية — لا ننتظر
+    fullSync().catch(() => {});
   }
 
-  window.addEventListener('online', async () => {
+  window.addEventListener('online', () => {
     if (S.settings.sheetUrl && S.user){
       toast('عاد الاتصال — جارٍ المزامنة', 'info');
-      try { await fullSync(); } catch(e){}
+      fullSync().catch(() => {});
     }
   });
   window.addEventListener('offline', () => setSyncStatus('offline'));
