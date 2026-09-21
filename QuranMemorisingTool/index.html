@@ -60,7 +60,7 @@ body{
 .view::-webkit-scrollbar{width:8px}
 .view::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
 
-/* ---------- Tabs ---------- */
+/* ---------- Tabs (top) ---------- */
 .tab{
   position:relative;display:inline-flex;align-items:center;gap:.45rem;
   padding:.5rem .9rem;border-radius:.75rem;color:var(--muted);
@@ -72,6 +72,59 @@ body{
   color:#1a1206;
   background:linear-gradient(180deg,#f5c451,#dda62b);
   box-shadow:0 8px 22px -10px rgba(245,196,81,.9);
+}
+
+/* ✅ Bottom navigation (Mobile only) */
+.bottom-nav{
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .35rem;
+  padding: .5rem .65rem calc(.5rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(15,23,42,.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(51,65,85,.85);
+  box-shadow: 0 -8px 24px -12px rgba(0,0,0,.7);
+  z-index: 30;
+}
+.bottom-tab{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .18rem;
+  padding: .55rem .25rem .45rem;
+  border-radius: .9rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: .65rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.bottom-tab svg{
+  width: 22px;
+  height: 22px;
+  transition: transform .2s ease;
+}
+.bottom-tab:hover{
+  color: #e2e8f0;
+  background: rgba(148,163,184,.08);
+}
+.bottom-tab:active{
+  transform: scale(.94);
+}
+.bottom-tab.active{
+  color: #1a1206;
+  background: linear-gradient(180deg,#f5c451,#dda62b);
+  box-shadow: 0 8px 18px -8px rgba(245,196,81,.85);
+}
+.bottom-tab.active svg{
+  transform: scale(1.08);
 }
 
 /* ---------- Cards ---------- */
@@ -179,7 +232,6 @@ body{
 }
 .heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
 
-/* ✅ المربعات الشبحية (خريطة فارغة) */
 .heat i.ghost{
   background:#1b2537 !important;
   border-color:rgba(100,116,139,.18) !important;
@@ -309,12 +361,10 @@ body{
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ✅ Mobile-only overrides  (max-width: 767px = Tailwind 'md' - 1px)
-   سطح المكتب (md+): لا يتأثر بأي من هذه القواعد
+   ✅ Mobile-only overrides  (< md = 768px)
    ══════════════════════════════════════════════════════════════ */
 @media (max-width: 767px){
 
-  /* ✅ بطاقات الإحصائيات — تصغير الحشوات والأحجام */
   .stat-card{
     padding:.7rem .8rem !important;
     gap:.55rem;
@@ -334,12 +384,10 @@ body{
     line-height:1.25;
   }
 
-  /* ✅ التبويبات — حشوة أقل */
   .tab{
     padding:.5rem .65rem;
   }
 
-  /* ✅ شارة المزامنة المدمجة في السطر الأول */
   .sync-chip-mobile{
     padding:.25rem .5rem;
     gap:.3rem;
@@ -349,7 +397,6 @@ body{
     font-size:.6rem;
   }
 
-  /* ✅ بطاقات الأرقام السريعة (4 أعمدة) */
   .mobile-stat{
     padding:.4rem .25rem !important;
     gap:.3rem !important;
@@ -375,6 +422,11 @@ body{
     margin-top:.15rem;
     color:var(--muted);
   }
+
+  /* رفع الـ toasts فوق شريط التنقل السفلي */
+  #toasts{
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 </style>
 </head>
@@ -398,7 +450,7 @@ body{
 
       <div class="flex-1"></div>
 
-      <!-- Desktop stats (unchanged) -->
+      <!-- Desktop stats -->
       <div class="hidden lg:flex items-center gap-2">
         <div class="stat-pill" title="نسبة الحفظ الكلية">
           <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
@@ -422,9 +474,8 @@ body{
         </div>
       </div>
 
-      <!-- ✅ Actions — مع شارة المزامنة على الجوال في السطر الأول -->
+      <!-- Actions -->
       <div class="flex items-center gap-1.5">
-        <!-- شارة المزامنة (جوال فقط — تظهر < lg) -->
         <div class="stat-pill sync-chip-mobile lg:hidden" id="syncPillM" title="حالة المزامنة">
           <span class="sync-dot" id="syncDotM" style="background:#64748b"></span>
           <span id="syncTextM" class="font-bold">محلي</span>
@@ -442,7 +493,7 @@ body{
       </div>
     </div>
 
-    <!-- ✅ Mobile stats — 4 أعمدة بدون تمرير أفقي -->
+    <!-- Mobile stats (4 أعمدة) -->
     <div class="lg:hidden px-3 pb-2 grid grid-cols-4 gap-1.5">
       <div class="stat-pill mobile-stat" title="نسبة الحفظ الكلية">
         <i data-lucide="pie-chart" class="text-emerald-400"></i>
@@ -480,24 +531,24 @@ body{
     </div>
   </header>
 
-  <!-- ================= TABS ================= -->
-  <nav class="flex-none border-b border-slate-700/50 bg-slate-900/45 z-20">
+  <!-- ================= TABS (Desktop only) ================= -->
+  <nav class="hidden md:block flex-none border-b border-slate-700/50 bg-slate-900/45 z-20">
     <div class="mx-auto max-w-[1400px] px-2 sm:px-6 flex gap-1 overflow-x-auto scroll py-1.5 justify-center md:justify-start">
       <button class="tab active" data-view="stats">
         <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-        <span class="hidden md:inline">الإحصائيات</span>
+        <span>الإحصائيات</span>
       </button>
       <button class="tab" data-view="mushaf">
         <i data-lucide="layout-grid" class="w-4 h-4"></i>
-        <span class="hidden md:inline">المصحف التفاعلي</span>
+        <span>المصحف التفاعلي</span>
       </button>
       <button class="tab" data-view="surahs">
         <i data-lucide="book-marked" class="w-4 h-4"></i>
-        <span class="hidden md:inline">السور</span>
+        <span>السور</span>
       </button>
       <button class="tab" data-view="group">
         <i data-lucide="users" class="w-4 h-4"></i>
-        <span class="hidden md:inline">المجموعة</span>
+        <span>المجموعة</span>
       </button>
     </div>
   </nav>
@@ -537,7 +588,7 @@ body{
           <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
               <i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i>
-              خريطة النشاط (آخر شهر)
+              خريطة النشاط (آخر 90 يوماً)
             </h3>
             <div class="overflow-x-auto scroll pb-1">
               <div id="heatmap" class="heat"></div>
@@ -553,7 +604,6 @@ body{
             </div>
           </div>
 
-          <!-- ✅ الشبكة الجديدة: grid-cols-2 على الجوال، grid-cols-3 على md+ -->
           <div class="flex-1 grid grid-cols-2 gap-2 md:gap-5 md:grid-cols-3">
             <div class="card stat-card">
               <div class="stat-icon" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
@@ -667,6 +717,27 @@ body{
     </section>
 
   </main>
+
+  <!-- ================= BOTTOM NAV (Mobile only) ================= -->
+  <nav class="bottom-nav md:hidden">
+    <button class="bottom-tab active" data-view="stats">
+      <i data-lucide="bar-chart-3"></i>
+      <span>الإحصائيات</span>
+    </button>
+    <button class="bottom-tab" data-view="mushaf">
+      <i data-lucide="layout-grid"></i>
+      <span>المصحف</span>
+    </button>
+    <button class="bottom-tab" data-view="surahs">
+      <i data-lucide="book-marked"></i>
+      <span>السور</span>
+    </button>
+    <button class="bottom-tab" data-view="group">
+      <i data-lucide="users"></i>
+      <span>المجموعة</span>
+    </button>
+  </nav>
+
 </div>
 
 <!-- ================= MODALS ================= -->
@@ -1498,11 +1569,12 @@ function renderStats(){
   if (window.lucide) lucide.createIcons();
 }
 
+/* ✅ خريطة النشاط — آخر 13 أسبوعاً (~90 يوماً) */
 function renderHeatmap(){
   const wrap = $('#heatmap');
   if (!wrap) return;
 
-  const WEEKS = 5;
+  const WEEKS = 13; // 13 × 7 = 91 يوماً
   const today = new Date(); today.setHours(0,0,0,0);
   const start = new Date(today);
   start.setDate(start.getDate() - (WEEKS * 7 - 1));
@@ -2122,12 +2194,18 @@ function setupSettings(){
 /* ==========================================================================
    EVENT WIRING
    ========================================================================== */
+
+/* ✅ يربط التبويبات العلوية والسفلية معاً */
 function setupTabs(){
-  $$('.tab').forEach(tab => {
+  const allTabs = $$('.tab[data-view], .bottom-tab[data-view]');
+
+  allTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const view = tab.getAttribute('data-view');
-      $$('.tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+
+      // فعّل كل التبويبات المطابقة (العلوية والسفلية)
+      allTabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-view') === view));
+
       $$('.view').forEach(v => v.classList.remove('active'));
       const target = document.getElementById('view-' + view);
       if (target) target.classList.add('active');
