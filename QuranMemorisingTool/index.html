@@ -174,6 +174,7 @@ body{
   border-radius:2px;
   display:block;
   background:#1b2537;
+  border:1px solid rgba(100,116,139,.30);
   transition:transform .12s;
 }
 .heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
@@ -356,6 +357,7 @@ body{
           ⚠️ لم يتم ضبط رابط Google Sheets — التطبيق يعمل محلياً فقط. اضغط ⚙️ لربط الخادم.
         </div>
 
+        <!-- Row 1: Donut + Activity -->
         <div class="grid gap-5 lg:grid-cols-3">
           <div class="card p-6 lg:col-span-1">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> توزيع الحالات</h3>
@@ -368,50 +370,60 @@ body{
           </div>
         </div>
 
-        <div class="grid gap-5 lg:grid-cols-3">
-          <div class="card p-6 flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
-              <i data-lucide="flame" class="w-7 h-7 text-amber-400"></i>
-            </div>
-            <div>
-              <div class="text-3xl font-extrabold text-amber-300" id="streakBig">0</div>
-              <div class="text-xs text-slate-400 font-bold">شعلة الاستمرارية (يوم متواصل)</div>
-            </div>
-          </div>
-          <div class="card p-6 flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.04));border:1px solid rgba(52,211,153,.3)">
-              <i data-lucide="check-check" class="w-7 h-7 text-emerald-400"></i>
-            </div>
-            <div>
-              <div class="text-3xl font-extrabold text-emerald-300" id="verifiedBig">0</div>
-              <div class="text-xs text-slate-400 font-bold">صفحات تم تسميعها</div>
-            </div>
-          </div>
-          <div class="card p-6 flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
-              <i data-lucide="calendar-clock" class="w-7 h-7 text-sky-400"></i>
-            </div>
-            <div>
-              <div class="text-3xl font-extrabold text-sky-300" id="avgBig">0</div>
-              <div class="text-xs text-slate-400 font-bold">متوسط الصفحات اليومي</div>
-            </div>
-          </div>
-        </div>
+        <!-- Row 2: Heatmap (compact) + 3 stat cards side by side -->
+        <div class="flex flex-col lg:flex-row gap-5 items-stretch">
 
-        <div class="card p-6">
-          <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i> خريطة النشاط (آخر 26 أسبوعاً)</h3>
-          <div class="overflow-x-auto scroll pb-1">
-            <div id="heatmap" class="heat"></div>
+          <!-- Heatmap card — hugs its content -->
+          <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
+            <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
+              <i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i>
+              خريطة النشاط (آخر 26 أسبوعاً)
+            </h3>
+            <div class="overflow-x-auto scroll pb-1">
+              <div id="heatmap" class="heat"></div>
+            </div>
+            <div class="flex items-center gap-2 mt-4 text-[11px] text-slate-400 flex-wrap">
+              <span>أقل</span>
+              <span class="w-3 h-3 rounded-sm" style="background:#1b2537;border:1px solid rgba(100,116,139,.30)"></span>
+              <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.35)"></span>
+              <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.6)"></span>
+              <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.82)"></span>
+              <span class="w-3 h-3 rounded-sm" style="background:#34d399"></span>
+              <span>أكثر</span>
+            </div>
           </div>
-          <div class="flex items-center gap-2 mt-4 text-[11px] text-slate-400">
-            <span>أقل</span>
-            <span class="w-3 h-3 rounded-sm" style="background:#1b2537"></span>
-            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.35)"></span>
-            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.6)"></span>
-            <span class="w-3 h-3 rounded-sm" style="background:rgba(52,211,153,.82)"></span>
-            <span class="w-3 h-3 rounded-sm" style="background:#34d399"></span>
-            <span>أكثر</span>
+
+          <!-- 3 stat cards — fill remaining space -->
+          <div class="flex-1 grid gap-5 sm:grid-cols-3">
+            <div class="card p-6 flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
+                <i data-lucide="flame" class="w-7 h-7 text-amber-400"></i>
+              </div>
+              <div>
+                <div class="text-3xl font-extrabold text-amber-300" id="streakBig">0</div>
+                <div class="text-xs text-slate-400 font-bold">شعلة الاستمرارية (يوم متواصل)</div>
+              </div>
+            </div>
+            <div class="card p-6 flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.04));border:1px solid rgba(52,211,153,.3)">
+                <i data-lucide="check-check" class="w-7 h-7 text-emerald-400"></i>
+              </div>
+              <div>
+                <div class="text-3xl font-extrabold text-emerald-300" id="verifiedBig">0</div>
+                <div class="text-xs text-slate-400 font-bold">صفحات تم تسميعها</div>
+              </div>
+            </div>
+            <div class="card p-6 flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
+                <i data-lucide="calendar-clock" class="w-7 h-7 text-sky-400"></i>
+              </div>
+              <div>
+                <div class="text-3xl font-extrabold text-sky-300" id="avgBig">0</div>
+                <div class="text-xs text-slate-400 font-bold">متوسط الصفحات اليومي</div>
+              </div>
+            </div>
           </div>
+
         </div>
 
       </div>
@@ -667,7 +679,7 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const DAY = 86400000;
 const LS_KEY = 'tahfeez_state_v1';
 
-const ar = n => String(n);  // Western Arabic numerals enforced
+const ar = n => String(n);
 
 function dayKey(d = new Date()){
   const x = new Date(d); x.setHours(0,0,0,0);
@@ -906,7 +918,6 @@ async function apiPost(body){
   const url = S.settings.sheetUrl;
   if (!url) throw new Error('NO_URL');
 
-  // استخدام form-encoded لتجاوز preflight و302 redirect
   const form = new URLSearchParams();
   Object.keys(body).forEach(k => {
     const v = body[k];
@@ -923,9 +934,6 @@ async function apiPost(body){
   return await res.json();
 }
 
-/**
- * تدمج البيانات القادمة من الخادم بدل استبدالها.
- */
 async function pullFromServer(){
   if (!S.settings.sheetUrl) return false;
   const user = S.user ? S.user.name : 'guest';
@@ -1223,11 +1231,11 @@ function renderHeatmap(){
     const k = dayKey(cursor);
     const v = S.activity[k] || 0;
     let bg = '#1b2537';
-    if (v === 0)               bg = '#1b2537';                 // فارغ ← رمادي خافت
-    else if (v <= 2)           bg = 'rgba(52,211,153,.35)';    // أخضر فاتح
-    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';    // أخضر متوسط
-    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';    // أخضر داكن
-    else                       bg = '#34d399';                 // أخضر عميق
+    if (v === 0)               bg = '#1b2537';
+    else if (v <= 2)           bg = 'rgba(52,211,153,.35)';
+    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';
+    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';
+    else                       bg = '#34d399';
 
     const label = `${cursor.toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' })} — ${v ? v + ' صفحة' : 'لا نشاط'}`;
     html += `<i style="background:${bg}" title="${label}"></i>`;
@@ -1543,14 +1551,11 @@ async function doAuth(){
       return;
     }
 
-    // نجاح
     if (authMode === 'register'){
-      // حساب جديد → امسح كل البيانات المحلية
       S.pages = {};
       S.activity = {};
       S.members = [];
     } else {
-      // تسجيل دخول → حمّل البيانات من الخادم
       S.pages = (res.user && res.user.pages) || {};
       S.activity = (res.user && res.user.activity) || {};
       S.members = Array.isArray(res.members) ? res.members : [];
@@ -1939,16 +1944,14 @@ async function init(){
   renderGroup();
   refreshIcons();
 
-  // التدفق: رابط أولاً → تسجيل دخول → مزامنة
   if (!S.settings.sheetUrl){
     setTimeout(() => openModal('modalSetup'), 350);
   } else if (!S.user){
     setTimeout(() => openModal('modalAuth'), 350);
   } else {
-    try { await fullSync(); } catch(e){ /* sync status يُظهر الحالة */ }
+    try { await fullSync(); } catch(e){}
   }
 
-  // مزامنة عند عودة الاتصال
   window.addEventListener('online', async () => {
     if (S.settings.sheetUrl && S.user){
       toast('عاد الاتصال — جارٍ المزامنة', 'info');
