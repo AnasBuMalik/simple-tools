@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>دليل تَحفِيظ · ابدأ في 3 دقائق</title>
+<title>تَحفِيظ · دليل بسيط</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,211 +27,458 @@ body{
   font-family:'Inter','Tajawal',system-ui,sans-serif;
   font-variant-numeric:tabular-nums;
   line-height:1.7;
-  padding:1.5rem 1rem 3rem;
+  padding:2rem 1rem 4rem;
   -webkit-font-smoothing:antialiased;
 }
 code{
   background:#0b1424;border:1px solid #24334a;color:#93c5fd;
-  padding:.08rem .4rem;border-radius:.3rem;font-size:.85em;
+  padding:.08rem .4rem;border-radius:.3rem;font-size:.82em;
   font-family:'Consolas','Monaco',monospace;direction:ltr;display:inline-block;
 }
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 
-.wrap{max-width:900px;margin:0 auto}
+.wrap{max-width:720px;margin:0 auto}
 
 /* ═══════ Header ═══════ */
-header{text-align:center;margin-bottom:1.75rem}
-.logo{
-  width:58px;height:58px;border-radius:16px;margin:0 auto .75rem;
-  display:grid;place-items:center;font-size:1.75rem;
-  background:linear-gradient(145deg,#f5c451,#c98f1d);
-  box-shadow:0 16px 36px -18px #f5c451;
+header{text-align:center;margin-bottom:2rem}
+h1{
+  font-size:1.75rem;
+  font-weight:800;
+  letter-spacing:-.02em;
+  margin-bottom:.4rem;
 }
-h1{font-size:1.55rem;font-weight:800;margin-bottom:.25rem;letter-spacing:-.02em}
-header p{color:var(--muted);font-size:.85rem}
-.badge{
-  display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;
-  padding:.28rem .8rem;border-radius:999px;
+header .sub{
+  color:var(--muted);
+  font-size:.9rem;
+}
+header .badge{
+  display:inline-flex;align-items:center;gap:.4rem;margin-top:.9rem;
+  padding:.35rem .9rem;border-radius:999px;
   background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);
-  color:#a7f3d0;font-size:.72rem;font-weight:800;
+  color:#a7f3d0;font-size:.75rem;font-weight:800;
 }
 
-/* ═══════ Flow diagram ═══════ */
-.flow{
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
-  margin-bottom:1.5rem;flex-wrap:wrap;
-  padding:.9rem;background:rgba(30,41,59,.55);
-  border:1px solid rgba(51,65,85,.7);border-radius:1rem;
+/* ═══════ Roadmap (top map) ═══════ */
+.map-box{
+  background:linear-gradient(180deg,rgba(30,41,59,.7),rgba(30,41,59,.35));
+  border:1px solid rgba(51,65,85,.8);
+  border-radius:1.2rem;
+  padding:1.25rem 1rem;
+  margin-bottom:2.5rem;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
-.flow-step{
-  display:flex;align-items:center;gap:.45rem;
-  padding:.4rem .8rem;border-radius:.65rem;
-  background:rgba(245,196,81,.10);border:1px solid rgba(245,196,81,.3);
-  font-size:.76rem;font-weight:800;color:#fde68a;
+.map-box::-webkit-scrollbar{display:none}
+.map-title{
+  font-size:.72rem;
+  font-weight:800;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  text-align:center;
+  margin-bottom:1rem;
 }
-.flow-step .n{
-  width:20px;height:20px;border-radius:50%;
-  background:#f5c451;color:#1a1206;
-  display:grid;place-items:center;font-size:.7rem;font-weight:800;
+.map-nodes{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+  min-width:fit-content;
+  padding:0 .5rem;
 }
-.flow-arrow{color:#475569;font-size:1rem}
+.map-node{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.35rem;
+  padding:.6rem .55rem;
+  border-radius:.85rem;
+  background:rgba(148,163,184,.06);
+  border:1px solid rgba(51,65,85,.9);
+  min-width:78px;
+  transition:all .2s;
+}
+.map-node:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+}
+.map-node .ico{
+  font-size:1.35rem;
+  line-height:1;
+}
+.map-node .lbl{
+  font-size:.66rem;
+  font-weight:800;
+  color:#cbd5e1;
+  text-align:center;
+  line-height:1.3;
+}
+.map-arrow{
+  flex-shrink:0;
+  color:#475569;
+  font-size:1.1rem;
+  margin:0 .15rem;
+}
 
-/* ═══════ Tabs ═══════ */
-.tabs{
-  display:flex;gap:.35rem;margin-bottom:1.25rem;
-  padding:.35rem;background:rgba(30,41,59,.7);
-  border:1px solid rgba(51,65,85,.8);border-radius:.9rem;
-  overflow-x:auto;scrollbar-width:none;
+/* ═══════ Phase ═══════ */
+.phase{
+  margin-bottom:2.5rem;
 }
-.tabs::-webkit-scrollbar{display:none}
-.tab{
-  flex:1;min-width:0;padding:.6rem .5rem;border-radius:.65rem;
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
-  background:transparent;border:none;cursor:pointer;
-  color:var(--muted);font-family:inherit;font-weight:800;font-size:.78rem;
-  transition:all .2s;white-space:nowrap;
+.phase-head{
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  padding:1rem 1.25rem;
+  border-radius:1rem 1rem 0 0;
+  margin-bottom:0;
+  position:relative;
 }
-.tab:hover{color:#e2e8f0;background:rgba(148,163,184,.08)}
-.tab.active{
-  background:linear-gradient(180deg,#f5c451,#dda62b);color:#1a1206;
-  box-shadow:0 6px 18px -8px rgba(245,196,81,.85);
+.phase-head .num{
+  width:44px;
+  height:44px;
+  flex-shrink:0;
+  border-radius:.9rem;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  font-size:1.1rem;
+  color:#0f172a;
 }
-.tab .num{
-  width:19px;height:19px;border-radius:50%;
-  display:grid;place-items:center;font-size:.68rem;font-weight:800;
-  background:rgba(148,163,184,.2);color:inherit;
+.phase-head h2{
+  font-size:1.05rem;
+  font-weight:800;
+  letter-spacing:-.01em;
+  flex:1;
 }
-.tab.active .num{background:rgba(26,18,6,.25)}
+.phase-head .time{
+  font-size:.7rem;
+  font-weight:800;
+  padding:.2rem .6rem;
+  border-radius:999px;
+  background:rgba(15,23,42,.5);
+  color:#cbd5e1;
+  white-space:nowrap;
+}
+.phase-1 .phase-head{background:linear-gradient(135deg,rgba(96,165,250,.22),rgba(96,165,250,.06));border:1px solid rgba(96,165,250,.4);border-bottom:none}
+.phase-1 .phase-head .num{background:linear-gradient(145deg,#60a5fa,#3b82f6);box-shadow:0 8px 20px -10px #60a5fa}
+.phase-2 .phase-head{background:linear-gradient(135deg,rgba(251,191,36,.22),rgba(251,191,36,.06));border:1px solid rgba(251,191,36,.4);border-bottom:none}
+.phase-2 .phase-head .num{background:linear-gradient(145deg,#fbbf24,#d97706);box-shadow:0 8px 20px -10px #fbbf24}
+.phase-3 .phase-head{background:linear-gradient(135deg,rgba(52,211,153,.22),rgba(52,211,153,.06));border:1px solid rgba(52,211,153,.4);border-bottom:none}
+.phase-3 .phase-head .num{background:linear-gradient(145deg,#34d399,#059669);box-shadow:0 8px 20px -10px #34d399}
 
-/* ═══════ Panel ═══════ */
-.panel{display:none}
-.panel.active{display:block;animation:fadeIn .28s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
-.card{
-  background:linear-gradient(180deg,rgba(30,41,59,.9),rgba(30,41,59,.55));
-  border:1px solid rgba(51,65,85,.8);border-radius:1.1rem;
+.phase-body{
   padding:1.25rem;
+  border-radius:0 0 1rem 1rem;
+  background:linear-gradient(180deg,rgba(30,41,59,.75),rgba(30,41,59,.5));
+  border:1px solid rgba(51,65,85,.75);
+  border-top:none;
 }
-.card + .card{margin-top:.9rem}
+.phase-1 .phase-body{border-color:rgba(96,165,250,.25)}
+.phase-2 .phase-body{border-color:rgba(251,191,36,.25)}
+.phase-3 .phase-body{border-color:rgba(52,211,153,.25)}
 
-/* ═══════ Steps ═══════ */
-ol.steps{list-style:none;counter-reset:s}
-ol.steps li{
-  position:relative;padding:.55rem 2rem .55rem 0;
-  font-size:.88rem;color:#cbd5e1;
-  border-bottom:1px dashed rgba(51,65,85,.5);
+/* ═══════ Step ═══════ */
+.step{
+  display:flex;
+  gap:1rem;
+  align-items:flex-start;
+  padding:1rem;
+  border-radius:.85rem;
+  background:rgba(15,23,42,.4);
+  border:1px solid rgba(51,65,85,.5);
+  transition:all .2s;
 }
-ol.steps li:last-child{border-bottom:none}
-ol.steps li::before{
-  counter-increment:s;content:counter(s);
-  position:absolute;right:0;top:.65rem;
-  width:22px;height:22px;border-radius:50%;
-  background:rgba(96,165,250,.15);border:1.5px solid #60a5fa;
-  color:#bfdbfe;font-size:.7rem;font-weight:800;
-  display:grid;place-items:center;
+.step:hover{
+  background:rgba(15,23,42,.6);
+  border-color:rgba(100,116,139,.6);
+  transform:translateX(-3px);
 }
-ol.steps li strong{color:#fff;font-weight:800}
-ol.steps li b{color:#fde68a;font-weight:800}
+.step-icon{
+  flex-shrink:0;
+  width:44px;
+  height:44px;
+  border-radius:.8rem;
+  display:grid;
+  place-items:center;
+  font-size:1.4rem;
+  background:rgba(148,163,184,.08);
+  border:1px solid rgba(51,65,85,.9);
+}
+.step-num-badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#f5c451,#dda62b);
+  color:#1a1206;
+  font-size:.68rem;
+  font-weight:800;
+  display:grid;
+  place-items:center;
+  border:2px solid #0f172a;
+}
+.step-body{
+  flex:1;
+  min-width:0;
+  position:relative;
+}
+.step-title{
+  font-size:.95rem;
+  font-weight:800;
+  color:#f1f5f9;
+  margin-bottom:.3rem;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  flex-wrap:wrap;
+}
+.step-desc{
+  font-size:.82rem;
+  color:#cbd5e1;
+  line-height:1.7;
+}
+.step-desc b{
+  color:#fde68a;
+  font-weight:800;
+}
+.step-hint{
+  display:inline-block;
+  font-size:.7rem;
+  font-weight:800;
+  padding:.15rem .55rem;
+  border-radius:999px;
+  background:rgba(96,165,250,.15);
+  color:#bfdbfe;
+  border:1px solid rgba(96,165,250,.35);
+}
 
-/* ═══════ Info bars ═══════ */
+/* ═══════ Flow arrow ═══════ */
+.flow-arrow{
+  width:2px;
+  height:26px;
+  margin:0 auto;
+  background:linear-gradient(180deg,rgba(100,116,139,.5),rgba(100,116,139,.15));
+  position:relative;
+}
+.flow-arrow::after{
+  content:'';
+  position:absolute;
+  bottom:-1px;
+  left:50%;
+  transform:translateX(-50%) rotate(45deg);
+  width:8px;
+  height:8px;
+  border-right:2px solid rgba(148,163,184,.6);
+  border-bottom:2px solid rgba(148,163,184,.6);
+}
+
+/* ═══════ Codebox ═══════ */
+.codebox{
+  background:#0b1424;
+  border:1px solid #24334a;
+  border-radius:.85rem;
+  overflow:hidden;
+  margin-top:.7rem;
+}
+.codebox-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:.55rem .9rem;
+  background:rgba(30,41,59,.85);
+  border-bottom:1px solid #24334a;
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--muted);
+  gap:.5rem;
+}
+.codebox-head .label{
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+}
+.dot-red{width:9px;height:9px;border-radius:50%;background:#ef4444}
+.dot-yellow{width:9px;height:9px;border-radius:50%;background:#fbbf24}
+.dot-green{width:9px;height:9px;border-radius:50%;background:#34d399}
+.copy-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.32rem .75rem;
+  border-radius:.5rem;
+  background:rgba(245,196,81,.16);
+  border:1px solid rgba(245,196,81,.45);
+  color:#fde68a;
+  font-size:.7rem;
+  font-weight:800;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:inherit;
+}
+.copy-btn:hover{
+  background:rgba(245,196,81,.3);
+  color:#fff;
+}
+.copy-btn:active{transform:scale(.95)}
+.copy-btn.copied{
+  background:rgba(52,211,153,.22);
+  border-color:rgba(52,211,153,.55);
+  color:#a7f3d0;
+}
+.codebox pre{
+  margin:0;
+  padding:.9rem 1rem;
+  overflow-x:auto;
+  font-family:'Consolas','Monaco',monospace;
+  font-size:.72rem;
+  line-height:1.55;
+  color:#cbd5e1;
+  direction:ltr;
+  text-align:left;
+  max-height:260px;
+  overflow-y:auto;
+}
+.codebox pre::-webkit-scrollbar{width:8px;height:8px}
+.codebox pre::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+
+/* ═══════ Info ═══════ */
 .info{
-  display:flex;gap:.6rem;padding:.75rem .9rem;border-radius:.75rem;
-  font-size:.82rem;line-height:1.65;margin-top:.9rem;
+  display:flex;
+  gap:.65rem;
+  padding:.85rem 1rem;
+  border-radius:.8rem;
+  font-size:.82rem;
+  line-height:1.7;
+  margin-top:.9rem;
 }
-.info .ico{font-size:1.1rem;flex-shrink:0;line-height:1.2}
+.info .ico{font-size:1.15rem;flex-shrink:0;line-height:1.2}
 .info-info{background:rgba(96,165,250,.10);border:1px solid rgba(96,165,250,.3)}
 .info-warn{background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.3)}
 .info-success{background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.3)}
 .info-danger{background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.3)}
 
-/* ═══════ Code box ═══════ */
-.codebox{
-  background:#0b1424;border:1px solid #24334a;border-radius:.85rem;
-  overflow:hidden;margin-top:.85rem;
+/* ═══════ Sharing card ═══════ */
+.share-card{
+  background:linear-gradient(135deg,rgba(96,165,250,.14),rgba(96,165,250,.04));
+  border:1px solid rgba(96,165,250,.4);
+  border-radius:1.1rem;
+  padding:1.4rem;
+  margin-top:1.5rem;
+  display:flex;
+  gap:1rem;
+  align-items:flex-start;
 }
-.codebox-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:.5rem .9rem;background:rgba(30,41,59,.85);
-  border-bottom:1px solid #24334a;font-size:.72rem;font-weight:700;color:var(--muted);
+.share-card .ico{font-size:2rem;line-height:1}
+.share-card h3{
+  font-size:1rem;
+  font-weight:800;
+  color:#bfdbfe;
+  margin-bottom:.5rem;
 }
-.copy-btn{
-  display:inline-flex;align-items:center;gap:.3rem;
-  padding:.3rem .7rem;border-radius:.45rem;
-  background:rgba(245,196,81,.14);border:1px solid rgba(245,196,81,.4);
-  color:#fde68a;font-size:.7rem;font-weight:800;cursor:pointer;
-  transition:all .15s;font-family:inherit;
+.share-card p{
+  font-size:.85rem;
+  color:#cbd5e1;
+  line-height:1.8;
 }
-.copy-btn:hover{background:rgba(245,196,81,.28);color:#fff}
-.copy-btn:active{transform:scale(.94)}
-.copy-btn.copied{background:rgba(52,211,153,.22);border-color:rgba(52,211,153,.5);color:#a7f3d0}
-.codebox pre{
-  margin:0;padding:.85rem 1rem;overflow-x:auto;
-  font-family:'Consolas','Monaco',monospace;font-size:.74rem;
-  line-height:1.6;color:#cbd5e1;direction:ltr;text-align:left;
-  max-height:280px;overflow-y:auto;
-}
-.codebox pre::-webkit-scrollbar{width:8px;height:8px}
-.codebox pre::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
-
-/* ═══════ Field mock ═══════ */
-.field-mock{
-  padding:.75rem .9rem;background:#0b1424;
-  border:1px solid #24334a;border-radius:.6rem;margin:.6rem 0;
-  font-size:.8rem;line-height:2;
-}
-.field-mock .lbl{color:#fde68a;font-weight:800}
-.field-mock .val{color:#a7f3d0;font-weight:800}
-.field-mock .bad{color:#fca5a5;font-weight:800}
-
-/* ═══════ Verify table ═══════ */
-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.85rem}
-th,td{padding:.55rem .7rem;text-align:right;border-bottom:1px solid #24334a}
-th{background:rgba(30,41,59,.85);color:var(--muted);font-weight:800;font-size:.72rem}
-tr:last-child td{border-bottom:none}
-.ok{color:#34d399;font-weight:800}
-.bad{color:#f87171;font-weight:800}
-
-/* ═══════ CTA ═══════ */
-.cta{
-  display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;
-  margin-top:1.5rem;padding-top:1.25rem;
-  border-top:1px solid #24334a;
-}
-.btn{
-  display:inline-flex;align-items:center;gap:.45rem;
-  padding:.65rem 1.15rem;border-radius:.7rem;
-  font-weight:800;font-size:.82rem;
-  border:none;cursor:pointer;font-family:inherit;
-  text-decoration:none;transition:all .15s;
-}
-.btn-primary{background:linear-gradient(180deg,#f5c451,#dda62b);color:#1a1206}
-.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px);text-decoration:none}
-.btn-ghost{background:rgba(148,163,184,.1);border:1px solid #334155;color:#cbd5e1}
-.btn-ghost:hover{background:rgba(148,163,184,.2);color:#fff;text-decoration:none}
 
 /* ═══════ FAQ ═══════ */
 .faq{
-  border:1px solid #334155;border-radius:.75rem;margin-top:.6rem;
-  overflow:hidden;background:rgba(148,163,184,.04);
+  border:1px solid #334155;
+  border-radius:.8rem;
+  margin-top:.65rem;
+  overflow:hidden;
+  background:rgba(148,163,184,.04);
 }
 .faq summary{
-  padding:.7rem .95rem;cursor:pointer;font-weight:800;font-size:.82rem;
-  list-style:none;display:flex;align-items:center;gap:.5rem;
+  padding:.85rem 1rem;
+  cursor:pointer;
+  font-weight:800;
+  font-size:.85rem;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:.6rem;
   transition:background .15s;
 }
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::before{content:'▸';color:var(--gold);transition:transform .2s;display:inline-block}
+.faq summary::before{
+  content:'▸';
+  color:var(--gold);
+  transition:transform .2s;
+  display:inline-block;
+  font-size:1rem;
+}
 .faq[open] summary::before{transform:rotate(90deg)}
 .faq summary:hover{background:rgba(148,163,184,.07)}
-.faq .ans{padding:0 .95rem .9rem 1.6rem;color:var(--muted);font-size:.82rem;line-height:1.75}
+.faq .ans{
+  padding:0 1rem 1rem 2rem;
+  color:var(--muted);
+  font-size:.83rem;
+  line-height:1.8;
+}
 
-/* ═══════ Responsive ═══════ */
+/* ═══════ Section title ═══════ */
+.section-title{
+  font-size:.7rem;
+  font-weight:800;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  margin-bottom:1rem;
+  padding-right:.3rem;
+}
+
+/* ═══════ CTA ═══════ */
+.cta{
+  display:flex;
+  gap:.75rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:2.5rem;
+  padding-top:1.5rem;
+  border-top:1px solid #24334a;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.75rem 1.35rem;
+  border-radius:.75rem;
+  font-weight:800;
+  font-size:.85rem;
+  border:none;
+  cursor:pointer;
+  font-family:inherit;
+  text-decoration:none;
+  transition:all .15s;
+}
+.btn-primary{
+  background:linear-gradient(180deg,#f5c451,#dda62b);
+  color:#1a1206;
+  box-shadow:0 10px 24px -12px #f5c451;
+}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-2px);text-decoration:none}
+.btn-ghost{background:rgba(148,163,184,.1);border:1px solid #334155;color:#cbd5e1}
+.btn-ghost:hover{background:rgba(148,163,184,.2);color:#fff;text-decoration:none}
+
+/* ═══════ Mobile ═══════ */
 @media (max-width:600px){
-  .tab .lbl{display:none}
-  .tab{padding:.65rem .3rem}
-  .flow-step{padding:.35rem .6rem;font-size:.7rem}
+  body{padding:1.5rem .75rem 3rem}
+  h1{font-size:1.45rem}
+  .map-node{min-width:68px;padding:.5rem .4rem}
+  .map-node .ico{font-size:1.15rem}
+  .map-node .lbl{font-size:.6rem}
+  .map-arrow{font-size:.9rem}
+  .step{padding:.85rem;gap:.75rem}
+  .step-icon{width:38px;height:38px;font-size:1.2rem}
+  .phase-head{padding:.85rem 1rem}
+  .phase-head .num{width:38px;height:38px;font-size:1rem}
+  .phase-head h2{font-size:.95rem}
+  .phase-body{padding:1rem}
 }
 </style>
 </head>
@@ -241,45 +488,134 @@ tr:last-child td{border-bottom:none}
 
   <!-- ═══════ Header ═══════ -->
   <header>
-    <h1>دليل استخدام تَحفِيظ</h1>
+    <h1>دليل تَحفِيظ المبسّط</h1>
+    <p class="sub">من الصفر إلى الحفظ — في 3 مراحل بسيطة</p>
+    <span class="badge">⏱️ 3 دقائق فقط</span>
   </header>
-  <!-- ═══════ Tabs ═══════ -->
-  <div class="tabs">
-    <button class="tab active" data-tab="1">
-      <span class="num">1</span> <span class="lbl">الخادم</span>
-    </button>
-    <button class="tab" data-tab="2">
-      <span class="num">2</span> <span class="lbl">النشر</span>
-    </button>
-    <button class="tab" data-tab="3">
-      <span class="num">3</span> <span class="lbl">الربط</span>
-    </button>
-    <button class="tab" data-tab="4">
-      <span class="num">؟</span> <span class="lbl">مشاكل</span>
-    </button>
+
+  <!-- ═══════ Roadmap ═══════ -->
+  <div class="map-box">
+    <div class="map-title">🗺️ خريطة الرحلة</div>
+    <div class="map-nodes">
+      <div class="map-node">
+        <div class="ico">📊</div>
+        <div class="lbl">ورقة<br>Google</div>
+      </div>
+      <span class="map-arrow">←</span>
+      <div class="map-node">
+        <div class="ico">📜</div>
+        <div class="lbl">كود<br>Apps Script</div>
+      </div>
+      <span class="map-arrow">←</span>
+      <div class="map-node">
+        <div class="ico">🚀</div>
+        <div class="lbl">نشر<br>الخادم</div>
+      </div>
+      <span class="map-arrow">←</span>
+      <div class="map-node">
+        <div class="ico">🔗</div>
+        <div class="lbl">نسخ<br>الرابط</div>
+      </div>
+      <span class="map-arrow">←</span>
+      <div class="map-node">
+        <div class="ico">📖</div>
+        <div class="lbl">ابدأ<br>الحفظ</div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════
-       TAB 1 — إعداد الخادم
+       المرحلة 1 — جهّز الخادم
        ═══════════════════════════════════════════ -->
-  <div class="panel active" data-panel="1">
-    <div class="card">
-      <ol class="steps">
-        <li>افتح <a href="https://sheets.new" target="_blank">sheets.new</a> ← يُنشئ جدولاً فارغاً فوراً.</li>
-        <li>سمِّ الجدول: <strong>تَحفِيظ — قاعدة البيانات</strong>.</li>
-        <li>من القائمة: <strong>Extensions</strong> ← <strong>Apps Script</strong>.</li>
-        <li>احذف كل الكود الموجود (<b>Ctrl+A ثم Delete</b>).</li>
-        <li>الصق الكود أدناه ← <b>Ctrl+S</b>.</li>
-      </ol>
+  <section class="phase phase-1">
+    <div class="phase-head">
+      <div class="num">1</div>
+      <h2>جهّز الخادم</h2>
+      <span class="time">⏱️ دقيقة</span>
+    </div>
 
-      <div class="info info-warn">
-        <span class="ico">📌</span>
-        <div>لا تغلق تبويب الجدول — ستحتاجه في الخطوة التالية.</div>
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-icon">📊</div>
+        <div class="step-body">
+          <div class="step-title">
+            افتح جدول Google جديد
+            <span class="step-hint">30 ثانية</span>
+          </div>
+          <div class="step-desc">
+            اذهب إلى
+            <a href="https://sheets.new" target="_blank">sheets.new</a>
+            ← سيفتح جدول فارغ مباشرة.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">📝</div>
+        <div class="step-body">
+          <div class="step-title">سمِّ الجدول</div>
+          <div class="step-desc">
+            اضغط على الاسم واكتب:
+            <b>تَحفِيظ — قاعدة البيانات</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">📜</div>
+        <div class="step-body">
+          <div class="step-title">
+            افتح محرر الأكواد
+            <span class="step-hint">20 ثانية</span>
+          </div>
+          <div class="step-desc">
+            من القائمة العلوية اختر
+            <b>Extensions</b> ← <b>Apps Script</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">🧹</div>
+        <div class="step-body">
+          <div class="step-title">احذف الكود الموجود</div>
+          <div class="step-desc">
+            داخل المحرر:
+            اضغط <b>Ctrl+A</b> ثم <b>Delete</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">📋</div>
+        <div class="step-body">
+          <div class="step-title">
+            الصق كودنا
+            <span class="step-hint">نسخ ← لصق</span>
+          </div>
+          <div class="step-desc">
+            اضغط على زر النسخ أدناه، ثم الصق داخل المحرر.
+          </div>
+        </div>
       </div>
 
       <div class="codebox">
         <div class="codebox-head">
-          <span>Apps Script — v1.3.0</span>
+          <span class="label">
+            <i class="dot-red"></i>
+            <i class="dot-yellow"></i>
+            <i class="dot-green"></i>
+            <span style="margin-right:.5rem">HafizBackend.gs</span>
+          </span>
           <button class="copy-btn" onclick="copyBlock(this)">📋 نسخ الكود</button>
         </div>
 <pre id="backendCode">/**
@@ -329,7 +665,7 @@ function route_(e, body) {
       case 'register': return handleRegister_(body, params);
       case 'pull':     return handlePull_(body ? body.user : params.user);
       case 'push':     return handlePush_(body);
-      case 'verify':   return handleVerify_(body);   /* ✅ جديد */
+      case 'verify':   return handleVerify_(body);
       default:         return json_({ ok: false, error: 'Unknown action: ' + action });
     }
   } catch (err) {
@@ -475,26 +811,15 @@ function handlePush_(body) {
   } finally { lock.releaseLock(); }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ✅ جديد: تأكيد تسميع صفحة لعضو آخر
-   ═══════════════════════════════════════════════════════════════ */
 function handleVerify_(body) {
   if (!body) return json_({ ok: false, error: 'MISSING_BODY' });
-
-  const target   = String(body.target || '').trim();       // صاحب الصفحة
-  const verifier = String(body.user   || '').trim();       // من يقوم بالتسميع
+  const target   = String(body.target || '').trim();
+  const verifier = String(body.user   || '').trim();
   const page     = Number(body.page);
 
-  // التحقق من المدخلات
-  if (!target || !verifier) {
-    return json_({ ok: false, error: 'MISSING_USER' });
-  }
-  if (!page || page < 1 || page > CONFIG.MAX_PAGES) {
-    return json_({ ok: false, error: 'INVALID_PAGE' });
-  }
-  if (target.toLowerCase() === verifier.toLowerCase()) {
-    return json_({ ok: false, error: 'CANNOT_VERIFY_SELF' });
-  }
+  if (!target || !verifier) return json_({ ok: false, error: 'MISSING_USER' });
+  if (!page || page < 1 || page > CONFIG.MAX_PAGES) return json_({ ok: false, error: 'INVALID_PAGE' });
+  if (target.toLowerCase() === verifier.toLowerCase()) return json_({ ok: false, error: 'CANNOT_VERIFY_SELF' });
 
   const lock = LockService.getScriptLock();
   try { lock.waitLock(CONFIG.LOCK_TIMEOUT_MS); }
@@ -503,55 +828,23 @@ function handleVerify_(body) {
   try {
     const pagesSheet = getPagesSheet_();
     const data = pagesSheet.getDataRange().getValues();
-
-    // البحث عن الصف المطابق (اسم المستخدم + رقم الصفحة)
     let rowIdx = -1;
     for (let i = 1; i < data.length; i++) {
       const r = data[i];
-      if (String(r[0]).toLowerCase() === target.toLowerCase() &&
-          Number(r[1]) === page) {
+      if (String(r[0]).toLowerCase() === target.toLowerCase() && Number(r[1]) === page) {
         rowIdx = i + 1;
         break;
       }
     }
+    if (rowIdx === -1) return json_({ ok: false, error: 'PAGE_NOT_FOUND' });
 
-    if (rowIdx === -1) {
-      return json_({ ok: false, error: 'PAGE_NOT_FOUND' });
-    }
-
-    // التحقق من الحالة الحالية
     const currentState = String(data[rowIdx - 1][2] || 'none').toLowerCase();
+    if (currentState === 'verified') return json_({ ok: true, alreadyVerified: true, page: page, target: target });
+    if (currentState !== 'memorized') return json_({ ok: false, error: 'NOT_MEMORIZED' });
 
-    if (currentState === 'verified') {
-      // مؤكَّدة مسبقاً — لا حاجة لأي تغيير
-      return json_({
-        ok: true,
-        alreadyVerified: true,
-        page: page,
-        target: target
-      });
-    }
-
-    if (currentState !== 'memorized') {
-      return json_({ ok: false, error: 'NOT_MEMORIZED' });
-    }
-
-    // ✅ التحديث: verified + lastReviewed + updatedAt
     const now = new Date();
-    pagesSheet.getRange(rowIdx, 3, 1, 3).setValues([[
-      'verified',
-      now,
-      now
-    ]]);
-
-    return json_({
-      ok: true,
-      verified: true,
-      page: page,
-      target: target,
-      by: verifier,
-      time: now.toISOString()
-    });
+    pagesSheet.getRange(rowIdx, 3, 1, 3).setValues([['verified', now, now]]);
+    return json_({ ok: true, verified: true, page: page, target: target, by: verifier, time: now.toISOString() });
   } finally {
     lock.releaseLock();
   }
@@ -677,9 +970,7 @@ function logError_(action, err) {
   try { getLogSheet_().appendRow([new Date(), action, String((err && err.message) || err)]); } catch(e){}
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   دوال التشخيص
-   ═══════════════════════════════════════════════════════════════ */
+/* دوال التشخيص */
 function debugListUsers() {
   const sheet = getUsersSheet_();
   const data = sheet.getDataRange().getValues();
@@ -700,200 +991,294 @@ function debugRegister() {
   const res = handleRegister_({ user: 'Test_' + Date.now(), pin: '1234' }, {});
   Logger.log(res.getContent());
 }
-
-/**
- * ✅ اختبار ميزة verify
- * شغّلها من محرر Apps Script لفحص الحالة
- */
 function debugVerify() {
   Logger.log('=== VERIFY TEST ===');
-  const res = handleVerify_({
-    target: 'TestTarget',
-    user:   'TestVerifier',
-    page:   1
-  });
+  const res = handleVerify_({ target: 'TestTarget', user: 'TestVerifier', page: 1 });
   Logger.log(res.getContent());
 }</pre>
       </div>
 
-      <div class="info info-success" style="margin-top:.9rem">
-        <span class="ico">✅</span>
-        <div>انتهيت من الخادم! انتقل للتبويب <b>2 — النشر</b>.</div>
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">💾</div>
+        <div class="step-body">
+          <div class="step-title">احفظ الملف</div>
+          <div class="step-desc">
+            اضغط <b>Ctrl + S</b> لحفظ الكود.
+          </div>
+        </div>
       </div>
+
+      <div class="info info-success">
+        <span class="ico">✅</span>
+        <div>
+          <b>المرحلة 1 مكتملة!</b><br>
+          الخادم جاهز. انتقل للمرحلة التالية.
+        </div>
+      </div>
+
     </div>
-  </div>
+  </section>
 
   <!-- ═══════════════════════════════════════════
-       TAB 2 — نشر الخادم
+       المرحلة 2 — انشر الخادم
        ═══════════════════════════════════════════ -->
-  <div class="panel" data-panel="2">
-    <div class="card">
-      <ol class="steps">
-        <li>في محرر Apps Script، اضغط <strong>Deploy</strong> ← <strong>New deployment</strong>.</li>
-        <li>بجانب «Select type» اضغط ⚙️ ← اختر <strong>Web app</strong>.</li>
-        <li>املأ الحقول كالتالي <b>بالضبط</b>:</li>
-      </ol>
+  <section class="phase phase-2">
+    <div class="phase-head">
+      <div class="num">2</div>
+      <h2>انشر الخادم</h2>
+      <span class="time">⏱️ دقيقة</span>
+    </div>
 
-      <div class="field-mock">
-        <div><span class="lbl">Description:</span> <span class="val">تَحفِيظ API</span></div>
-        <div><span class="lbl">Execute as:</span> <span class="val">Me (أنا)</span></div>
-        <div><span class="lbl">Who has access:</span> <span class="val">Anyone (أي شخص)</span></div>
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-icon">🚀</div>
+        <div class="step-body">
+          <div class="step-title">ابدأ النشر</div>
+          <div class="step-desc">
+            من محرر Apps Script ← اضغط
+            <b>Deploy</b> ← <b>New deployment</b>.
+          </div>
+        </div>
       </div>
 
-      <ol class="steps" start="4" style="counter-reset:s 3">
-        <li>اضغط <strong>Deploy</strong> ثم <strong>Authorize access</strong> ← اختر حسابك.</li>
-        <li>إن ظهرت شاشة «Google hasn't verified» ← اضغط <strong>Advanced</strong> ← <strong>Go to (unsafe)</strong> ← <strong>Allow</strong>.</li>
-        <li>انسخ <strong>Web app URL</strong> (يبدأ بـ <code>https://script.google.com/macros/s/...</code>).</li>
-      </ol>
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">⚙️</div>
+        <div class="step-body">
+          <div class="step-title">اختر نوع النشر</div>
+          <div class="step-desc">
+            بجانب <b>Select type</b> اضغط أيقونة الترس ⚙️
+            ← اختر <b>Web app</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">📝</div>
+        <div class="step-body">
+          <div class="step-title">اضبط الإعدادات</div>
+          <div class="step-desc">
+            املأ الحقول بالضبط كما يلي:
+            <div style="margin-top:.6rem;background:#0b1424;border:1px solid #24334a;border-radius:.6rem;padding:.7rem .9rem;font-size:.78rem;line-height:2">
+              <div><span style="color:#fde68a;font-weight:800">Description:</span> <span style="color:#a7f3d0;font-weight:800">تَحفِيظ API</span></div>
+              <div><span style="color:#fde68a;font-weight:800">Execute as:</span> <span style="color:#a7f3d0;font-weight:800">Me (أنا)</span></div>
+              <div><span style="color:#fde68a;font-weight:800">Who has access:</span> <span style="color:#a7f3d0;font-weight:800">Anyone (أي شخص)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">🔐</div>
+        <div class="step-body">
+          <div class="step-title">اسمح بالوصول</div>
+          <div class="step-desc">
+            اضغط <b>Deploy</b> ← اختر حسابك ←
+            إن ظهرت شاشة تحذير:
+            <br>
+            <b>Advanced</b> ← <b>Go to (unsafe)</b> ← <b>Allow</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">🔗</div>
+        <div class="step-body">
+          <div class="step-title">انسخ الرابط</div>
+          <div class="step-desc">
+            انسخ <b>Web app URL</b> — يبدأ بـ
+            <code>https://script.google.com/macros/s/...</code>
+          </div>
+        </div>
+      </div>
 
       <div class="info info-danger">
         <span class="ico">🚨</span>
-        <div><b>احتفظ بالرابط!</b> هذا المفتاح الذي ستربط به التطبيق.</div>
-      </div>
-
-      <div class="info info-info" style="background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4)">
-        <span class="ico">👥</span>
         <div>
-          <b>هذا الرابط هو مفتاح مجموعتك!</b><br>
-          أرسله لجميع أعضاء مجموعة التحفيظ — كل من يدخله في الإعدادات سيُربَط <b>بنفس قاعدة البيانات</b> وستظهر بياناتهم في تبويب «المجموعة». احتفظ به ولا تفقده.
+          <b>احتفظ بالرابط!</b><br>
+          هذا هو المفتاح الذي ستربط به التطبيق. لن يظهر مرة أخرى بسهولة.
         </div>
-      </div>
-
-      <div class="info info-warn">
-        <span class="ico">🔁</span>
-        <div><b>عند تحديث الكود لاحقاً:</b> استخدم <b>Manage deployments</b> ← ✏️ ← <b>Version: New version</b>. لا تنشئ deployment جديداً.</div>
       </div>
 
       <div class="info info-success">
         <span class="ico">✅</span>
-        <div>جاهز! انتقل للتبويب <b>3 — الربط</b>.</div>
+        <div>
+          <b>المرحلة 2 مكتملة!</b><br>
+          الخادم يعمل الآن. انتقل للمرحلة الأخيرة.
+        </div>
       </div>
+
     </div>
-  </div>
+  </section>
 
   <!-- ═══════════════════════════════════════════
-       TAB 3 — الربط بالموقع
+       المرحلة 3 — اربط التطبيق
        ═══════════════════════════════════════════ -->
-  <div class="panel" data-panel="3">
-    <div class="card">
-      <ol class="steps">
-        <li>افتح <strong>التطبيق</strong> في المتصفح.</li>
-        <li>سيظهر مودال <strong>«إعداد الخادم»</strong> تلقائياً.</li>
-        <li>الصق <strong>Web App URL</strong> ← اضغط <strong>اختبار الاتصال</strong> (يجب أن يظهر ✓ أخضر).</li>
-        <li>اضغط <strong>حفظ ومتابعة</strong> ← ينتقل تلقائياً لمودال <strong>تسجيل الدخول</strong>.</li>
-        <li>اختر <strong>حساب جديد</strong> ← أدخل اسمك + PIN (3 خانات على الأقل).</li>
-        <li>اضغط <strong>إنشاء الحساب</strong> ← ابدأ الحفظ! 🎉</li>
-      </ol>
+  <section class="phase phase-3">
+    <div class="phase-head">
+      <div class="num">3</div>
+      <h2>اربط التطبيق وابدأ</h2>
+      <span class="time">⏱️ دقيقة</span>
+    </div>
+
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-icon">📖</div>
+        <div class="step-body">
+          <div class="step-title">افتح التطبيق</div>
+          <div class="step-desc">
+            افتح <b>تَحفِيظ</b> في المتصفح.
+            سيظهر تلقائياً مودال <b>«إعداد الخادم»</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">🔗</div>
+        <div class="step-body">
+          <div class="step-title">الصق الرابط</div>
+          <div class="step-desc">
+            الصق الـ <b>Web App URL</b> ←
+            اضغط <b>اختبار الاتصال</b> (يجب أن يظهر ✓ أخضر).
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">👤</div>
+        <div class="step-body">
+          <div class="step-title">أنشئ حسابك</div>
+          <div class="step-desc">
+            اختر <b>حساب جديد</b> ← أدخل اسمك + رقم سري (3 خانات على الأقل)
+            ← اضغط <b>إنشاء الحساب</b>.
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="step">
+        <div class="step-icon">🎉</div>
+        <div class="step-body">
+          <div class="step-title">ابدأ الحفظ!</div>
+          <div class="step-desc">
+            انتهيت! اضغط على أي صفحة في <b>المصحف التفاعلي</b>
+            وعلّمها كـ «محفوظ» أو «واجب» أو «مراجعة».
+          </div>
+        </div>
+      </div>
 
       <div class="info info-info">
         <span class="ico">💡</span>
-        <div>بعد التسجيل، افتح ورقة <code>Users</code> في Google Sheets — سترى صفاً باسمك مع PIN في العمود B.</div>
-      </div>
-
-      <div class="info info-success">
-        <span class="ico">🎯</span>
-        <div>كل تعديل على أي صفحة يُرسَل فوراً للخادم — Google Sheets هو المصدر الوحيد للبيانات.</div>
-      </div>
-    </div>
-
-    <!-- كارت مشاركة المجموعة -->
-    <div class="card" style="background:linear-gradient(180deg,rgba(96,165,250,.14),rgba(96,165,250,.04));border-color:rgba(96,165,250,.4)">
-      <div style="display:flex;gap:.7rem;align-items:flex-start">
-        <div style="font-size:1.8rem;line-height:1">👥</div>
-        <div style="flex:1">
-          <div style="font-size:.95rem;font-weight:800;color:#bfdbfe;margin-bottom:.4rem">
-            كيف ينضم أعضاء مجموعتك؟
-          </div>
-          <div style="font-size:.85rem;color:#cbd5e1;line-height:1.75">
-            أرسل للأعضاء <b>رابط الأداة نفسه</b> فقط (رابط GitHub Pages).<br>
-            لا يشارك كل واحد رابطه الخاص — بل الكل يدخل <b>نفس رابط Web App</b> الذي نشرته أنت.
-          </div>
-          <div class="field-mock" style="margin-top:.7rem;font-size:.78rem">
-            <div><span class="lbl">١.</span> كل عضو يفتح الأداة</div>
-            <div><span class="lbl">٢.</span> يُدخِل <span class="val">نفس Web App URL</span></div>
-            <div><span class="lbl">٣.</span> يُنشئ <span class="val">حسابه الخاص</span> باسمه</div>
-            <div><span class="lbl">٤.</span> يظهر الجميع في تبويب <span class="val">«المجموعة»</span></div>
-          </div>
-          <div style="font-size:.78rem;color:#94a3b8;margin-top:.6rem">
-            💡 <b>النتيجة:</b> قاعدة بيانات واحدة، مجموعتك كلها في مكان واحد.
-          </div>
+        <div>
+          <b>معلومة:</b> كل تعديل يقوم به المستخدم يُحفظ فوراً في
+          Google Sheets تلقائياً. لا حاجة لأي خطوة إضافية.
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div style="font-size:.85rem;font-weight:800;color:#fde68a;margin-bottom:.5rem">✅ قائمة تحقق سريعة</div>
-      <table>
-        <thead>
-          <tr><th>ما تراه</th><th>النتيجة</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>اختبار الاتصال في مودال الإعداد</td><td class="ok">✓ أخضر</td></tr>
-          <tr><td>بعد إنشاء الحساب</td><td class="ok">صف جديد في Users</td></tr>
-          <tr><td>مؤشر المزامنة في الترويسة</td><td class="ok">«متزامن» أخضر</td></tr>
-          <tr><td>عدّل صفحة ثم زامن</td><td class="ok">صف جديد في Pages</td></tr>
-        </tbody>
-      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       شارك المجموعة
+       ═══════════════════════════════════════════ -->
+  <div class="share-card">
+    <div class="ico">👥</div>
+    <div>
+      <h3>هل تريد مشاركة المجموعة؟</h3>
+      <p>
+        أرسل لأصدقائك <b>رابط التطبيق نفسه</b>، واطلب منهم إدخال
+        <b>نفس رابط Web App</b> الذي نشرته.
+        <br>
+        بعدها سيظهر الجميع في تبويب <b>«المجموعة»</b> ويستطيعون تسميع بعضهم البعض.
+      </p>
+      <div class="info info-warn" style="margin-top:.75rem">
+        <span class="ico">⚠️</span>
+        <div>
+          <b>مهم:</b> الرابط الواحد = المجموعة الواحدة.
+          إن استخدم أحدهم رابطاً مختلفاً، لن يظهر معكم.
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════
-       TAB 4 — حل المشاكل
+       الأسئلة الشائعة
        ═══════════════════════════════════════════ -->
-  <div class="panel" data-panel="4">
-    <div class="card">
-      <details class="faq" open>
-        <summary>❌ «USER_EXISTS» عند إنشاء حساب</summary>
-        <div class="ans">
-          يوجد صف قديم بنفس الاسم بدون PIN في ورقة <code>Users</code>. الحل:<br>
-          <b>١.</b> افتح Apps Script ← اختر دالة <code>debugClearUsers</code> ← <b>Run</b>.<br>
-          <b>٢.</b> أو احذف الصف يدوياً من Google Sheets.
-        </div>
-      </details>
+  <div style="margin-top:2rem">
+    <div class="section-title">❓ أسئلة شائعة</div>
 
-      <details class="faq">
-        <summary>❌ «فشل الاتصال» في اختبار الاتصال</summary>
-        <div class="ans">
-          تحقق من:<br>
-          • <b>Who has access: Anyone</b> عند النشر.<br>
-          • الرابط ينتهي بـ <code>/exec</code> وليس <code>/dev</code>.<br>
-          • جرّب فتح الرابط مباشرة في المتصفح — يجب أن يظهر <code>{"ok":true}</code>.
-        </div>
-      </details>
+    <details class="faq" open>
+      <summary>اختبار الاتصال يفشل</summary>
+      <div class="ans">
+        تأكد من:<br>
+        • أنك اخترت <b>Who has access: Anyone</b> عند النشر.<br>
+        • أن الرابط ينتهي بـ <code>/exec</code> وليس <code>/dev</code>.<br>
+        • جرّب فتح الرابط مباشرة في المتصفح — يجب أن يظهر لك
+        <code>{"ok":true}</code>.
+      </div>
+    </details>
 
-      <details class="faq">
-        <summary>❌ «INVALID_PIN» عند تسجيل الدخول</summary>
-        <div class="ans">
-          الرقم السري غير صحيح. تحقق من ورقة <code>Users</code> — العمود B يحتوي PIN الفعلي.
-        </div>
-      </details>
+    <details class="faq">
+      <summary>«هذا الاسم مستخدم بالفعل» عند التسجيل</summary>
+      <div class="ans">
+        يوجد صف قديم بنفس الاسم بدون رقم سري في ورقة
+        <code>Users</code>.<br>
+        <b>الحل:</b> افتح Apps Script ← اختر دالة
+        <code>debugClearUsers</code> ← اضغط <b>Run</b>.
+      </div>
+    </details>
 
-      <details class="faq">
-        <summary>❌ فشل الحفظ عند تعديل صفحة</summary>
-        <div class="ans">
-          افتح <b>DevTools (F12)</b> ← تبويب <b>Network</b> ← ابحث عن طلب <code>push</code> ← افحص Status Code. إن كان 302 متكرراً أو CORS، أعد نشر Apps Script.
-        </div>
-      </details>
+    <details class="faq">
+      <summary>«الرقم السري غير صحيح»</summary>
+      <div class="ans">
+        افتح ورقة <code>Users</code> في Google Sheets —
+        العمود B يحتوي الرقم السري الفعلي لحسابك.
+      </div>
+    </details>
 
-      <details class="faq">
-        <summary>❌ رسالة «Script not bound to spreadsheet»</summary>
-        <div class="ans">
-          أنشأت Apps Script من خارج الجدول. احذفه وأنشئ واحداً جديداً عبر <b>Extensions → Apps Script</b> من داخل الجدول.
-        </div>
-      </details>
+    <details class="faq">
+      <summary>التعديلات لا تُحفظ</summary>
+      <div class="ans">
+        افتح <b>DevTools (F12)</b> ← تبويب <b>Network</b> ←
+        ابحث عن طلب <code>push</code> ← افحص Status Code.
+        إن كان هناك خطأ، أعد نشر Apps Script كـ
+        <b>New version</b>.
+      </div>
+    </details>
 
-      <details class="faq">
-        <summary>❓ كيف أضيف أصدقائي للمجموعة؟</summary>
-        <div class="ans">
-          <b>الرابط هو كل شيء!</b><br><br>
-          ١. أرسل لأصدقائك <b>رابط الأداة نفسه</b> (رابط GitHub Pages).<br>
-          ٢. اطلب منهم إدخال <b>نفس Web App URL</b> الذي نشرته أنت.<br>
-          ٣. كل واحد يُنشئ <b>حساباً خاصاً به</b> باسمه و PIN.<br>
-          ٤. سيظهر الجميع في تبويب <b>«المجموعة»</b>، مع لوحة صدارة ومقارنة تقدم.<br><br>
-          <b>⚠️ مهم:</b> إن أعطى أحدهم رابطاً مختلفاً، سيصبح في قاعدة بيانات منفصلة ولن يظهر معكم. الرابط الواحد = المجموعة الواحدة.
-        </div>
-      </details>
-    </div>
+    <details class="faq">
+      <summary>رسالة «Script not bound to spreadsheet»</summary>
+      <div class="ans">
+        أنشأت Apps Script من خارج الجدول.
+        احذفه وأنشئ واحداً جديداً عبر
+        <b>Extensions → Apps Script</b> من داخل الجدول.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>كيف أُحدّث كود Apps Script لاحقاً؟</summary>
+      <div class="ans">
+        عند تعديل الكود، لا تنشئ deployment جديداً. استخدم
+        <b>Deploy → Manage deployments → ✏️ → Version: New version → Deploy</b>.
+        الرابط لن يتغير.
+      </div>
+    </details>
   </div>
 
   <!-- ═══════ CTA ═══════ -->
@@ -905,20 +1290,7 @@ function debugVerify() {
 </div>
 
 <script>
-/* ═══════ Tab switching ═══════ */
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const n = tab.getAttribute('data-tab');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    const panel = document.querySelector(`.panel[data-panel="${n}"]`);
-    if (panel) panel.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-});
-
-/* ═══════ Copy code ═══════ */
+/* ═══════ نسخ الكود ═══════ */
 function copyBlock(btn){
   const box = btn.closest('.codebox');
   const pre = box.querySelector('pre');
