@@ -96,11 +96,11 @@ body{
 .btn-danger{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.4);color:#fca5a5}
 .btn-danger:hover{background:rgba(248,113,113,.22)}
 .icon-btn{
-  width:36px;height:36px;display:grid;place-items:center;border-radius:.7rem;
+  width:38px;height:38px;display:grid;place-items:center;border-radius:.7rem;
   border:1px solid #334155;background:rgba(148,163,184,.08);color:#cbd5e1;
   cursor:pointer;transition:all .16s ease;
 }
-.icon-btn:hover{background:rgba(148,163,184,.2);color:#fff}
+.icon-btn:hover{background:rgba(148,163,184,.2);color:#fff;border-color:#475569}
 .icon-btn:active{transform:scale(.94)}
 
 /* ---------- Chips ---------- */
@@ -178,6 +178,43 @@ body{
   transition:transform .12s;
 }
 .heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
+
+/* ✅ المربعات الشبحية (خريطة فارغة) */
+.heat i.ghost{
+  background:#1b2537 !important;
+  border-color:rgba(100,116,139,.18) !important;
+}
+.heat i.ghost-lv1{background:rgba(52,211,153,.14) !important;border-color:rgba(100,116,139,.22) !important}
+.heat i.ghost-lv2{background:rgba(52,211,153,.22) !important;border-color:rgba(100,116,139,.24) !important}
+.heat i.ghost-lv3{background:rgba(52,211,153,.30) !important;border-color:rgba(100,116,139,.28) !important}
+
+/* ✅ تحسين بطاقات الإحصائيات */
+.stat-card{
+  padding:1.75rem 1.5rem !important;
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  min-height:120px;
+}
+.stat-card .stat-icon{
+  width:60px;height:60px;
+  border-radius:1.1rem;
+  display:grid;place-items:center;
+  flex-shrink:0;
+}
+.stat-card .stat-value{
+  font-size:2rem;
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+}
+.stat-card .stat-label{
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--muted);
+  margin-top:.35rem;
+  line-height:1.4;
+}
 
 /* ---------- Modal ---------- */
 .modal{
@@ -306,16 +343,16 @@ body{
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- ✅ Actions — أيقونات موحّدة -->
       <div class="flex items-center gap-1.5">
         <button id="btnSync" class="icon-btn" title="مزامنة الآن">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <i data-lucide="rotate-cw" class="w-[18px] h-[18px]"></i>
         </button>
         <button id="btnSettings" class="icon-btn" title="إعدادات التطبيق">
-          <i data-lucide="settings" class="w-4 h-4"></i>
+          <i data-lucide="settings-2" class="w-[18px] h-[18px]"></i>
         </button>
-        <button id="btnUser" class="btn btn-ghost" title="الحساب">
-          <i data-lucide="user" class="w-4 h-4"></i>
+        <button id="btnUser" class="btn btn-ghost gap-1.5" title="الحساب">
+          <i data-lucide="circle-user-round" class="w-[18px] h-[18px]"></i>
           <span id="userName" class="max-w-[80px] truncate">دخول</span>
         </button>
       </div>
@@ -361,7 +398,15 @@ body{
         <div class="grid gap-5 lg:grid-cols-3">
           <div class="card p-6 lg:col-span-1">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> توزيع الحالات</h3>
-            <div class="relative" style="height:210px"><canvas id="chartDonut"></canvas></div>
+            <!-- ✅ Donut with empty state -->
+            <div class="relative" style="height:210px">
+              <canvas id="chartDonut"></canvas>
+              <div id="donutEmpty" class="absolute inset-0 hidden flex-col items-center justify-center text-center pointer-events-none">
+                <i data-lucide="pie-chart" class="w-10 h-10 text-slate-600 mb-2"></i>
+                <p class="text-xs text-slate-500 font-bold">لا توجد بيانات حالياً</p>
+                <p class="text-[10px] text-slate-600 mt-1">ابدأ بتعليم الصفحات لتظهر الإحصائيات</p>
+              </div>
+            </div>
           </div>
 
           <div class="card p-6 lg:col-span-2">
@@ -370,10 +415,9 @@ body{
           </div>
         </div>
 
-        <!-- Row 2: Heatmap (compact) + 3 stat cards side by side -->
+        <!-- Row 2: Heatmap + stat cards -->
         <div class="flex flex-col lg:flex-row gap-5 items-stretch">
 
-          <!-- Heatmap card — hugs its content -->
           <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
               <i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i>
@@ -393,33 +437,35 @@ body{
             </div>
           </div>
 
-          <!-- 3 stat cards — fill remaining space -->
+          <!-- ✅ Improved stat cards -->
           <div class="flex-1 grid gap-5 sm:grid-cols-3">
-            <div class="card p-6 flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
+            <div class="card stat-card">
+              <div class="stat-icon" style="background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.3)">
                 <i data-lucide="flame" class="w-7 h-7 text-amber-400"></i>
               </div>
               <div>
-                <div class="text-3xl font-extrabold text-amber-300" id="streakBig">0</div>
-                <div class="text-xs text-slate-400 font-bold">شعلة الاستمرارية (يوم متواصل)</div>
+                <div class="stat-value text-amber-300" id="streakBig">0</div>
+                <div class="stat-label">شعلة الاستمرارية<br><span style="opacity:.7">(يوم متواصل)</span></div>
               </div>
             </div>
-            <div class="card p-6 flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.04));border:1px solid rgba(52,211,153,.3)">
+
+            <div class="card stat-card">
+              <div class="stat-icon" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.04));border:1px solid rgba(52,211,153,.3)">
                 <i data-lucide="check-check" class="w-7 h-7 text-emerald-400"></i>
               </div>
               <div>
-                <div class="text-3xl font-extrabold text-emerald-300" id="verifiedBig">0</div>
-                <div class="text-xs text-slate-400 font-bold">صفحات تم تسميعها</div>
+                <div class="stat-value text-emerald-300" id="verifiedBig">0</div>
+                <div class="stat-label">صفحات تم تسميعها</div>
               </div>
             </div>
-            <div class="card p-6 flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl grid place-items-center shrink-0" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
+
+            <div class="card stat-card">
+              <div class="stat-icon" style="background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.04));border:1px solid rgba(96,165,250,.3)">
                 <i data-lucide="calendar-clock" class="w-7 h-7 text-sky-400"></i>
               </div>
               <div>
-                <div class="text-3xl font-extrabold text-sky-300" id="avgBig">0</div>
-                <div class="text-xs text-slate-400 font-bold">متوسط الصفحات اليومي</div>
+                <div class="stat-value text-sky-300" id="avgBig">0</div>
+                <div class="stat-label">متوسط الصفحات اليومي</div>
               </div>
             </div>
           </div>
@@ -633,7 +679,7 @@ body{
   <div class="modal-panel p-6">
     <div class="flex items-start justify-between mb-5">
       <div>
-        <h2 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-slate-300"></i> إعدادات التطبيق</h2>
+        <h2 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="settings-2" class="w-5 h-5 text-slate-300"></i> إعدادات التطبيق</h2>
         <p class="text-xs text-slate-400 mt-1">اربط التطبيق بـ Google Sheets للمزامنة السحابية</p>
       </div>
       <button class="icon-btn" data-close="modalSettings"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -1147,62 +1193,148 @@ function renderSurahs(){
   refreshIcons();
 }
 
+/* ✅ نسخة محسّنة من renderStats() */
 function renderStats(){
   const c = pageStats(S.pages);
+  const totalTracked = c.memorized + c.verified + c.review + c.todo;
+  const hasData = totalTracked > 0;
 
-  makeChart('chartDonut', {
-    type: 'doughnut',
-    data: {
-      labels: ['محفوظ', 'تم التسميع', 'مراجعة', 'واجب', 'لم يبدأ'],
-      datasets: [{
-        data: [c.memorized, c.verified, c.review, c.todo, c.none],
-        backgroundColor: ['#34d399', '#f5c451', '#fbbf24', '#60a5fa', '#334155'],
-        borderColor: '#182234', borderWidth: 3, hoverOffset: 8
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '66%',
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter, Tajawal', size: 11, weight: '700' }, boxWidth: 10, padding: 12 } },
-        tooltip: { backgroundColor: '#0f172a', borderColor: '#334155', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#cbd5e1',
-          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} صفحة` } }
-      }
+  /* ═══════ Donut ═══════ */
+  const donutEmpty = $('#donutEmpty');
+  if (donutEmpty){
+    if (!hasData){
+      donutEmpty.classList.remove('hidden');
+      donutEmpty.classList.add('flex');
+    } else {
+      donutEmpty.classList.add('hidden');
+      donutEmpty.classList.remove('flex');
     }
-  });
+  }
 
+  if (hasData){
+    makeChart('chartDonut', {
+      type: 'doughnut',
+      data: {
+        labels: ['محفوظ', 'تم التسميع', 'مراجعة', 'واجب'],
+        datasets: [{
+          data: [c.memorized, c.verified, c.review, c.todo],
+          backgroundColor: ['#34d399', '#f5c451', '#fbbf24', '#60a5fa'],
+          borderColor: '#182234',
+          borderWidth: 3,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e2e8f0',
+              font: { family: 'Inter, Tajawal', size: 12, weight: '800' },
+              boxWidth: 12, boxHeight: 12,
+              padding: 14,
+              usePointStyle: true,
+              pointStyle: 'rectRounded'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,.96)',
+            borderColor: '#334155', borderWidth: 1,
+            titleColor: '#e2e8f0', bodyColor: '#cbd5e1',
+            padding: 12, cornerRadius: 10, displayColors: true,
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} صفحة` }
+          }
+        }
+      }
+    });
+  } else {
+    if (charts['chartDonut']) { charts['chartDonut'].destroy(); delete charts['chartDonut']; }
+  }
+
+  /* ═══════ Activity Line ═══════ */
   const labels = [], values = [];
   for (let d = 13; d >= 0; d--){
     const dt = new Date(Date.now() - d * DAY);
     labels.push(dt.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }));
     values.push(S.activity[dayKey(dt)] || 0);
   }
+
+  const maxVal = Math.max(...values, 1);
+  const suggestedMax = Math.max(6, Math.ceil(maxVal * 1.25));
+
   makeChart('chartActivity', {
     type: 'line',
     data: {
       labels,
       datasets: [{
-        label: 'صفحات', data: values, borderColor: '#38bdf8',
+        label: 'صفحات',
+        data: values,
+        borderColor: '#38bdf8',
         backgroundColor: (ctx) => {
           const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 210);
-          g.addColorStop(0, 'rgba(56,189,248,.45)');
+          g.addColorStop(0, 'rgba(56,189,248,.55)');
+          g.addColorStop(.6, 'rgba(56,189,248,.12)');
           g.addColorStop(1, 'rgba(56,189,248,0)');
           return g;
         },
-        fill: true, tension: .38, borderWidth: 2.5,
-        pointBackgroundColor: '#0f172a', pointBorderColor: '#38bdf8', pointBorderWidth: 2,
-        pointRadius: 3.5, pointHoverRadius: 6
+        fill: true,
+        tension: .45,
+        cubicInterpolationMode: 'monotone',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#0f172a',
+        pointBorderColor: '#38bdf8',
+        pointBorderWidth: 2,
+        pointRadius: values.map(v => v > 0 ? 4 : 2.5),
+        pointHoverRadius: 7,
+        pointHoverBackgroundColor: '#38bdf8',
+        pointHoverBorderColor: '#0f172a',
+        pointHoverBorderWidth: 2.5
       }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0f172a', borderColor: '#334155', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#cbd5e1' } },
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,.96)',
+          borderColor: '#334155', borderWidth: 1,
+          titleColor: '#e2e8f0', bodyColor: '#cbd5e1',
+          padding: 12, cornerRadius: 10, displayColors: false,
+          titleFont: { family: 'Inter, Tajawal', size: 12, weight: '700' },
+          bodyFont:  { family: 'Inter, Tajawal', size: 12, weight: '600' },
+          callbacks: {
+            label: ctx => ctx.parsed.y === 0 ? 'لا نشاط' : `${ctx.parsed.y} صفحة`
+          }
+        }
+      },
       scales: {
-        x: { grid: { color: 'rgba(51,65,85,.35)' }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 } } },
-        y: { beginAtZero: true, grid: { color: 'rgba(51,65,85,.35)' }, ticks: { color: '#64748b', font: { family: 'Inter, Tajawal', size: 10 }, precision: 0 } }
+        x: {
+          grid: { color: 'rgba(51,65,85,.22)', drawBorder: false },
+          ticks: {
+            color: '#94a3b8',
+            font: { family: 'Inter, Tajawal', size: 10, weight: '700' },
+            maxRotation: 0, autoSkipPadding: 8
+          }
+        },
+        y: {
+          beginAtZero: true,
+          suggestedMax,
+          grid: { color: 'rgba(51,65,85,.22)', drawBorder: false },
+          ticks: {
+            color: '#94a3b8',
+            font: { family: 'Inter, Tajawal', size: 10, weight: '700' },
+            precision: 0,
+            stepSize: Math.max(1, Math.ceil(suggestedMax / 5)),
+            callback: v => v === 0 ? '0' : v
+          }
+        }
       }
     }
   });
 
+  /* ═══════ Big Numbers ═══════ */
   const streak = computeStreak(S.activity);
   const activeDays = Object.keys(S.activity).length || 1;
   const totalActs = Object.values(S.activity).reduce((a, b) => a + b, 0);
@@ -1210,9 +1342,13 @@ function renderStats(){
   $('#verifiedBig').textContent = c.verified;
   $('#avgBig').textContent = Math.round(totalActs / activeDays);
 
+  /* ═══════ Heatmap ═══════ */
   renderHeatmap();
+
+  if (window.lucide) lucide.createIcons();
 }
 
+/* ✅ نسخة محسّنة من renderHeatmap() — مع أشباح توضيحية */
 function renderHeatmap(){
   const wrap = $('#heatmap');
   if (!wrap) return;
@@ -1225,22 +1361,52 @@ function renderHeatmap(){
   const offset = (dow + 1) % 7;
   start.setDate(start.getDate() - offset);
 
+  const totalActs = Object.values(S.activity).reduce((a, b) => a + b, 0);
+  const isEmpty = totalActs === 0;
+
+  const ghostLevel = (idx) => {
+    const h = (idx * 9301 + 49297) % 233280;
+    const r = h / 233280;
+    if (r < 0.35) return 0;
+    if (r < 0.65) return 1;
+    if (r < 0.85) return 2;
+    return 3;
+  };
+
   let html = '';
   const cursor = new Date(start);
+  let idx = 0;
+
   while (cursor <= today){
     const k = dayKey(cursor);
     const v = S.activity[k] || 0;
-    let bg = '#1b2537';
-    if (v === 0)               bg = '#1b2537';
-    else if (v <= 2)           bg = 'rgba(52,211,153,.35)';
-    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';
-    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';
-    else                       bg = '#34d399';
 
-    const label = `${cursor.toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' })} — ${v ? v + ' صفحة' : 'لا نشاط'}`;
-    html += `<i style="background:${bg}" title="${label}"></i>`;
+    let cls = '';
+    let bg = '#1b2537';
+
+    if (isEmpty){
+      const g = ghostLevel(idx);
+      if (g === 1) cls = 'ghost-lv1';
+      else if (g === 2) cls = 'ghost-lv2';
+      else if (g === 3) cls = 'ghost-lv3';
+      else cls = 'ghost';
+    } else {
+      if (v === 0)               bg = '#1b2537';
+      else if (v <= 2)           bg = 'rgba(52,211,153,.35)';
+      else if (v <= 5)           bg = 'rgba(52,211,153,.58)';
+      else if (v <= 9)           bg = 'rgba(52,211,153,.82)';
+      else                       bg = '#34d399';
+    }
+
+    const label = isEmpty
+      ? 'لا توجد بيانات بعد — ابدأ الحفظ اليوم'
+      : `${cursor.toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' })} — ${v ? v + ' صفحة' : 'لا نشاط'}`;
+
+    html += `<i class="${cls}" style="background:${bg}" title="${label}"></i>`;
     cursor.setDate(cursor.getDate() + 1);
+    idx++;
   }
+
   wrap.innerHTML = html;
 }
 
@@ -1603,7 +1769,7 @@ function logout(){
 }
 
 /* ==========================================================================
-   COMMIT PAGE CHANGE (Push immediately, roll back on failure)
+   COMMIT PAGE CHANGE
    ========================================================================== */
 async function commitPageChange(page, newState, opts = {}){
   if (isBusy) return;
