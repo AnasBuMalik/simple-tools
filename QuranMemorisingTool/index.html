@@ -286,16 +286,22 @@ body{
 .pulse{animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .busy-overlay{
-  position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);
+  position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.65);backdrop-filter:blur(4px);
   display:none;align-items:center;justify-content:center;
 }
 .busy-overlay.on{display:flex}
+.busy-box{
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+  padding:1.75rem 2rem;border-radius:1rem;
+  background:rgba(30,41,59,.9);border:1px solid rgba(51,65,85,.9);
+}
 .spinner{
   width:44px;height:44px;border-radius:50%;
   border:3px solid rgba(148,163,184,.2);border-top-color:#f5c451;
   animation:spin .8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+.busy-text{font-size:.85rem;font-weight:700;color:#cbd5e1}
 .warn-bar{
   padding:.6rem 1rem;font-size:.76rem;font-weight:700;
   background:rgba(251,191,36,.10);border-bottom:1px solid rgba(251,191,36,.3);
@@ -341,7 +347,6 @@ body{
           <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
           <div class="leading-none"><b id="statStreak">0</b><br><span>يوم</span></div>
         </div>
-        <!-- ✅ مؤشر المزامنة على سطح المكتب -->
         <div class="stat-pill" id="syncPillD" title="حالة المزامنة">
           <span class="sync-dot" id="syncDotD" style="background:#64748b"></span>
           <div class="leading-none"><b id="syncTextD" style="font-size:.78rem">محلي</b></div>
@@ -391,7 +396,7 @@ body{
   <!-- ================= VIEWS ================= -->
   <main id="views">
 
-    <!-- ---------- STATS (default) ---------- -->
+    <!-- ---------- STATS ---------- -->
     <section id="view-stats" class="view active">
       <div class="mx-auto max-w-[1400px] p-4 sm:p-6 space-y-5">
 
@@ -695,26 +700,26 @@ body{
     </div>
     <p id="connResult" class="text-xs mb-4 hidden"></p>
 
-    <div class="grid grid-cols-2 gap-2 mb-4">
-      <button id="btnExport" class="btn btn-ghost"><i data-lucide="download" class="w-4 h-4"></i> تصدير البيانات</button>
-      <button id="btnImport" class="btn btn-ghost"><i data-lucide="upload" class="w-4 h-4"></i> استيراد البيانات</button>
-      <input type="file" id="fileImport" accept="application/json" class="hidden" />
+    <div class="card p-4 text-[11px] text-slate-400 leading-relaxed mb-4">
+      <b class="text-slate-300">📡 ملاحظة:</b> التطبيق لا يخزّن أي بيانات محلياً — كل البيانات تُجلَب مباشرة من Google Sheets عند كل فتح، وأي تعديل يُرفع فوراً للخادم.
     </div>
 
-    <div class="card p-4 text-[11px] text-slate-400 leading-relaxed">
-      <b class="text-slate-300">ملاحظة:</b> Google Sheets هو المصدر الوحيد للبيانات. أي تعديل يُرسَل مباشرة إلى الخادم، ولا يُعتمد محلياً إلا بعد تأكيد الاستجابة.
-    </div>
-
-    <button id="btnResetAll" class="btn btn-danger w-full mt-4"><i data-lucide="trash-2" class="w-4 h-4"></i> حذف كل البيانات المحلية</button>
+    <button id="btnResetAll" class="btn btn-danger w-full"><i data-lucide="trash-2" class="w-4 h-4"></i> تسجيل الخروج وحذف الإعدادات</button>
   </div>
 </div>
 
 <div id="toasts"></div>
-<div class="busy-overlay" id="busyOverlay"><div class="spinner"></div></div>
+<div class="busy-overlay" id="busyOverlay">
+  <div class="busy-box">
+    <div class="spinner"></div>
+    <div class="busy-text" id="busyText">جارٍ التحميل...</div>
+  </div>
+</div>
 
 <script>
 /* ==========================================================================
    تَحفِيظ — Quran Memorization Tracker
+   ✅ Server is the SINGLE SOURCE OF TRUTH — no local data caching
    ========================================================================== */
 (() => {
 'use strict';
@@ -723,7 +728,7 @@ body{
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const DAY = 86400000;
-const LS_KEY = 'tahfeez_state_v1';
+const LS_KEY = 'tahfeez_session_v2'; // Only session data (user + url)
 
 const ar = n => String(n);
 
@@ -797,6 +802,7 @@ const STATES = {
 };
 
 /* ------------------------------ App State ------------------------------ */
+/* ✅ البيانات في الذاكرة فقط — لا تُخزَّن محلياً أبداً */
 let S = {
   user: null,
   pages: {},
@@ -813,26 +819,42 @@ let currentMember = null;
 let charts = {};
 let openJuz = { 1: true };
 
-/* ✅ حالة المزامنة في الخلفية */
 let pushTimer = null;
 let pushInFlight = false;
+let initialLoadDone = false;
 
-/* ------------------------------ Local Persistence ------------------------------ */
-function saveState(){
-  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e){}
+/* ==========================================================================
+   Session Persistence — يخزّن فقط: user + sheetUrl
+   ========================================================================== */
+function saveSession(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      user: S.user,
+      settings: { sheetUrl: S.settings.sheetUrl }
+    }));
+  } catch(e){}
 }
-function loadState(){
+
+function loadSession(){
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return false;
     const parsed = JSON.parse(raw);
-    S = Object.assign(S, parsed);
-    S.settings = Object.assign({ sheetUrl:'', lastSync:null }, parsed.settings || {});
-    if (!S.pages) S.pages = {};
-    if (!S.activity) S.activity = {};
-    if (!S.members) S.members = [];
+    S.user = parsed.user || null;
+    S.settings = {
+      sheetUrl: (parsed.settings && parsed.settings.sheetUrl) || '',
+      lastSync: null
+    };
+    // ✅ البيانات لا تُحمَّل من localStorage — دائماً من الخادم
+    S.pages = {};
+    S.activity = {};
+    S.members = [];
     return true;
   } catch(e){ return false; }
+}
+
+function clearSession(){
+  try { localStorage.removeItem(LS_KEY); } catch(e){}
 }
 
 /* ------------------------------ Page helpers ------------------------------ */
@@ -841,7 +863,6 @@ function getPage(p){
 }
 
 function buildPageRecord(state, ts){
-  // ✅ نحتفظ بسجل حتى لحالة "لم يبدأ" (شاهد قبر) لمنع المزامنة من إعادتها
   const reviewStates = ['memorized','review','verified'];
   return {
     state: state || 'none',
@@ -941,8 +962,10 @@ function toast(msg, type = 'info', icon = null){
   }, 2800);
 }
 
-function setBusy(on){
+function setBusy(on, message){
   const ov = $('#busyOverlay');
+  const txt = $('#busyText');
+  if (txt && message) txt.textContent = message;
   if (ov) ov.classList.toggle('on', on);
 }
 
@@ -982,31 +1005,20 @@ async function apiPost(body){
   return await res.json();
 }
 
+/**
+ * ✅ السحب من الخادم — استبدال كامل (الخادم هو المصدر الوحيد)
+ */
 async function pullFromServer(){
   if (!S.settings.sheetUrl) return false;
   const user = S.user ? S.user.name : 'guest';
   const res = await apiGet({ action: 'pull', user });
   if (!res || !res.ok) throw new Error(res && res.error || 'PULL_FAILED');
 
-  const remotePages = (res.user && res.user.pages) || {};
-  const merged = { ...S.pages };
-  Object.keys(remotePages).forEach(k => {
-    const rp = remotePages[k];
-    const lp = merged[k];
-    if (!lp || (rp.updatedAt || 0) > (lp.updatedAt || 0)) merged[k] = rp;
-  });
-  S.pages = merged;
-
-  const remoteAct = (res.user && res.user.activity) || {};
-  const mergedAct = { ...S.activity };
-  Object.keys(remoteAct).forEach(k => {
-    mergedAct[k] = Math.max(mergedAct[k] || 0, remoteAct[k] || 0);
-  });
-  S.activity = mergedAct;
-
+  // ✅ استبدال كامل — لا دمج
+  S.pages = (res.user && res.user.pages) || {};
+  S.activity = (res.user && res.user.activity) || {};
   S.members = Array.isArray(res.members) ? res.members : [];
   S.settings.lastSync = Date.now();
-  saveState();
   return true;
 }
 
@@ -1028,7 +1040,6 @@ async function pushToServer(){
   });
   if (!res || !res.ok) throw new Error(res && res.error || 'PUSH_FAILED');
   S.settings.lastSync = Date.now();
-  saveState();
   return true;
 }
 
@@ -1049,7 +1060,7 @@ async function fullSync(){
   }
 }
 
-/* ✅ المزامنة في الخلفية — مُخمَّدة (debounced) */
+/* ✅ المزامنة في الخلفية — مُخمَّدة */
 function schedulePushInBackground(){
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(doPushInBackground, 500);
@@ -1058,8 +1069,7 @@ function schedulePushInBackground(){
 async function doPushInBackground(){
   pushTimer = null;
   if (pushInFlight) return;
-
-  if (!S.settings.sheetUrl || !navigator.onLine){ return; }
+  if (!S.settings.sheetUrl || !navigator.onLine) return;
 
   pushInFlight = true;
   setSyncStatus('syncing');
@@ -1068,7 +1078,7 @@ async function doPushInBackground(){
     setSyncStatus('ok');
   } catch(e){
     setSyncStatus('error');
-    // لا نُرجع الحالة — نبقيها محلياً وسنعيد المحاولة عند الفرصة التالية
+    // لا نُرجع الحالة — الإرسال التالي سيرفع كل التغييرات
   } finally {
     pushInFlight = false;
   }
@@ -1087,13 +1097,11 @@ function setSyncStatus(st){
   };
   const m = map[st] || map.local;
 
-  // Mobile
   const dotM = $('#syncDotM'), txtM = $('#syncTextM');
   if (dotM) dotM.style.background = m.color;
   if (txtM) txtM.textContent = m.text;
   if (dotM) dotM.classList.toggle('pulse', st === 'syncing');
 
-  // Desktop
   const dotD = $('#syncDotD'), txtD = $('#syncTextD');
   if (dotD) dotD.style.background = m.color;
   if (txtD) txtD.textContent = m.text;
@@ -1231,7 +1239,6 @@ function renderStats(){
   const totalTracked = c.memorized + c.verified + c.review + c.todo;
   const hasData = totalTracked > 0;
 
-  /* Donut */
   const donutEmpty = $('#donutEmpty');
   if (donutEmpty){
     if (!hasData){
@@ -1284,7 +1291,6 @@ function renderStats(){
     if (charts['chartDonut']) { charts['chartDonut'].destroy(); delete charts['chartDonut']; }
   }
 
-  /* Activity Line */
   const labels = [], values = [];
   for (let d = 13; d >= 0; d--){
     const dt = new Date(Date.now() - d * DAY);
@@ -1366,7 +1372,6 @@ function renderStats(){
     }
   });
 
-  /* Big Numbers */
   const streak = computeStreak(S.activity);
   const activeDays = Object.keys(S.activity).length || 1;
   const totalActs = Object.values(S.activity).reduce((a, b) => a + b, 0);
@@ -1619,7 +1624,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ==========================================================================
-   SETUP MODAL (First-run)
+   SETUP MODAL
    ========================================================================== */
 function setupSetupModal(){
   const urlInput = $('#setupSheetUrl');
@@ -1671,7 +1676,7 @@ function setupSetupModal(){
     }
 
     S.settings.sheetUrl = url;
-    saveState();
+    saveSession();
     setSyncStatus('ok');
     closeModal('modalSetup');
     toast('تم حفظ الرابط — أنشئ حساباً أو سجّل الدخول', 'success');
@@ -1726,7 +1731,7 @@ async function doAuth(){
     return;
   }
 
-  setBusy(true);
+  setBusy(true, authMode === 'login' ? 'جارٍ تسجيل الدخول...' : 'جارٍ إنشاء الحساب...');
   try {
     const action = authMode === 'login' ? 'login' : 'register';
     const res = await apiGet({ action, user: name, pin });
@@ -1745,6 +1750,7 @@ async function doAuth(){
       return;
     }
 
+    // ✅ تحميل البيانات من استجابة الخادم
     if (authMode === 'register'){
       S.pages = {};
       S.activity = {};
@@ -1758,7 +1764,7 @@ async function doAuth(){
     S.user = { name };
     S.settings.lastSync = Date.now();
 
-    saveState();
+    saveSession(); // يحفظ فقط: user + sheetUrl
     closeModal('modalAuth');
     $('#authUser').value = '';
     $('#authPin').value = '';
@@ -1786,7 +1792,10 @@ function showAuthErr(msg){
 
 function logout(){
   S.user = null;
-  saveState();
+  S.pages = {};
+  S.activity = {};
+  S.members = [];
+  saveSession(); // يحفظ الحالة الجديدة (user = null)
   refreshAll();
   if (S.settings.sheetUrl){
     openModal('modalAuth');
@@ -1798,17 +1807,22 @@ function logout(){
 
 /* ==========================================================================
    COMMIT PAGE CHANGE
-   ✅ منطق العدّاد الجديد + مزامنة في الخلفية
+   ✅ منطق العدّاد + لا يوجد حفظ محلي
    ========================================================================== */
 async function commitPageChange(page, newState, opts = {}){
+  // ✅ حماية: يجب أن يكون الخادم مضبوطاً والمستخدم مسجلاً
+  if (!S.settings.sheetUrl || !S.user){
+    toast('يرجى إكمال إعداد الخادم وتسجيل الدخول أولاً', 'warn');
+    return;
+  }
+
   const oldState = getPage(page).state;
   const stateChanged = oldState !== newState;
 
-  // ✅ حساب الفارق حسب القاعدة الجديدة
-  // لم يبدأ → -1 (تراجع)
-  // واجب → 0 (لا يؤثر)
-  // محفوظ / مراجعة / تم التسميع → +1 (تقدم)
-  // نفس الحالة → 0
+  // ✅ القاعدة الجديدة:
+  //   لم يبدأ  → -1
+  //   واجب      → 0
+  //   محفوظ/مراجعة/تم التسميع → +1
   let delta = 0;
   if (stateChanged){
     if (newState === 'none')                    delta = -1;
@@ -1818,7 +1832,7 @@ async function commitPageChange(page, newState, opts = {}){
     else if (newState === 'verified')           delta = +1;
   }
 
-  // تحديث الصفحة (نُبقي سجل "شاهد قبر" حتى لو كانت الحالة "لم يبدأ")
+  // تحديث الصفحة (نُبقي شاهد قبر للصفحات المُرجَعة)
   const nextPages = { ...S.pages };
   nextPages[page] = buildPageRecord(newState, opts.lastReviewed);
 
@@ -1835,21 +1849,17 @@ async function commitPageChange(page, newState, opts = {}){
   S.pages = nextPages;
   S.activity = nextActivity;
 
-  // ✅ تحديث الواجهة فوراً (لا انتظار)
-  saveState();
+  // ✅ تحديث الواجهة فوراً — لا حفظ محلي
   refreshAll();
 
-  // إشعار
   if (stateChanged){
     toast(`تم تحديث الصفحة ${page} إلى «${STATES[newState].label}»`, 'success');
   } else {
     toast(`تم تحديث تاريخ مراجعة الصفحة ${page}`, 'success');
   }
 
-  // ✅ المزامنة في الخلفية — لا تحجب المستخدم
-  if (S.settings.sheetUrl && S.user){
-    schedulePushInBackground();
-  }
+  // ✅ المزامنة في الخلفية
+  schedulePushInBackground();
 }
 
 /* ==========================================================================
@@ -1865,15 +1875,19 @@ function setupSettings(){
   $('#btnSaveUrl').addEventListener('click', async () => {
     const url = $('#inputSheetUrl').value.trim();
     S.settings.sheetUrl = url;
-    saveState();
+    saveSession();
     closeModal('modalSettings');
 
     if (url){
       setSyncStatus('ok');
-      // ✅ المزامنة في الخلفية
-      fullSync()
-        .then(() => toast('تم الربط والمزامنة بنجاح ✓', 'success'))
-        .catch(() => toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn'));
+      if (S.user){
+        // ✅ المزامنة في الخلفية
+        fullSync()
+          .then(() => toast('تم الربط والمزامنة بنجاح ✓', 'success'))
+          .catch(() => toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn'));
+      } else {
+        setTimeout(() => openModal('modalAuth'), 400);
+      }
     } else {
       setSyncStatus('local');
       toast('تم إزالة الرابط — الوضع المحلي', 'info');
@@ -1912,54 +1926,34 @@ function setupSettings(){
   $('#btnSync').addEventListener('click', async () => {
     if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
     if (!S.user){ toast('يرجى تسجيل الدخول أولاً', 'warn'); return; }
-    // ✅ المزامنة في الخلفية — لا انتظار
+
+    setBusy(true, 'جارٍ المزامنة...');
     fullSync()
       .then(() => toast('تمت المزامنة بنجاح ✓', 'success'))
       .catch((e) => {
         if (String(e.message) === 'OFFLINE') toast('لا يوجد اتصال بالإنترنت', 'warn');
         else toast('فشلت المزامنة — تحقّق من الرابط والصلاحيات', 'error');
-      });
+      })
+      .finally(() => setBusy(false));
   });
 
-  $('#btnExport').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `tahfeez-backup-${dayKey()}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast('تم تصدير النسخة الاحتياطية', 'success');
-  });
-
-  $('#btnImport').addEventListener('click', () => $('#fileImport').click());
-  $('#fileImport').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (!data.pages) throw new Error('bad');
-        S.pages = data.pages || {};
-        S.activity = data.activity || {};
-        if (Array.isArray(data.members)) S.members = data.members;
-        saveState();
-        refreshAll();
-        closeModal('modalSettings');
-        toast('تم الاستيراد بنجاح', 'success');
-        if (S.settings.sheetUrl && S.user) schedulePushInBackground();
-      } catch(err){
-        toast('ملف غير صالح', 'error');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  });
-
+  /* ✅ زر الحذف/الخروج — يعمل بشكل صحيح الآن */
   $('#btnResetAll').addEventListener('click', () => {
-    if (!confirm('سيتم حذف كل تقدمك المحلي نهائياً. (لن تُحذف بيانات السحابة). هل أنت متأكد؟')) return;
-    localStorage.removeItem(LS_KEY);
-    location.reload();
+    if (!confirm('سيتم تسجيل خروجك ومسح جميع الإعدادات المحلية (الرابط، الجلسة). لن تُحذف بياناتك من السحابة.\n\nمتابعة؟')) return;
+
+    try { localStorage.removeItem(LS_KEY); } catch(e){}
+
+    S.user = null;
+    S.pages = {};
+    S.activity = {};
+    S.members = [];
+    S.settings.sheetUrl = '';
+    S.settings.lastSync = null;
+
+    closeModal('modalSettings');
+    toast('تم مسح الإعدادات — سيتم إعادة التحميل', 'info');
+
+    setTimeout(() => location.reload(), 600);
   });
 }
 
@@ -2044,7 +2038,6 @@ function setupPageModal(){
     }
     const p = currentPage;
     closeModal('modalPage');
-    // ✅ لا انتظار — يُحدَّث فوراً والمزامنة في الخلفية
     await commitPageChange(p, state, { lastReviewed: Date.now() });
     openPageModal(p);
   });
@@ -2081,11 +2074,13 @@ function setupMemberModal(){
     pg.verifiedBy = S.user ? S.user.name : 'عضو';
     pg.updatedAt = Date.now();
 
-    saveState();
     toast(`تم تأكيد تسميع الصفحة ${p} لـ ${m.name} ✓`, 'success');
     openMemberModal(m.id);
     renderGroup();
     renderHeader();
+
+    // رفع التغيير للخادم في الخلفية
+    if (S.settings.sheetUrl && S.user) schedulePushInBackground();
   });
 
   $('#leaderboard').addEventListener('click', e => {
@@ -2114,7 +2109,7 @@ function refreshAll(){
    INIT
    ========================================================================== */
 async function init(){
-  loadState();
+  loadSession(); // يحمّل فقط: user + sheetUrl
 
   setupTabs();
   setupMushaf();
@@ -2125,9 +2120,7 @@ async function init(){
   setupSetupModal();
   setupAuth();
 
-  setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
-
-  // ✅ عرض فوري من الكاش المحلي
+  // رسم أولي فارغ
   renderHeader();
   renderStats();
   renderMushaf();
@@ -2135,13 +2128,29 @@ async function init(){
   renderGroup();
   refreshIcons();
 
+  setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
+
   if (!S.settings.sheetUrl){
+    // لا رابط → مودال الإعداد
     setTimeout(() => openModal('modalSetup'), 350);
   } else if (!S.user){
+    // لا مستخدم → مودال الدخول
     setTimeout(() => openModal('modalAuth'), 350);
   } else {
-    // ✅ المزامنة في الخلفية — لا ننتظر
-    fullSync().catch(() => {});
+    // ✅ جلب البيانات من الخادم مباشرة
+    setBusy(true, 'جارٍ تحميل بياناتك...');
+    setSyncStatus('syncing');
+    try {
+      await pullFromServer();
+      setSyncStatus('ok');
+      refreshAll();
+      initialLoadDone = true;
+    } catch(e){
+      setSyncStatus('error');
+      toast('تعذّر جلب البيانات — تحقّق من الاتصال', 'error');
+    } finally {
+      setBusy(false);
+    }
   }
 
   window.addEventListener('online', () => {
@@ -2151,8 +2160,6 @@ async function init(){
     }
   });
   window.addEventListener('offline', () => setSyncStatus('offline'));
-
-  window.addEventListener('beforeunload', saveState);
 
   document.addEventListener('keydown', e => {
     if (e.target.tagName === 'INPUT') return;

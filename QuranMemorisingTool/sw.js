@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tahfeez-v2';
+const CACHE_NAME = 'tahfeez-v3';
 const CORE_ASSETS = [
   './',
   './index.html',
