@@ -160,8 +160,22 @@ body{
 }
 
 /* ---------- Heatmap ---------- */
-.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:2px}
-.heat i{width:12px;height:12px;border-radius:2px;display:block;background:#1b2537;transition:transform .12s}
+.heat{
+  display:grid;
+  grid-auto-flow:column;
+  grid-template-rows:repeat(7, 12px);
+  grid-auto-columns:12px;
+  gap:2px;
+  width:fit-content;
+}
+.heat i{
+  width:12px;
+  height:12px;
+  border-radius:2px;
+  display:block;
+  background:#1b2537;
+  transition:transform .12s;
+}
 .heat i:hover{transform:scale(1.4);outline:1px solid #64748b;z-index:2}
 
 /* ---------- Modal ---------- */
@@ -1209,10 +1223,11 @@ function renderHeatmap(){
     const k = dayKey(cursor);
     const v = S.activity[k] || 0;
     let bg = '#1b2537';
-    if (v > 0 && v <= 2)       bg = 'rgba(52,211,153,.35)';
-    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';
-    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';
-    else if (v > 9)            bg = '#34d399';
+    if (v === 0)               bg = '#1b2537';                 // فارغ ← رمادي خافت
+    else if (v <= 2)           bg = 'rgba(52,211,153,.35)';    // أخضر فاتح
+    else if (v <= 5)           bg = 'rgba(52,211,153,.58)';    // أخضر متوسط
+    else if (v <= 9)           bg = 'rgba(52,211,153,.82)';    // أخضر داكن
+    else                       bg = '#34d399';                 // أخضر عميق
 
     const label = `${cursor.toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' })} — ${v ? v + ' صفحة' : 'لا نشاط'}`;
     html += `<i style="background:${bg}" title="${label}"></i>`;
