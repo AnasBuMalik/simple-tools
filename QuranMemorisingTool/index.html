@@ -428,7 +428,7 @@ body{
           <div class="card p-6 shrink-0" style="width:fit-content;max-width:100%">
             <h3 class="font-extrabold text-sm mb-4 flex items-center gap-2">
               <i data-lucide="calendar-days" class="w-4 h-4 text-violet-400"></i>
-              خريطة النشاط (آخر 26 أسبوعاً)
+              خريطة النشاط (آخر شهر)
             </h3>
             <div class="overflow-x-auto scroll pb-1">
               <div id="heatmap" class="heat"></div>
@@ -728,7 +728,7 @@ body{
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const DAY = 86400000;
-const LS_KEY = 'tahfeez_session_v2'; // Only session data (user + url)
+const LS_KEY = 'tahfeez_session_v2';
 
 const ar = n => String(n);
 
@@ -802,7 +802,6 @@ const STATES = {
 };
 
 /* ------------------------------ App State ------------------------------ */
-/* ✅ البيانات في الذاكرة فقط — لا تُخزَّن محلياً أبداً */
 let S = {
   user: null,
   pages: {},
@@ -821,10 +820,9 @@ let openJuz = { 1: true };
 
 let pushTimer = null;
 let pushInFlight = false;
-let initialLoadDone = false;
 
 /* ==========================================================================
-   Session Persistence — يخزّن فقط: user + sheetUrl
+   Session Persistence
    ========================================================================== */
 function saveSession(){
   try {
@@ -845,16 +843,11 @@ function loadSession(){
       sheetUrl: (parsed.settings && parsed.settings.sheetUrl) || '',
       lastSync: null
     };
-    // ✅ البيانات لا تُحمَّل من localStorage — دائماً من الخادم
     S.pages = {};
     S.activity = {};
     S.members = [];
     return true;
   } catch(e){ return false; }
-}
-
-function clearSession(){
-  try { localStorage.removeItem(LS_KEY); } catch(e){}
 }
 
 /* ------------------------------ Page helpers ------------------------------ */
@@ -1005,16 +998,12 @@ async function apiPost(body){
   return await res.json();
 }
 
-/**
- * ✅ السحب من الخادم — استبدال كامل (الخادم هو المصدر الوحيد)
- */
 async function pullFromServer(){
   if (!S.settings.sheetUrl) return false;
   const user = S.user ? S.user.name : 'guest';
   const res = await apiGet({ action: 'pull', user });
   if (!res || !res.ok) throw new Error(res && res.error || 'PULL_FAILED');
 
-  // ✅ استبدال كامل — لا دمج
   S.pages = (res.user && res.user.pages) || {};
   S.activity = (res.user && res.user.activity) || {};
   S.members = Array.isArray(res.members) ? res.members : [];
@@ -1078,9 +1067,30 @@ async function doPushInBackground(){
     setSyncStatus('ok');
   } catch(e){
     setSyncStatus('error');
-    // لا نُرجع الحالة — الإرسال التالي سيرفع كل التغييرات
   } finally {
     pushInFlight = false;
+  }
+}
+
+/* ✅ تحديث قائمة الأعضاء فقط — لا يمسح التغييرات المحلية */
+async function refreshMembersInBackground(){
+  if (!S.settings.sheetUrl || !S.user) return;
+  try {
+    const user = S.user.name;
+    const res = await apiGet({ action: 'pull', user });
+    if (res && res.ok && Array.isArray(res.members)){
+      S.members = res.members;
+      renderGroup();
+      if (currentMember){
+        const updated = S.members.find(x => x.id === currentMember.id);
+        if (updated){
+          currentMember = updated;
+          openMemberModal(updated.id);
+        }
+      }
+    }
+  } catch(e){
+    // تجاهل — البيانات محفوظة على الخادم
   }
 }
 
@@ -1383,11 +1393,12 @@ function renderStats(){
   if (window.lucide) lucide.createIcons();
 }
 
+/* ✅ خريطة النشاط — آخر 5 أسابيع (≈ شهر) */
 function renderHeatmap(){
   const wrap = $('#heatmap');
   if (!wrap) return;
 
-  const WEEKS = 26;
+  const WEEKS = 5;
   const today = new Date(); today.setHours(0,0,0,0);
   const start = new Date(today);
   start.setDate(start.getDate() - (WEEKS * 7 - 1));
@@ -1608,6 +1619,71 @@ function openMemberModal(id){
   openModal('modalMember');
 }
 
+/* ✅ تأكيد تسميع صفحة لعضو آخر — مع optimistic update + مزامنة فعلية */
+async function verifyPeerPage(targetUser, page){
+  if (!S.settings.sheetUrl || !S.user){
+    toast('يرجى تسجيل الدخول أولاً', 'warn');
+    return false;
+  }
+
+  const m = S.members.find(x => x.name === targetUser);
+  if (!m){ toast('العضو غير موجود', 'error'); return false; }
+
+  const pg = m.pages[page];
+  if (!pg || pg.state !== 'memorized'){
+    toast('الصفحة ليست بحالة «محفوظ»', 'warn');
+    return false;
+  }
+
+  const snapshot = { ...pg };
+
+  // ✅ تحديث متفائل (UI فوري)
+  pg.state = 'verified';
+  pg.lastReviewed = Date.now();
+  pg.verifiedBy = S.user.name;
+  pg.updatedAt = Date.now();
+  renderGroup();
+  openMemberModal(m.id);
+
+  try {
+    const res = await apiPost({
+      action: 'verify',
+      user:   S.user.name,
+      target: targetUser,
+      page:   page
+    });
+
+    if (!res || !res.ok){
+      Object.assign(pg, snapshot);
+      renderGroup();
+      openMemberModal(m.id);
+      const code = res && res.error;
+      const map = {
+        'PAGE_NOT_FOUND':  'الصفحة غير موجودة على الخادم',
+        'NOT_MEMORIZED':   'الصفحة ليست محفوظة على الخادم',
+        'INVALID_INPUT':   'بيانات غير صالحة',
+        'SERVER_BUSY':     'الخادم مشغول — حاول مجدداً',
+        'Unknown action: verify': 'الخادم لا يدعم هذه الميزة بعد — أعد نشر Apps Script'
+      };
+      toast(map[code] || 'تعذّر تأكيد التسميع', 'error');
+      return false;
+    }
+
+    toast(`تم تأكيد تسميع الصفحة ${page} لـ ${targetUser} ✓`, 'success');
+
+    // ✅ جلب نسخة محدّثة من الأعضاء فقط (لا يمسح صفحاتي)
+    refreshMembersInBackground();
+    return true;
+
+  } catch(e){
+    Object.assign(pg, snapshot);
+    renderGroup();
+    openMemberModal(m.id);
+    toast('فشل الاتصال بالخادم', 'error');
+    return false;
+  }
+}
+
 /* ==========================================================================
    MODAL HELPERS
    ========================================================================== */
@@ -1750,7 +1826,6 @@ async function doAuth(){
       return;
     }
 
-    // ✅ تحميل البيانات من استجابة الخادم
     if (authMode === 'register'){
       S.pages = {};
       S.activity = {};
@@ -1764,7 +1839,7 @@ async function doAuth(){
     S.user = { name };
     S.settings.lastSync = Date.now();
 
-    saveSession(); // يحفظ فقط: user + sheetUrl
+    saveSession();
     closeModal('modalAuth');
     $('#authUser').value = '';
     $('#authPin').value = '';
@@ -1795,7 +1870,7 @@ function logout(){
   S.pages = {};
   S.activity = {};
   S.members = [];
-  saveSession(); // يحفظ الحالة الجديدة (user = null)
+  saveSession();
   refreshAll();
   if (S.settings.sheetUrl){
     openModal('modalAuth');
@@ -1807,10 +1882,8 @@ function logout(){
 
 /* ==========================================================================
    COMMIT PAGE CHANGE
-   ✅ منطق العدّاد + لا يوجد حفظ محلي
    ========================================================================== */
 async function commitPageChange(page, newState, opts = {}){
-  // ✅ حماية: يجب أن يكون الخادم مضبوطاً والمستخدم مسجلاً
   if (!S.settings.sheetUrl || !S.user){
     toast('يرجى إكمال إعداد الخادم وتسجيل الدخول أولاً', 'warn');
     return;
@@ -1819,10 +1892,6 @@ async function commitPageChange(page, newState, opts = {}){
   const oldState = getPage(page).state;
   const stateChanged = oldState !== newState;
 
-  // ✅ القاعدة الجديدة:
-  //   لم يبدأ  → -1
-  //   واجب      → 0
-  //   محفوظ/مراجعة/تم التسميع → +1
   let delta = 0;
   if (stateChanged){
     if (newState === 'none')                    delta = -1;
@@ -1832,11 +1901,9 @@ async function commitPageChange(page, newState, opts = {}){
     else if (newState === 'verified')           delta = +1;
   }
 
-  // تحديث الصفحة (نُبقي شاهد قبر للصفحات المُرجَعة)
   const nextPages = { ...S.pages };
   nextPages[page] = buildPageRecord(newState, opts.lastReviewed);
 
-  // تحديث النشاط مع منع السالب
   const nextActivity = { ...S.activity };
   if (delta !== 0 && !opts.silentActivity){
     const k = dayKey();
@@ -1849,7 +1916,6 @@ async function commitPageChange(page, newState, opts = {}){
   S.pages = nextPages;
   S.activity = nextActivity;
 
-  // ✅ تحديث الواجهة فوراً — لا حفظ محلي
   refreshAll();
 
   if (stateChanged){
@@ -1858,7 +1924,6 @@ async function commitPageChange(page, newState, opts = {}){
     toast(`تم تحديث تاريخ مراجعة الصفحة ${page}`, 'success');
   }
 
-  // ✅ المزامنة في الخلفية
   schedulePushInBackground();
 }
 
@@ -1881,7 +1946,6 @@ function setupSettings(){
     if (url){
       setSyncStatus('ok');
       if (S.user){
-        // ✅ المزامنة في الخلفية
         fullSync()
           .then(() => toast('تم الربط والمزامنة بنجاح ✓', 'success'))
           .catch(() => toast('تم حفظ الرابط لكن فشلت المزامنة — تحقّق من الصلاحيات', 'warn'));
@@ -1923,21 +1987,20 @@ function setupSettings(){
     }
   });
 
+  /* ✅ زر المزامنة — بدون شاشة تحميل، التنقل حر */
   $('#btnSync').addEventListener('click', async () => {
     if (!S.settings.sheetUrl){ toast('لم يتم ضبط رابط Google Sheets', 'warn'); return; }
     if (!S.user){ toast('يرجى تسجيل الدخول أولاً', 'warn'); return; }
 
-    setBusy(true, 'جارٍ المزامنة...');
+    setSyncStatus('syncing');
     fullSync()
       .then(() => toast('تمت المزامنة بنجاح ✓', 'success'))
       .catch((e) => {
         if (String(e.message) === 'OFFLINE') toast('لا يوجد اتصال بالإنترنت', 'warn');
         else toast('فشلت المزامنة — تحقّق من الرابط والصلاحيات', 'error');
-      })
-      .finally(() => setBusy(false));
+      });
   });
 
-  /* ✅ زر الحذف/الخروج — يعمل بشكل صحيح الآن */
   $('#btnResetAll').addEventListener('click', () => {
     if (!confirm('سيتم تسجيل خروجك ومسح جميع الإعدادات المحلية (الرابط، الجلسة). لن تُحذف بياناتك من السحابة.\n\nمتابعة؟')) return;
 
@@ -2060,27 +2123,14 @@ function setupPageModal(){
 }
 
 function setupMemberModal(){
+  /* ✅ يستخدم verifyPeerPage الآن — يُحدّث الخادم فعلياً */
   $('#memGrid').addEventListener('click', async e => {
     const tile = e.target.closest('[data-verify]');
     if (!tile || !currentMember) return;
     const p = Number(tile.dataset.verify);
     if (!confirm(`تأكيد تسميع الصفحة ${p} لـ ${currentMember.name}؟`)) return;
 
-    const m = currentMember;
-    const pg = m.pages[p];
-    if (!pg || pg.state !== 'memorized') return;
-    pg.state = 'verified';
-    pg.lastReviewed = Date.now();
-    pg.verifiedBy = S.user ? S.user.name : 'عضو';
-    pg.updatedAt = Date.now();
-
-    toast(`تم تأكيد تسميع الصفحة ${p} لـ ${m.name} ✓`, 'success');
-    openMemberModal(m.id);
-    renderGroup();
-    renderHeader();
-
-    // رفع التغيير للخادم في الخلفية
-    if (S.settings.sheetUrl && S.user) schedulePushInBackground();
+    await verifyPeerPage(currentMember.name, p);
   });
 
   $('#leaderboard').addEventListener('click', e => {
@@ -2109,7 +2159,7 @@ function refreshAll(){
    INIT
    ========================================================================== */
 async function init(){
-  loadSession(); // يحمّل فقط: user + sheetUrl
+  loadSession();
 
   setupTabs();
   setupMushaf();
@@ -2120,7 +2170,6 @@ async function init(){
   setupSetupModal();
   setupAuth();
 
-  // رسم أولي فارغ
   renderHeader();
   renderStats();
   renderMushaf();
@@ -2131,20 +2180,16 @@ async function init(){
   setSyncStatus(S.settings.sheetUrl ? 'ok' : 'local');
 
   if (!S.settings.sheetUrl){
-    // لا رابط → مودال الإعداد
     setTimeout(() => openModal('modalSetup'), 350);
   } else if (!S.user){
-    // لا مستخدم → مودال الدخول
     setTimeout(() => openModal('modalAuth'), 350);
   } else {
-    // ✅ جلب البيانات من الخادم مباشرة
     setBusy(true, 'جارٍ تحميل بياناتك...');
     setSyncStatus('syncing');
     try {
       await pullFromServer();
       setSyncStatus('ok');
       refreshAll();
-      initialLoadDone = true;
     } catch(e){
       setSyncStatus('error');
       toast('تعذّر جلب البيانات — تحقّق من الاتصال', 'error');
