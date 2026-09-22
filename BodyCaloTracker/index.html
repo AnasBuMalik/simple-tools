@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#10b981" />
+<meta name="description" content="تطبيق لمتابعة السعرات الحرارية والوزن اليومي" />
+
+<title>صحتك | متتبع السعرات والوزن</title>
+
+<!-- CDNs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Cairo', 'system-ui', 'sans-serif'] }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Cairo', system-ui, sans-serif; }
+
+  .inp {
+    width: 100%;
+    border-radius: 0.85rem;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .inp::placeholder { color: #94a3b8; font-weight: 500; }
+  .inp:focus {
+    border-color: #10b981;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .15);
+  }
+  .dark .inp {
+    color: #f1f5f9;
+    background: #020617;
+    border-color: #1e293b;
+  }
+  .dark .inp:focus { background: #020617; border-color: #10b981; }
+  select.inp { appearance: none; background-image: none; cursor: pointer; }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+  }
+  .dark .card {
+    background: #0f172a;
+    border-color: #1e293b;
+    box-shadow: none;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .8rem 1rem;
+    border-radius: .9rem;
+    background: #10b981;
+    color: #fff;
+    font-weight: 700;
+    font-size: .875rem;
+    transition: transform .12s, background .15s, box-shadow .15s;
+    box-shadow: 0 6px 16px -6px rgba(16, 185, 129, .6);
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary:hover { background: #059669; }
+  .btn-primary:active { transform: scale(.975); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .8rem 1rem;
+    border-radius: .9rem;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: .875rem;
+    border: 1.5px solid #e2e8f0;
+    transition: transform .12s, background .15s;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-secondary:active { transform: scale(.975); }
+  .dark .btn-secondary { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+  .dark .btn-secondary:hover { background: #334155; }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .8rem 1rem;
+    border-radius: .9rem;
+    background: #fff1f2;
+    color: #e11d48;
+    font-weight: 700;
+    font-size: .875rem;
+    border: 1.5px solid #fecdd3;
+    transition: transform .12s, background .15s;
+    cursor: pointer;
+  }
+  .btn-danger:hover { background: #ffe4e6; }
+  .btn-danger:active { transform: scale(.975); }
+  .dark .btn-danger { background: rgba(244, 63, 94, .1); border-color: rgba(244, 63, 94, .3); }
+
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    transition: color .2s;
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-btn .nav-icon { transition: transform .25s; }
+  .nav-btn.active { color: #10b981; }
+  .nav-btn.active .nav-icon { transform: translateY(-3px) scale(1.06); }
+  .nav-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 22px;
+    height: 3px;
+    border-radius: 0 0 6px 6px;
+    background: #10b981;
+  }
+  .dark .nav-btn { color: #64748b; }
+  .dark .nav-btn.active { color: #34d399; }
+  .dark .nav-btn.active::after { background: #34d399; }
+
+  .chip {
+    flex: 1;
+    padding: .5rem .25rem;
+    border-radius: .75rem;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: .75rem;
+    font-weight: 700;
+    border: 1.5px solid #e2e8f0;
+    transition: background .15s, transform .12s;
+    cursor: pointer;
+  }
+  .chip:active { transform: scale(.94); background: #d1fae5; }
+  .dark .chip { background: #1e293b; color: #cbd5e1; border-color: #334155; }
+
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  .tab-panel { animation: fadeUp .28s ease-out; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+<!-- ======================= الهيدر ======================= -->
+<header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/85">
+  <div class="mx-auto flex h-16 max-w-lg items-center gap-2.5 px-4">
+    <div class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+      </svg>
+    </div>
+    <div>
+      <h1 id="pageTitle" class="text-[15px] font-extrabold leading-tight">الرئيسية</h1>
+      <p id="headerDate" class="text-[11px] font-semibold text-slate-400 leading-tight"></p>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= المحتوى ======================= -->
+<main class="mx-auto max-w-lg px-4 pt-4 pb-32">
+
+  <!-- ============ 1) الرئيسية ============ -->
+  <section id="tab-dashboard" class="tab-panel space-y-3.5">
+
+    <div id="setupBanner" class="hidden items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+      <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-extrabold text-amber-800 dark:text-amber-300">أكمل ملفك الشخصي</p>
+        <p class="text-[11px] font-semibold text-amber-700/80 dark:text-amber-400/80">أدخل الطول والوزن والعمر لحساب احتياجاتك.</p>
+      </div>
+      <button data-goto="profile" class="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white active:scale-95">إعداد</button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card">
+        <div class="flex items-center gap-1.5 text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <p class="text-[10px] font-bold">معدل الأيض الأساسي</p>
+        </div>
+        <p class="mt-2 text-2xl font-extrabold leading-none">
+          <span id="bmrValue">--</span>
+          <span class="text-[10px] font-bold text-slate-400">سعرة</span>
+        </p>
+        <p class="mt-1 text-[10px] font-semibold text-slate-400">BMR</p>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-1.5 text-emerald-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+          </svg>
+          <p class="text-[10px] font-bold">إجمالي الحرق اليومي</p>
+        </div>
+        <p class="mt-2 text-2xl font-extrabold leading-none text-emerald-600 dark:text-emerald-400">
+          <span id="tdeeValue">--</span>
+          <span class="text-[10px] font-bold text-slate-400">سعرة</span>
+        </p>
+        <p class="mt-1 text-[10px] font-semibold text-slate-400">TDEE</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-[10px] font-bold text-slate-400">مؤشر كتلة الجسم (BMI)</p>
+          <p class="mt-1.5 text-2xl font-extrabold leading-none"><span id="bmiValue">--</span></p>
+        </div>
+        <span id="bmiBadge" class="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold text-slate-400 dark:bg-slate-800">--</span>
+      </div>
+
+      <div dir="ltr" class="mt-4">
+        <div class="relative h-2 w-full rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 to-rose-400">
+          <div id="bmiMarker" class="absolute -top-1 h-4 w-1.5 rounded-full bg-slate-900 shadow transition-all duration-500 dark:bg-white" style="left: 0%"></div>
+        </div>
+        <div class="mt-1.5 flex justify-between text-[9px] font-bold text-slate-400">
+          <span>نحافة</span><span>طبيعي</span><span>زيادة</span><span>سمنة</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-end justify-between">
+        <div>
+          <p class="text-[10px] font-bold text-slate-400">السعرات المستهلكة اليوم</p>
+          <p class="mt-1.5 leading-none">
+            <span id="consumedValue" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+            <span class="text-xs font-bold text-slate-400">/ <span id="targetValue">--</span> سعرة</span>
+          </p>
+        </div>
+        <span id="progressPercent" class="text-sm font-extrabold text-slate-300 dark:text-slate-600">0%</span>
+      </div>
+
+      <div class="mt-3.5 h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div id="calorieBar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out"></div>
+      </div>
+
+      <div class="mt-2.5 flex items-center justify-between text-[11px] font-bold">
+        <span id="remainingValue" class="text-slate-500 dark:text-slate-400">المتبقي: --</span>
+        <span id="mealsTodayCount" class="text-slate-400">0 وجبة</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="mb-3 flex items-center justify-between">
+        <h3 class="text-sm font-extrabold">تغيّر الوزن عبر الزمن</h3>
+        <span id="weightDelta" class="text-[11px] font-bold text-slate-400"></span>
+      </div>
+      <div class="relative h-56">
+        <canvas id="weightChart"></canvas>
+        <div id="chartEmpty" class="absolute inset-0 hidden flex-col items-center justify-center gap-2 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-slate-300 dark:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l5-5 4 4 8-8M21 8v5h-5"/>
+          </svg>
+          <p class="text-xs font-bold text-slate-400">لا توجد سجلات وزن بعد</p>
+          <p class="text-[10px] font-semibold text-slate-400">حدّث وزنك من تبويب «الملف الشخصي»</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2) الوجبات ============ -->
+  <section id="tab-meals" class="tab-panel hidden space-y-3.5">
+
+    <div class="card flex items-center justify-between bg-gradient-to-l from-emerald-500 to-emerald-600 !border-emerald-500 text-white">
+      <div>
+        <p class="text-[11px] font-bold text-emerald-50/90">إجمالي سعرات اليوم</p>
+        <p class="mt-1 text-3xl font-extrabold leading-none">
+          <span id="mealsTotal">0</span>
+          <span class="text-xs font-bold text-emerald-50/80">سعرة</span>
+        </p>
+      </div>
+      <div class="text-left">
+        <p class="text-[11px] font-bold text-emerald-50/90">عدد الوجبات</p>
+        <p class="mt-1 text-3xl font-extrabold leading-none"><span id="mealsCount">0</span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3 flex items-center gap-1.5 text-sm font-extrabold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        إضافة سريعة
+      </h3>
+      <div class="flex gap-2">
+        <input id="quickCalories" type="number" inputmode="numeric" placeholder="عدد السعرات" class="inp flex-1" />
+        <button id="quickAddBtn" class="btn-primary !w-auto px-5">إضافة</button>
+      </div>
+      <div class="mt-2.5 flex gap-2">
+        <button class="chip" data-quick="100">+100</button>
+        <button class="chip" data-quick="200">+200</button>
+        <button class="chip" data-quick="300">+300</button>
+        <button class="chip" data-quick="500">+500</button>
+      </div>
+    </div>
+
+    <form id="mealForm" class="card space-y-3">
+      <h3 class="flex items-center gap-1.5 text-sm font-extrabold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        إضافة وجبة مفصّلة
+      </h3>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <input id="mealName" type="text" placeholder="اسم الوجبة" class="inp" />
+        <input id="mealQty" type="text" placeholder="الكمية (مثال: طبق)" class="inp" />
+      </div>
+      <input id="mealCalories" type="number" inputmode="numeric" placeholder="السعرات الحرارية" class="inp" />
+      <button type="submit" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        إضافة الوجبة
+      </button>
+      <p class="text-center text-[10px] font-semibold text-slate-400">جميع الحقول اختيارية عدا السعرات</p>
+    </form>
+
+    <div>
+      <h3 class="mb-2 px-1 text-sm font-extrabold">وجبات اليوم</h3>
+      <ul id="mealsList" class="space-y-2"></ul>
+
+      <div id="mealsEmpty" class="card flex flex-col items-center gap-2 py-10 text-center">
+        <div class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <p class="text-sm font-extrabold text-slate-400">لا توجد وجبات مسجّلة اليوم</p>
+        <p class="text-[11px] font-semibold text-slate-400">ابدأ بإضافة أول وجبة لك</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3) الملف الشخصي والوزن ============ -->
+  <section id="tab-profile" class="tab-panel hidden space-y-3.5">
+
+    <form id="profileForm" class="card space-y-3.5">
+      <h3 class="flex items-center gap-1.5 text-sm font-extrabold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+        البيانات الأساسية
+      </h3>
+
+      <div class="grid grid-cols-3 gap-2.5">
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الطول (سم)</label>
+          <input id="pHeight" type="number" inputmode="decimal" placeholder="170" class="inp" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الوزن (كغ)</label>
+          <input id="pWeight" type="number" inputmode="decimal" step="0.1" placeholder="70" class="inp" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">العمر</label>
+          <input id="pAge" type="number" inputmode="numeric" placeholder="25" class="inp" />
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الجنس</label>
+        <select id="pGender" class="inp">
+          <option value="male">ذكر</option>
+          <option value="female">أنثى</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">مستوى النشاط البدني</label>
+        <select id="pActivity" class="inp">
+          <option value="sedentary">خمول (عمل مكتبي بدون رياضة)</option>
+          <option value="light">خفيف (تمرين 1-3 أيام أسبوعياً)</option>
+          <option value="moderate">متوسط (تمرين 3-5 أيام أسبوعياً)</option>
+          <option value="high">عالي (تمرين 6-7 أيام أسبوعياً)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الهدف</label>
+        <select id="pGoal" class="inp">
+          <option value="lose">خسارة وزن (-500 سعرة)</option>
+          <option value="maintain">الحفاظ على الوزن</option>
+          <option value="gain">زيادة وزن (+500 سعرة)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        حفظ البيانات
+      </button>
+    </form>
+
+    <form id="weightForm" class="card space-y-3">
+      <h3 class="flex items-center gap-1.5 text-sm font-extrabold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+        </svg>
+        تحديث الوزن الحالي
+      </h3>
+
+      <div class="flex gap-2">
+        <input id="newWeight" type="number" inputmode="decimal" step="0.1" placeholder="مثال: 72.5" class="inp flex-1" />
+        <button type="submit" class="btn-primary !w-auto px-5">تحديث</button>
+      </div>
+      <p id="lastWeightUpdate" class="text-[11px] font-semibold text-slate-400">لا يوجد سجل بعد</p>
+    </form>
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">سجل الأوزان</h3>
+      <ul id="weightLogList" class="space-y-1.5 max-h-64 overflow-y-auto"></ul>
+      <p id="weightLogEmpty" class="py-4 text-center text-xs font-bold text-slate-400">السجل فارغ</p>
+    </div>
+  </section>
+
+  <!-- ============ 4) الإعدادات والبيانات ============ -->
+  <section id="tab-settings" class="tab-panel hidden space-y-3.5">
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">ملخص البيانات</h3>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="rounded-xl bg-slate-50 py-3 dark:bg-slate-800/60">
+          <p id="statMeals" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">وجبة مسجّلة</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 py-3 dark:bg-slate-800/60">
+          <p id="statWeights" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">سجل وزن</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 py-3 dark:bg-slate-800/60">
+          <p id="statDays" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">يوم متابعة</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card space-y-2.5">
+      <h3 class="flex items-center gap-1.5 text-sm font-extrabold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+        </svg>
+        إدارة البيانات
+      </h3>
+
+      <button id="exportBtn" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
+        </svg>
+        تصدير البيانات (JSON)
+      </button>
+
+      <label for="importInput" class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 20V8m0 0l-4 4m4-4l4 4M4 4h16"/>
+        </svg>
+        استيراد البيانات
+      </label>
+      <input id="importInput" type="file" accept=".json,application/json" class="hidden" />
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">المظهر</h3>
+      <button id="themeToggleSettings" class="btn-secondary">
+        <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M5.64 5.64l1.41 1.41m9.9 9.9l1.41 1.41M3 12h2m14 0h2M5.64 18.36l1.41-1.41m9.9-9.9l1.41-1.41M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+        </svg>
+        <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+        <span id="themeLabel">تبديل إلى الوضع الليلي</span>
+      </button>
+    </div>
+
+    <div class="card space-y-2.5">
+      <h3 class="text-sm font-extrabold text-rose-500">منطقة الخطر</h3>
+      <button id="resetBtn" class="btn-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        حذف جميع البيانات نهائياً
+      </button>
+    </div>
+
+    <p class="pt-2 text-center text-[10px] font-semibold text-slate-400">
+      جميع بياناتك محفوظة محلياً على جهازك فقط 🔒
+    </p>
+  </section>
+</main>
+
+<!-- ======================= شريط التنقل السفلي ======================= -->
+<nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/95"
+     style="padding-bottom: env(safe-area-inset-bottom);">
+  <div class="mx-auto grid max-w-lg grid-cols-4">
+    <button class="nav-btn active" data-tab="dashboard">
+      <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/>
+      </svg>
+      <span>الرئيسية</span>
+    </button>
+
+    <button class="nav-btn" data-tab="meals">
+      <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+      <span>الوجبات</span>
+    </button>
+
+    <button class="nav-btn" data-tab="profile">
+      <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+      <span>الملف</span>
+    </button>
+
+    <button class="nav-btn" data-tab="settings">
+      <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      <span>الإعدادات</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ======================= نافذة تعديل الوجبة ======================= -->
+<div id="editModal" class="fixed inset-0 z-[70] hidden">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-close-modal></div>
+  <div class="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white p-5 shadow-2xl dark:bg-slate-900"
+       style="padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));">
+    <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+    <h3 class="mb-4 text-base font-extrabold">تعديل الوجبة</h3>
+
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">اسم الوجبة</label>
+        <input id="editName" type="text" class="inp" placeholder="اسم الوجبة" />
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الكمية</label>
+        <input id="editQty" type="text" class="inp" placeholder="الكمية" />
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">السعرات الحرارية</label>
+        <input id="editCalories" type="number" inputmode="numeric" class="inp" placeholder="السعرات" />
+      </div>
+    </div>
+
+    <div class="mt-5 flex gap-2.5">
+      <button data-close-modal class="btn-secondary">إلغاء</button>
+      <button id="saveEditBtn" class="btn-primary">حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= التنبيهات ======================= -->
+<div id="toast"
+     class="pointer-events-none fixed bottom-24 left-1/2 z-[80] -translate-x-1/2 translate-y-3 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white opacity-0 shadow-xl transition-all duration-300"></div>
+
+<script>
+/* ==========================================================================
+   ثوابت التطبيق
+   ========================================================================== */
+const STORAGE_KEY = 'health_tracker_v1';
+
+const ACTIVITY_FACTORS = { sedentary: 1.2, light: 1.375, moderate: 1.55, high: 1.725 };
+const GOAL_ADJUST      = { lose: -500, maintain: 0, gain: 500 };
+
+const TAB_TITLES = {
+  dashboard: 'الرئيسية',
+  meals: 'الوجبات',
+  profile: 'الملف الشخصي',
+  settings: 'الإعدادات'
+};
+
+const DEFAULT_STATE = {
+  profile: {
+    height: null,
+    weight: null,
+    age: null,
+    gender: 'male',
+    activity: 'sedentary',
+    goal: 'maintain'
+  },
+  weightLog: [],
+  meals: [],
+  lastActiveDate: null,
+  theme: 'light'
+};
+
+/* ==========================================================================
+   أدوات مساعدة
+   ========================================================================== */
+const $  = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function toDateKey(date = new Date()) {
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - tzOffset).toISOString().slice(0, 10);
+}
+
+function formatDate(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('ar-EG-u-nu-latn', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+}
+
+function shortDate(key) {
+  const [, m, d] = key.split('-');
+  return `${Number(d)}/${Number(m)}`;
+}
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function num(value) {
+  return Math.round(value).toLocaleString('en-US');
+}
+
+let toastTimer = null;
+function showToast(message, type = 'success') {
+  const el = $('#toast');
+  el.textContent = message;
+  el.classList.remove('bg-emerald-600', 'bg-rose-500', 'opacity-0', 'translate-y-3');
+  el.classList.add(type === 'error' ? 'bg-rose-500' : 'bg-emerald-600');
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.classList.add('opacity-0', 'translate-y-3');
+  }, 2200);
+}
+
+/* ==========================================================================
+   إدارة الحالة والتخزين
+   ========================================================================== */
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return normalizeState(null);
+    return normalizeState(JSON.parse(raw));
+  } catch (err) {
+    console.warn('فشل تحميل البيانات، سيتم البدء من جديد.', err);
+    return normalizeState(null);
+  }
+}
+
+function normalizeState(raw) {
+  const base = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  if (!raw || typeof raw !== 'object') return base;
+
+  const result = { ...base };
+
+  if (raw.profile && typeof raw.profile === 'object') {
+    result.profile = { ...base.profile, ...raw.profile };
+    ['height', 'weight', 'age'].forEach((k) => {
+      const v = Number(result.profile[k]);
+      result.profile[k] = Number.isFinite(v) && v > 0 ? v : null;
+    });
+    if (!ACTIVITY_FACTORS[result.profile.activity]) result.profile.activity = 'sedentary';
+    if (!(result.profile.goal in GOAL_ADJUST)) result.profile.goal = 'maintain';
+    if (!['male', 'female'].includes(result.profile.gender)) result.profile.gender = 'male';
+  }
+
+  if (Array.isArray(raw.weightLog)) {
+    result.weightLog = raw.weightLog
+      .filter((e) => e && typeof e.date === 'string' && Number.isFinite(Number(e.weight)))
+      .map((e) => ({ date: e.date, weight: Number(e.weight) }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  if (Array.isArray(raw.meals)) {
+    result.meals = raw.meals
+      .filter((m) => m && typeof m.date === 'string')
+      .map((m) => ({
+        id: m.id || uid(),
+        date: m.date,
+        name: typeof m.name === 'string' ? m.name : '',
+        qty: typeof m.qty === 'string' ? m.qty : '',
+        calories: Number(m.calories) || 0
+      }));
+  }
+
+  result.lastActiveDate = typeof raw.lastActiveDate === 'string' ? raw.lastActiveDate : null;
+  result.theme = raw.theme === 'dark' ? 'dark' : 'light';
+
+  return result;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.error('فشل حفظ البيانات', err);
+    showToast('تعذّر حفظ البيانات', 'error');
+  }
+}
+
+/* ==========================================================================
+   الحسابات الغذائية
+   ========================================================================== */
+function calcBMR() {
+  const { weight, height, age, gender } = state.profile;
+  if (!weight || !height || !age) return null;
+  const base = 10 * weight + 6.25 * height - 5 * age;
+  return gender === 'male' ? base + 5 : base - 161;
+}
+
+function calcTDEE() {
+  const bmr = calcBMR();
+  if (bmr === null) return null;
+  return bmr * (ACTIVITY_FACTORS[state.profile.activity] ?? 1.2);
+}
+
+function calcTargetCalories() {
+  const tdee = calcTDEE();
+  if (tdee === null) return null;
+  return Math.max(1200, Math.round(tdee + (GOAL_ADJUST[state.profile.goal] ?? 0)));
+}
+
+function calcBMI() {
+  const { weight, height } = state.profile;
+  if (!weight || !height) return null;
+  const h = height / 100;
+  return weight / (h * h);
+}
+
+function classifyBMI(bmi) {
+  if (bmi < 18.5) return { label: 'نحافة',   cls: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400' };
+  if (bmi < 25)   return { label: 'وزن طبيعي', cls: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400' };
+  if (bmi < 30)   return { label: 'زيادة وزن', cls: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400' };
+  return { label: 'سمنة', cls: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400' };
+}
+
+/* ==========================================================================
+   الوجبات
+   ========================================================================== */
+function getTodayMeals() {
+  const today = toDateKey();
+  return state.meals.filter((m) => m.date === today);
+}
+
+function getTodayCalories() {
+  return getTodayMeals().reduce((sum, m) => sum + (Number(m.calories) || 0), 0);
+}
+
+function addMeal({ name = '', qty = '', calories = 0 }) {
+  state.meals.push({
+    id: uid(),
+    date: toDateKey(),
+    name: String(name).trim(),
+    qty: String(qty).trim(),
+    calories: Number(calories) || 0
+  });
+  saveState();
+}
+
+/* ==========================================================================
+   سجل الوزن
+   ========================================================================== */
+function upsertWeight(dateKey, weight) {
+  const idx = state.weightLog.findIndex((e) => e.date === dateKey);
+  if (idx >= 0) {
+    state.weightLog[idx].weight = weight;
+  } else {
+    state.weightLog.push({ date: dateKey, weight });
+  }
+  state.weightLog.sort((a, b) => a.date.localeCompare(b.date));
+  state.profile.weight = weight;
+}
+
+function checkDailyReset() {
+  const today = toDateKey();
+  if (state.lastActiveDate !== today) {
+    state.lastActiveDate = today;
+    saveState();
+    return true;
+  }
+  return false;
+}
+
+/* ==========================================================================
+   المظهر
+   ========================================================================== */
+function applyTheme() {
+  const isDark = state.theme === 'dark';
+  document.documentElement.classList.toggle('dark', isDark);
+
+  const iconSun = $('#iconSun');
+  const iconMoon = $('#iconMoon');
+  if (iconSun) iconSun.classList.toggle('hidden', isDark);
+  if (iconMoon) iconMoon.classList.toggle('hidden', !isDark);
+
+  const label = $('#themeLabel');
+  if (label) label.textContent = isDark ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع الليلي';
+
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#020617' : '#10b981');
+}
+
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  saveState();
+  applyTheme();
+  if (currentTab === 'dashboard') renderChart();
+}
+
+/* ==========================================================================
+   التنقل
+   ========================================================================== */
+let currentTab = 'dashboard';
+
+function switchTab(tab) {
+  currentTab = tab;
+
+  $$('.tab-panel').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.id !== `tab-${tab}`);
+  });
+
+  $$('.nav-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+
+  $('#pageTitle').textContent = TAB_TITLES[tab] || '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'meals') renderMeals();
+  if (tab === 'profile') renderProfile();
+  if (tab === 'settings') renderSettings();
+}
+
+/* ==========================================================================
+   الرسم
+   ========================================================================== */
+let weightChart = null;
+
+function renderDashboard() {
+  const bmr = calcBMR();
+  const tdee = calcTDEE();
+  const bmi = calcBMI();
+  const target = calcTargetCalories();
+  const consumed = getTodayCalories();
+  const mealsCount = getTodayMeals().length;
+
+  const incomplete = !state.profile.height || !state.profile.weight || !state.profile.age;
+  const banner = $('#setupBanner');
+  banner.classList.toggle('hidden', !incomplete);
+  banner.classList.toggle('flex', incomplete);
+
+  $('#bmrValue').textContent = bmr ? num(bmr) : '--';
+  $('#tdeeValue').textContent = tdee ? num(tdee) : '--';
+
+  if (bmi) {
+    const info = classifyBMI(bmi);
+    $('#bmiValue').textContent = bmi.toFixed(1);
+    const badge = $('#bmiBadge');
+    badge.textContent = info.label;
+    badge.className = `rounded-full px-3 py-1.5 text-[11px] font-extrabold ${info.cls}`;
+
+    const pct = Math.min(100, Math.max(0, ((bmi - 15) / 25) * 100));
+    $('#bmiMarker').style.left = `calc(${pct}% - 3px)`;
+  } else {
+    $('#bmiValue').textContent = '--';
+    const badge = $('#bmiBadge');
+    badge.textContent = '--';
+    badge.className = 'rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold text-slate-400 dark:bg-slate-800';
+    $('#bmiMarker').style.left = '0%';
+  }
+
+  $('#consumedValue').textContent = num(consumed);
+  $('#targetValue').textContent = target ? num(target) : '--';
+  $('#mealsTodayCount').textContent = `${mealsCount} وجبة`;
+
+  const bar = $('#calorieBar');
+  if (target) {
+    const pct = (consumed / target) * 100;
+    const clamped = Math.min(100, pct);
+    bar.style.width = `${clamped}%`;
+    bar.className = pct > 100
+      ? 'h-full rounded-full bg-gradient-to-r from-rose-400 to-rose-600 transition-all duration-700 ease-out'
+      : 'h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out';
+    $('#progressPercent').textContent = `${Math.round(pct)}%`;
+
+    const remaining = target - consumed;
+    const remainEl = $('#remainingValue');
+    if (remaining >= 0) {
+      remainEl.textContent = `المتبقي: ${num(remaining)} سعرة`;
+      remainEl.className = 'text-slate-500 dark:text-slate-400';
+    } else {
+      remainEl.textContent = `تجاوزت الهدف بـ ${num(Math.abs(remaining))} سعرة`;
+      remainEl.className = 'text-rose-500';
+    }
+  } else {
+    bar.style.width = '0%';
+    $('#progressPercent').textContent = '0%';
+    $('#remainingValue').textContent = 'المتبقي: --';
+  }
+
+  const delta = $('#weightDelta');
+  if (state.weightLog.length >= 2) {
+    const first = state.weightLog[0].weight;
+    const last = state.weightLog[state.weightLog.length - 1].weight;
+    const diff = last - first;
+    const sign = diff > 0 ? '+' : '';
+    delta.textContent = `${sign}${diff.toFixed(1)} كغ`;
+    delta.className = `text-[11px] font-extrabold ${
+      diff < 0 ? 'text-emerald-500' : diff > 0 ? 'text-amber-500' : 'text-slate-400'
+    }`;
+  } else {
+    delta.textContent = '';
+  }
+
+  renderChart();
+}
+
+function renderChart() {
+  const canvas = $('#weightChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const sorted = [...state.weightLog]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-30);
+
+  const emptyState = $('#chartEmpty');
+
+  if (weightChart) {
+    weightChart.destroy();
+    weightChart = null;
+  }
+
+  if (sorted.length === 0) {
+    emptyState.classList.remove('hidden');
+    emptyState.classList.add('flex');
+    return;
+  }
+  emptyState.classList.add('hidden');
+  emptyState.classList.remove('flex');
+
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(148,163,184,.14)' : 'rgba(100,116,139,.10)';
+  const tickColor = isDark ? '#94a3b8' : '#64748b';
+
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, 'rgba(16,185,129,.32)');
+  gradient.addColorStop(1, 'rgba(16,185,129,0)');
+
+  const values = sorted.map((e) => e.weight);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const pad = Math.max(0.8, (maxVal - minVal) * 0.25);
+
+  weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sorted.map((e) => shortDate(e.date)),
+      datasets: [{
+        label: 'الوزن (كغ)',
+        data: values,
+        borderColor: '#10b981',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35,
+        pointRadius: sorted.length > 15 ? 2 : 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#10b981',
+        pointBorderColor: isDark ? '#0f172a' : '#ffffff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          textDirection: 'rtl',
+          backgroundColor: isDark ? '#1e293b' : '#0f172a',
+          titleFont: { family: 'Cairo', size: 11 },
+          bodyFont: { family: 'Cairo', size: 12, weight: '700' },
+          padding: 10,
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            title: (items) => formatDate(sorted[items[0].dataIndex].date),
+            label: (item) => `${item.parsed.y} كغ`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: tickColor,
+            font: { family: 'Cairo', size: 10 },
+            maxRotation: 0,
+            autoSkipPadding: 12
+          },
+          border: { display: false }
+        },
+        y: {
+          min: Math.floor((minVal - pad) * 10) / 10,
+          max: Math.ceil((maxVal + pad) * 10) / 10,
+          grid: { color: gridColor },
+          border: { display: false },
+          ticks: {
+            color: tickColor,
+            font: { family: 'Cairo', size: 10 },
+            maxTicksLimit: 5,
+            callback: (v) => `${v}`
+          }
+        }
+      }
+    }
+  });
+}
+
+function mealItemHTML(meal) {
+  const title = meal.name ? escapeHtml(meal.name) : 'وجبة سريعة';
+  const meta = meal.qty ? `${escapeHtml(meal.qty)} • ${num(meal.calories)} سعرة` : `${num(meal.calories)} سعرة`;
+
+  return `
+    <li class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-extrabold">${title}</p>
+        <p class="mt-0.5 text-[11px] font-semibold text-slate-400">${meta}</p>
+      </div>
+      <button data-edit="${meal.id}" aria-label="تعديل"
+        class="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 active:scale-90 dark:hover:bg-slate-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+      <button data-delete="${meal.id}" aria-label="حذف"
+        class="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500 active:scale-90 dark:hover:bg-rose-500/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </li>`;
+}
+
+function renderMeals() {
+  const meals = getTodayMeals();
+  const total = meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
+
+  $('#mealsTotal').textContent = num(total);
+  $('#mealsCount').textContent = meals.length;
+
+  const list = $('#mealsList');
+  const empty = $('#mealsEmpty');
+
+  if (meals.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  empty.classList.remove('flex');
+  list.innerHTML = meals.map(mealItemHTML).join('');
+}
+
+function renderProfile() {
+  $('#pHeight').value = state.profile.height ?? '';
+  $('#pWeight').value = state.profile.weight ?? '';
+  $('#pAge').value = state.profile.age ?? '';
+  $('#pGender').value = state.profile.gender;
+  $('#pActivity').value = state.profile.activity;
+  $('#pGoal').value = state.profile.goal;
+
+  const last = state.weightLog[state.weightLog.length - 1];
+  $('#lastWeightUpdate').textContent = last
+    ? `آخر تحديث: ${formatDate(last.date)} — ${last.weight} كغ`
+    : 'لا يوجد سجل بعد';
+
+  const list = $('#weightLogList');
+  const empty = $('#weightLogEmpty');
+
+  if (state.weightLog.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    list.innerHTML = [...state.weightLog]
+      .reverse()
+      .slice(0, 30)
+      .map((entry) => `
+        <li class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-slate-800/60">
+          <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">${formatDate(entry.date)}</span>
+          <span class="text-sm font-extrabold">${entry.weight} <span class="text-[10px] text-slate-400">كغ</span></span>
+        </li>`)
+      .join('');
+  }
+}
+
+function renderSettings() {
+  const uniqueDays = new Set(state.meals.map((m) => m.date)).size;
+  $('#statMeals').textContent = state.meals.length;
+  $('#statWeights').textContent = state.weightLog.length;
+  $('#statDays').textContent = uniqueDays;
+
+  const label = $('#themeLabel');
+  if (label) label.textContent = state.theme === 'dark' ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع الليلي';
+}
+
+/* ==========================================================================
+   الأحداث
+   ========================================================================== */
+$$('.nav-btn').forEach((btn) => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+document.addEventListener('click', (e) => {
+  const goto = e.target.closest('[data-goto]');
+  if (goto) switchTab(goto.dataset.goto);
+});
+
+/* زر المظهر الوحيد المتبقي في الإعدادات */
+$('#themeToggleSettings').addEventListener('click', toggleTheme);
+
+$('#profileForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const height = parseFloat($('#pHeight').value);
+  const weight = parseFloat($('#pWeight').value);
+  const age = parseInt($('#pAge').value, 10);
+
+  if (!Number.isFinite(height) || height < 50 || height > 260) {
+    showToast('الرجاء إدخال طول صحيح (سم)', 'error');
+    return;
+  }
+  if (!Number.isFinite(weight) || weight < 20 || weight > 400) {
+    showToast('الرجاء إدخال وزن صحيح (كغ)', 'error');
+    return;
+  }
+  if (!Number.isFinite(age) || age < 10 || age > 120) {
+    showToast('الرجاء إدخال عمر صحيح', 'error');
+    return;
+  }
+
+  state.profile.height = height;
+  state.profile.age = age;
+  state.profile.gender = $('#pGender').value;
+  state.profile.activity = $('#pActivity').value;
+  state.profile.goal = $('#pGoal').value;
+
+  upsertWeight(toDateKey(), weight);
+
+  saveState();
+  renderProfile();
+  renderDashboard();
+  showToast('تم حفظ بياناتك بنجاح ✓');
+});
+
+$('#weightForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const weight = parseFloat($('#newWeight').value);
+  if (!Number.isFinite(weight) || weight < 20 || weight > 400) {
+    showToast('الرجاء إدخال وزن صحيح (كغ)', 'error');
+    return;
+  }
+
+  upsertWeight(toDateKey(), weight);
+  saveState();
+
+  $('#newWeight').value = '';
+  renderProfile();
+  renderDashboard();
+  showToast('تم تحديث الوزن ✓');
+});
+
+$('#mealForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const name = $('#mealName').value.trim();
+  const qty = $('#mealQty').value.trim();
+  const calories = parseInt($('#mealCalories').value, 10);
+
+  if (!Number.isFinite(calories) || calories <= 0) {
+    showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
+    return;
+  }
+  if (calories > 10000) {
+    showToast('عدد السعرات كبير جداً', 'error');
+    return;
+  }
+
+  addMeal({ name, qty, calories });
+
+  $('#mealForm').reset();
+  renderMeals();
+  showToast('تمت إضافة الوجبة ✓');
+});
+
+$('#quickAddBtn').addEventListener('click', () => {
+  const calories = parseInt($('#quickCalories').value, 10);
+  if (!Number.isFinite(calories) || calories <= 0) {
+    showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
+    return;
+  }
+  addMeal({ name: 'إضافة سريعة', qty: '', calories });
+  $('#quickCalories').value = '';
+  renderMeals();
+  showToast(`تمت إضافة ${calories} سعرة ✓`);
+});
+
+$$('.chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    const calories = parseInt(chip.dataset.quick, 10);
+    addMeal({ name: 'إضافة سريعة', qty: '', calories });
+    renderMeals();
+    showToast(`تمت إضافة ${calories} سعرة ✓`);
+  });
+});
+
+$('#mealsList').addEventListener('click', (e) => {
+  const editBtn = e.target.closest('[data-edit]');
+  const deleteBtn = e.target.closest('[data-delete]');
+
+  if (editBtn) openEditModal(editBtn.dataset.edit);
+
+  if (deleteBtn) {
+    const id = deleteBtn.dataset.delete;
+    const meal = state.meals.find((m) => m.id === id);
+    if (!meal) return;
+
+    if (confirm(`هل تريد حذف «${meal.name || 'وجبة سريعة'}»؟`)) {
+      state.meals = state.meals.filter((m) => m.id !== id);
+      saveState();
+      renderMeals();
+      showToast('تم حذف الوجبة');
+    }
+  }
+});
+
+let editingMealId = null;
+
+function openEditModal(id) {
+  const meal = state.meals.find((m) => m.id === id);
+  if (!meal) return;
+
+  editingMealId = id;
+  $('#editName').value = meal.name;
+  $('#editQty').value = meal.qty;
+  $('#editCalories').value = meal.calories;
+
+  const modal = $('#editModal');
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEditModal() {
+  $('#editModal').classList.add('hidden');
+  document.body.style.overflow = '';
+  editingMealId = null;
+}
+
+$$('[data-close-modal]').forEach((el) => el.addEventListener('click', closeEditModal));
+
+$('#saveEditBtn').addEventListener('click', () => {
+  if (!editingMealId) return;
+
+  const calories = parseInt($('#editCalories').value, 10);
+  if (!Number.isFinite(calories) || calories <= 0) {
+    showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
+    return;
+  }
+
+  const meal = state.meals.find((m) => m.id === editingMealId);
+  if (!meal) return;
+
+  meal.name = $('#editName').value.trim();
+  meal.qty = $('#editQty').value.trim();
+  meal.calories = calories;
+
+  saveState();
+  closeEditModal();
+  renderMeals();
+  showToast('تم تحديث الوجبة ✓');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#editModal').classList.contains('hidden')) closeEditModal();
+});
+
+$('#exportBtn').addEventListener('click', () => {
+  const payload = {
+    app: 'health-tracker',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: state
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `health-data-${toDateKey()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('تم تصدير البيانات ✓');
+});
+
+$('#importInput').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (evt) => {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      const incoming = parsed && typeof parsed === 'object' && parsed.data ? parsed.data : parsed;
+
+      if (!incoming || typeof incoming !== 'object') throw new Error('بنية غير صالحة');
+
+      state = normalizeState(incoming);
+      saveState();
+      applyTheme();
+      renderAll();
+      showToast('تم استيراد البيانات بنجاح ✓');
+    } catch (err) {
+      console.error(err);
+      showToast('ملف غير صالح أو تالف', 'error');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  reader.onerror = () => {
+    showToast('تعذّر قراءة الملف', 'error');
+    e.target.value = '';
+  };
+
+  reader.readAsText(file);
+});
+
+$('#resetBtn').addEventListener('click', () => {
+  if (!confirm('سيتم حذف جميع بياناتك نهائياً (الملف الشخصي، الوجبات، سجل الوزن). هل أنت متأكد؟')) return;
+
+  const theme = state.theme;
+  localStorage.removeItem(STORAGE_KEY);
+  state = normalizeState(null);
+  state.theme = theme;
+  state.lastActiveDate = toDateKey();
+  saveState();
+
+  renderAll();
+  showToast('تم حذف جميع البيانات');
+});
+
+/* ==========================================================================
+   التشغيل
+   ========================================================================== */
+function renderAll() {
+  renderProfile();
+  renderDashboard();
+  renderMeals();
+  renderSettings();
+}
+
+function init() {
+  // المظهر
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    state.theme = prefersDark ? 'dark' : 'light';
+  }
+  applyTheme();
+
+  // إعادة الضبط اليومي
+  checkDailyReset();
+
+  // تاريخ الهيدر
+  $('#headerDate').textContent = new Date().toLocaleDateString('ar-EG-u-nu-latn', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+
+  renderAll();
+  switchTab('dashboard');
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && checkDailyReset()) {
+    renderAll();
+    showToast('يوم جديد! تم تصفير سعرات اليوم');
+  }
+});
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
