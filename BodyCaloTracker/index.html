@@ -183,6 +183,13 @@
   .chip:active { transform: scale(.94); background: #d1fae5; }
   .dark .chip { background: #1e293b; color: #cbd5e1; border-color: #334155; }
 
+  .hist-range { color: #94a3b8; transition: background .15s, color .15s; }
+  .hist-range.active { background: #10b981; color: #fff; }
+
+  input[type="date"].inp { color-scheme: light; direction: ltr; }
+  .dark input[type="date"].inp { color-scheme: dark; }
+  input[type="date"].inp::-webkit-calendar-picker-indicator { cursor: pointer; }
+
   input[type=number]::-webkit-outer-spin-button,
   input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   input[type=number] { -moz-appearance: textfield; }
@@ -389,6 +396,11 @@
         <input id="mealQty" type="text" placeholder="الكمية (مثال: طبق)" class="inp" />
       </div>
       <input id="mealCalories" type="number" inputmode="numeric" placeholder="السعرات الحرارية" class="inp" />
+      <div class="grid grid-cols-3 gap-2.5">
+        <input id="mealProtein" type="number" inputmode="decimal" step="0.1" placeholder="بروتين (غ)" class="inp" />
+        <input id="mealCarbs" type="number" inputmode="decimal" step="0.1" placeholder="كربوهيدرات (غ)" class="inp" />
+        <input id="mealFats" type="number" inputmode="decimal" step="0.1" placeholder="دهون (غ)" class="inp" />
+      </div>
       <button type="submit" class="btn-primary">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -410,6 +422,165 @@
         </div>
         <p class="text-sm font-extrabold text-slate-400">لا توجد وجبات مسجّلة اليوم</p>
         <p class="text-[11px] font-semibold text-slate-400">ابدأ بإضافة أول وجبة لك</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2ب) السجل التاريخي والتحليل ============ -->
+  <section id="tab-history" class="tab-panel hidden space-y-3.5">
+
+    <!-- منقّل التاريخ -->
+    <div class="card">
+      <div class="flex items-center gap-2">
+        <button id="histPrev" class="btn-secondary !w-auto !px-3.5" aria-label="اليوم السابق">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <button id="histNext" class="btn-secondary !w-auto !px-3.5" aria-label="اليوم التالي">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+        <div class="min-w-0 flex-1">
+          <input id="histDate" type="date" class="inp" />
+        </div>
+        <button id="histToday" class="btn-primary !w-auto px-4">اليوم</button>
+      </div>
+      <p id="histDateLabel" class="mt-2 text-center text-xs font-extrabold text-emerald-600 dark:text-emerald-400"></p>
+    </div>
+
+    <!-- ملخص اليوم المحدد -->
+    <div class="card">
+      <div class="flex items-center justify-between">
+        <p class="text-[10px] font-bold text-slate-400">سعرات اليوم</p>
+        <span id="histDayStatus" class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold text-slate-500 dark:bg-slate-800 dark:text-slate-300">--</span>
+      </div>
+      <p class="mt-1.5 leading-none">
+        <span id="histDayCalories" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+        <span class="text-xs font-bold text-slate-400">/ <span id="histDayTarget">--</span> سعرة</span>
+      </p>
+      <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div id="histDayBar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"></div>
+      </div>
+      <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+        <div class="rounded-xl bg-slate-50 py-2.5 dark:bg-slate-800/60">
+          <p id="histDayMeals" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">وجبة</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 py-2.5 dark:bg-slate-800/60">
+          <p id="histDayWeight" class="text-lg font-extrabold">--</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">الوزن (كغ)</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 py-2.5 dark:bg-slate-800/60">
+          <p id="histDayMacros" class="text-lg font-extrabold text-amber-500">--</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-400">بروتين (غ)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- مغذيات اليوم المحدد -->
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">مغذيات هذا اليوم</h3>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="rounded-xl bg-emerald-50 py-2.5 dark:bg-emerald-500/10">
+          <p id="histProteinDay" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0 غ</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">بروتين</p>
+        </div>
+        <div class="rounded-xl bg-amber-50 py-2.5 dark:bg-amber-500/10">
+          <p id="histCarbsDay" class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0 غ</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">كربوهيدرات</p>
+        </div>
+        <div class="rounded-xl bg-rose-50 py-2.5 dark:bg-rose-500/10">
+          <p id="histFatsDay" class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0 غ</p>
+          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">دهون</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- تسجيل وزن اليوم المحدد -->
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">تسجيل وزن هذا اليوم</h3>
+      <div class="flex gap-2">
+        <input id="histWeightInput" type="number" inputmode="decimal" step="0.1" placeholder="مثال: 72.5" class="inp flex-1" />
+        <button id="histWeightSave" class="btn-primary !w-auto px-5">حفظ</button>
+      </div>
+      <p class="mt-1.5 text-[10px] font-semibold text-slate-400">يُربط الوزن بتاريخ اليوم المحدد ويظهر في مخطط الوزن.</p>
+    </div>
+
+    <!-- وجبات اليوم المحدد -->
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">وجبات هذا اليوم</h3>
+      <div class="flex gap-2">
+        <input id="histQuickCalories" type="number" inputmode="numeric" placeholder="إضافة سعرات سريعة" class="inp flex-1" />
+        <button id="histQuickAddBtn" class="btn-primary !w-auto px-5">إضافة</button>
+      </div>
+      <ul id="histMealsList" class="mt-3 space-y-2"></ul>
+      <div id="histMealsEmpty" class="card mt-3 flex flex-col items-center gap-2 py-8 text-center">
+        <div class="grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <p class="text-sm font-extrabold text-slate-400">لا توجد وجبات مسجّلة في هذا اليوم</p>
+      </div>
+    </div>
+
+    <!-- إحصائيات الالتزام -->
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">إحصائيات الالتزام</h3>
+      <div class="grid grid-cols-2 gap-2.5">
+        <div class="rounded-2xl bg-slate-50 p-3.5 dark:bg-slate-800/60">
+          <p id="histTrackedDays" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
+          <p class="mt-1 text-[10px] font-bold text-slate-400 leading-relaxed">أيام تم تسجيلها</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 p-3.5 dark:bg-slate-800/60">
+          <p id="histAdherence" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">--%</p>
+          <p class="mt-1 text-[10px] font-bold text-slate-400 leading-relaxed">التزام ضمن الهدف اليومي</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 p-3.5 dark:bg-slate-800/60">
+          <p id="histAvgCal" class="text-2xl font-extrabold">0</p>
+          <p class="mt-1 text-[10px] font-bold text-slate-400 leading-relaxed">متوسط السعرات اليومي</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 p-3.5 dark:bg-slate-800/60">
+          <p id="histBestStreak" class="text-2xl font-extrabold text-amber-500">0</p>
+          <p class="mt-1 text-[10px] font-bold text-slate-400 leading-relaxed">أطول سلسلة متواصلة</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- اتجاه السعرات -->
+    <div class="card">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="text-sm font-extrabold">اتجاه السعرات اليومية</h3>
+        <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+          <button class="hist-range active rounded-lg px-2.5 py-1 text-[10px] font-extrabold" data-range="7">7 أيام</button>
+          <button class="hist-range rounded-lg px-2.5 py-1 text-[10px] font-extrabold" data-range="30">30 يوم</button>
+        </div>
+      </div>
+      <p class="mb-2 text-[10px] font-semibold text-slate-400">العمود الأحمر = تجاوز الهدف • الخط المتقطع = الهدف اليومي</p>
+      <div class="relative h-56">
+        <canvas id="calorieTrendChart"></canvas>
+        <div id="trendEmpty" class="absolute inset-0 hidden flex-col items-center justify-center gap-2 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-slate-300 dark:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l5-5 4 4 8-8M21 8v5h-5"/>
+          </svg>
+          <p class="text-xs font-bold text-slate-400">لا توجد سعرات مسجّلة في هذه الفترة</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- اتجاه المغذيات -->
+    <div class="card">
+      <h3 class="mb-3 text-sm font-extrabold">المغذيات الكبرى عبر الأيام</h3>
+      <div class="relative h-56">
+        <canvas id="macroTrendChart"></canvas>
+        <div id="macroEmpty" class="absolute inset-0 hidden flex-col items-center justify-center gap-2 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-slate-300 dark:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9l-7-6zM13 3v6h6"/>
+          </svg>
+          <p class="text-xs font-bold text-slate-400">أضف المغذيات عند إدخال الوجبات لعرض المخطط</p>
+        </div>
       </div>
     </div>
   </section>
@@ -586,7 +757,7 @@
 <!-- ======================= شريط التنقل السفلي ======================= -->
 <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/95"
      style="padding-bottom: env(safe-area-inset-bottom);">
-  <div class="mx-auto grid max-w-lg grid-cols-4">
+  <div class="mx-auto grid max-w-lg grid-cols-5">
     <button class="nav-btn active" data-tab="dashboard">
       <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/>
@@ -599,6 +770,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
       </svg>
       <span>الوجبات</span>
+    </button>
+
+    <button class="nav-btn" data-tab="history">
+      <svg class="nav-icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>السجل</span>
     </button>
 
     <button class="nav-btn" data-tab="profile">
@@ -639,6 +817,20 @@
         <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">السعرات الحرارية</label>
         <input id="editCalories" type="number" inputmode="numeric" class="inp" placeholder="السعرات" />
       </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">البروتين (غ)</label>
+          <input id="editProtein" type="number" inputmode="decimal" step="0.1" class="inp" placeholder="0" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الكارب (غ)</label>
+          <input id="editCarbs" type="number" inputmode="decimal" step="0.1" class="inp" placeholder="0" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-[11px] font-bold text-slate-500 dark:text-slate-400">الدهون (غ)</label>
+          <input id="editFats" type="number" inputmode="decimal" step="0.1" class="inp" placeholder="0" />
+        </div>
+      </div>
     </div>
 
     <div class="mt-5 flex gap-2.5">
@@ -664,6 +856,7 @@ const GOAL_ADJUST      = { lose: -500, maintain: 0, gain: 500 };
 const TAB_TITLES = {
   dashboard: 'الرئيسية',
   meals: 'الوجبات',
+  history: 'السجل التاريخي',
   profile: 'الملف الشخصي',
   settings: 'الإعدادات'
 };
@@ -677,11 +870,11 @@ const DEFAULT_STATE = {
     activity: 'sedentary',
     goal: 'maintain'
   },
-  weightLog: [],
-  meals: [],
+  days: {},
   customGoal: null,
   lastActiveDate: null,
-  theme: 'light'
+  theme: 'light',
+  version: 2
 };
 
 /* ==========================================================================
@@ -767,24 +960,54 @@ function normalizeState(raw) {
     if (!['male', 'female'].includes(result.profile.gender)) result.profile.gender = 'male';
   }
 
-  if (Array.isArray(raw.weightLog)) {
-    result.weightLog = raw.weightLog
-      .filter((e) => e && typeof e.date === 'string' && Number.isFinite(Number(e.weight)))
-      .map((e) => ({ date: e.date, weight: Number(e.weight) }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+  result.days = {};
+
+  if (raw.days && typeof raw.days === 'object') {
+    Object.entries(raw.days).forEach(([key, day]) => {
+      if (!isDateKey(key)) return;
+      const entry = { meals: [], weight: null };
+      if (day && Array.isArray(day.meals)) {
+        entry.meals = day.meals
+          .filter((m) => m && typeof m === 'object' && isDateKey(m.date || key))
+          .map((m) => {
+            const nm = normalizeMeal(m);
+            nm.date = isDateKey(m.date) ? m.date : key;
+            return nm;
+          });
+      }
+      const w = Number(day && day.weight);
+      entry.weight = Number.isFinite(w) && w > 0 ? w : null;
+      result.days[key] = entry;
+    });
   }
 
+  /* ترحيل البيانات القديمة (قوائم مسطحة) إلى فهرس يومي */
   if (Array.isArray(raw.meals)) {
-    result.meals = raw.meals
-      .filter((m) => m && typeof m.date === 'string')
-      .map((m) => ({
-        id: m.id || uid(),
-        date: m.date,
-        name: typeof m.name === 'string' ? m.name : '',
-        qty: typeof m.qty === 'string' ? m.qty : '',
-        calories: Number(m.calories) || 0
-      }));
+    raw.meals
+      .filter((m) => m && typeof m === 'object' && isDateKey(m.date))
+      .forEach((m) => {
+        const key = m.date;
+        if (!result.days[key]) result.days[key] = { meals: [], weight: null };
+        const nm = normalizeMeal(m);
+        nm.date = key;
+        result.days[key].meals.push(nm);
+      });
   }
+
+  if (Array.isArray(raw.weightLog)) {
+    raw.weightLog
+      .filter((e) => e && typeof e === 'object' && isDateKey(e.date) && Number.isFinite(Number(e.weight)))
+      .forEach((e) => {
+        const key = e.date;
+        if (!result.days[key]) result.days[key] = { meals: [], weight: null };
+        result.days[key].weight = Number(e.weight);
+      });
+  }
+
+  /* تنظيف الأيام الفارغة */
+  Object.keys(result.days).forEach((key) => {
+    if (result.days[key].meals.length === 0 && result.days[key].weight == null) delete result.days[key];
+  });
 
   result.lastActiveDate = typeof raw.lastActiveDate === 'string' ? raw.lastActiveDate : null;
   result.theme = raw.theme === 'dark' ? 'dark' : 'light';
@@ -844,40 +1067,120 @@ function classifyBMI(bmi) {
 }
 
 /* ==========================================================================
-   الوجبات
+   الوجبات واليوميات (فهرس يومي)
    ========================================================================== */
+function isDateKey(key) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(key || ''));
+}
+
+function normalizeMeal(m) {
+  const numOrZero = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
+  return {
+    id: (m && m.id) || uid(),
+    date: (m && m.date) || '',
+    name: typeof (m && m.name) === 'string' ? m.name : '',
+    qty: typeof (m && m.qty) === 'string' ? m.qty : '',
+    calories: numOrZero(m && m.calories),
+    protein: numOrZero(m && m.protein),
+    carbs: numOrZero(m && m.carbs),
+    fat: numOrZero(m && m.fat)
+  };
+}
+
+function dayEntry(dateKey, create = false) {
+  if (!state.days[dateKey]) {
+    if (!create) return null;
+    state.days[dateKey] = { meals: [], weight: null };
+  }
+  return state.days[dateKey];
+}
+
+function getDayMeals(dateKey) {
+  const day = dayEntry(dateKey, false);
+  return day ? day.meals : [];
+}
+
+function getDayCalories(dateKey) {
+  return getDayMeals(dateKey).reduce((s, m) => s + (Number(m.calories) || 0), 0);
+}
+
+function getDayMacros(dateKey) {
+  return getDayMeals(dateKey).reduce((acc, m) => ({
+    protein: acc.protein + (Number(m.protein) || 0),
+    carbs: acc.carbs + (Number(m.carbs) || 0),
+    fat: acc.fat + (Number(m.fat) || 0)
+  }), { protein: 0, carbs: 0, fat: 0 });
+}
+
+function getTrackedDayKeys() {
+  return Object.keys(state.days)
+    .filter((k) => {
+      const d = state.days[k];
+      return d.meals.length > 0 || d.weight != null;
+    })
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function getSortedWeightEntries() {
+  return Object.keys(state.days)
+    .filter((k) => state.days[k].weight != null)
+    .map((k) => ({ date: k, weight: state.days[k].weight }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function addMealToDay(dateKey, { name = '', qty = '', calories = 0, protein = 0, carbs = 0, fat = 0 }) {
+  const day = dayEntry(dateKey, true);
+  day.meals.push({
+    id: uid(),
+    date: dateKey,
+    name: String(name).trim(),
+    qty: String(qty).trim(),
+    calories: Number(calories) || 0,
+    protein: Number(protein) || 0,
+    carbs: Number(carbs) || 0,
+    fat: Number(fat) || 0
+  });
+  saveState();
+}
+
+function findMealById(id) {
+  for (const [key, day] of Object.entries(state.days)) {
+    const idx = day.meals.findIndex((m) => m.id === id);
+    if (idx >= 0) return { dayKey: key, index: idx, meal: day.meals[idx] };
+  }
+  return null;
+}
+
+function deleteMeal(dayKey, id) {
+  const day = dayEntry(dayKey);
+  if (!day) return;
+  day.meals = day.meals.filter((m) => m.id !== id);
+  saveState();
+}
+
+function addDays(dateKey, delta) {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return toDateKey(new Date(y, m - 1, d + delta));
+}
+
 function getTodayMeals() {
-  const today = toDateKey();
-  return state.meals.filter((m) => m.date === today);
+  return getDayMeals(toDateKey());
 }
 
 function getTodayCalories() {
-  return getTodayMeals().reduce((sum, m) => sum + (Number(m.calories) || 0), 0);
-}
-
-function addMeal({ name = '', qty = '', calories = 0 }) {
-  state.meals.push({
-    id: uid(),
-    date: toDateKey(),
-    name: String(name).trim(),
-    qty: String(qty).trim(),
-    calories: Number(calories) || 0
-  });
-  saveState();
+  return getDayCalories(toDateKey());
 }
 
 /* ==========================================================================
    سجل الوزن
    ========================================================================== */
 function upsertWeight(dateKey, weight) {
-  const idx = state.weightLog.findIndex((e) => e.date === dateKey);
-  if (idx >= 0) {
-    state.weightLog[idx].weight = weight;
-  } else {
-    state.weightLog.push({ date: dateKey, weight });
-  }
-  state.weightLog.sort((a, b) => a.date.localeCompare(b.date));
-  state.profile.weight = weight;
+  const day = dayEntry(dateKey, true);
+  day.weight = weight;
+  if (dateKey === toDateKey()) state.profile.weight = weight;
 }
 
 function checkDailyReset() {
@@ -912,7 +1215,7 @@ function toggleTheme() {
   state.theme = state.theme === 'dark' ? 'light' : 'dark';
   saveState();
   applyTheme();
-  if (currentTab === 'dashboard') renderChart();
+  renderActiveTab();
 }
 
 /* ==========================================================================
@@ -936,6 +1239,7 @@ function switchTab(tab) {
 
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'meals') renderMeals();
+  if (tab === 'history') renderHistory();
   if (tab === 'profile') renderProfile();
   if (tab === 'settings') renderSettings();
 }
@@ -1007,10 +1311,11 @@ function renderDashboard() {
     $('#remainingValue').textContent = 'المتبقي: --';
   }
 
+  const weights = getSortedWeightEntries();
   const delta = $('#weightDelta');
-  if (state.weightLog.length >= 2) {
-    const first = state.weightLog[0].weight;
-    const last = state.weightLog[state.weightLog.length - 1].weight;
+  if (weights.length >= 2) {
+    const first = weights[0].weight;
+    const last = weights[weights.length - 1].weight;
     const diff = last - first;
     const sign = diff > 0 ? '+' : '';
     delta.textContent = `${sign}${diff.toFixed(1)} كغ`;
@@ -1028,8 +1333,7 @@ function renderChart() {
   const canvas = $('#weightChart');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  const sorted = [...state.weightLog]
-    .sort((a, b) => a.date.localeCompare(b.date))
+  const sorted = getSortedWeightEntries()
     .slice(-30);
 
   const emptyState = $('#chartEmpty');
@@ -1189,7 +1493,8 @@ function renderProfile() {
   $('#pActivity').value = state.profile.activity;
   $('#pGoal').value = state.profile.goal;
 
-  const last = state.weightLog[state.weightLog.length - 1];
+  const weights = getSortedWeightEntries();
+  const last = weights.length ? weights[weights.length - 1] : null;
   $('#lastWeightUpdate').textContent = last
     ? `آخر تحديث: ${formatDate(last.date)} — ${last.weight} كغ`
     : 'لا يوجد سجل بعد';
@@ -1197,15 +1502,12 @@ function renderProfile() {
   const list = $('#weightLogList');
   const empty = $('#weightLogEmpty');
 
-  if (state.weightLog.length === 0) {
+  if (weights.length === 0) {
     list.innerHTML = '';
     empty.classList.remove('hidden');
   } else {
     empty.classList.add('hidden');
-    list.innerHTML = [...state.weightLog]
-      .reverse()
-      .slice(0, 30)
-      .map((entry) => `
+    list.innerHTML = weights.slice().reverse().slice(0, 30).map((entry) => `
         <li class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-slate-800/60">
           <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">${formatDate(entry.date)}</span>
           <span class="text-sm font-extrabold">${entry.weight} <span class="text-[10px] text-slate-400">كغ</span></span>
@@ -1215,16 +1517,312 @@ function renderProfile() {
 }
 
 function renderSettings() {
-  const uniqueDays = new Set(state.meals.map((m) => m.date)).size;
-  $('#statMeals').textContent = state.meals.length;
-  $('#statWeights').textContent = state.weightLog.length;
-  $('#statDays').textContent = uniqueDays;
+  const tracked = getTrackedDayKeys();
+  const totalMeals = tracked.reduce((s, k) => s + getDayMeals(k).length, 0);
+  $('#statMeals').textContent = totalMeals;
+  $('#statWeights').textContent = getSortedWeightEntries().length;
+  $('#statDays').textContent = tracked.length;
 
   const goalInput = $('#customGoal');
   if (goalInput) goalInput.value = state.customGoal ?? '';
 
   const label = $('#themeLabel');
   if (label) label.textContent = state.theme === 'dark' ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع الليلي';
+}
+
+/* ==========================================================================
+   السجل التاريخي والتحليل
+   ========================================================================== */
+let historyDate = toDateKey();
+let histRange = 7;
+let calorieTrendChart = null;
+let macroTrendChart = null;
+
+function chartThemeColors() {
+  const isDark = document.documentElement.classList.contains('dark');
+  return {
+    isDark,
+    gridColor: isDark ? 'rgba(148,163,184,.14)' : 'rgba(100,116,139,.10)',
+    tickColor: isDark ? '#94a3b8' : '#64748b',
+    labelColor: isDark ? '#cbd5e1' : '#334155',
+    tooltipBg: isDark ? '#1e293b' : '#0f172a'
+  };
+}
+
+function renderHistory() {
+  const dateInput = $('#histDate');
+  if (dateInput) dateInput.value = historyDate;
+  const labelEl = $('#histDateLabel');
+  if (labelEl) labelEl.textContent = formatDate(historyDate);
+  renderHistoryDay();
+  renderConsistency();
+  renderCalorieTrend();
+  renderMacroTrend();
+}
+
+function setHistoryDate(key) {
+  if (!isDateKey(key)) return;
+  historyDate = key;
+  renderHistory();
+}
+
+function renderHistoryDay() {
+  const target = calcTargetCalories();
+  const meals = getDayMeals(historyDate);
+  const consumed = meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
+  const macros = getDayMacros(historyDate);
+  const day = dayEntry(historyDate, false);
+  const weight = day ? day.weight : null;
+
+  $('#histDayCalories').textContent = num(consumed);
+  $('#histDayTarget').textContent = target ? num(target) : '--';
+  $('#histDayMeals').textContent = meals.length;
+  $('#histDayWeight').textContent = weight != null ? weight : '--';
+
+  const macroSum = Math.round(macros.protein);
+  $('#histDayMacros').textContent = macroSum;
+  $('#histProteinDay').textContent = `${Math.round(macros.protein)} غ`;
+  $('#histCarbsDay').textContent = `${Math.round(macros.carbs)} غ`;
+  $('#histFatsDay').textContent = `${Math.round(macros.fat)} غ`;
+
+  const bar = $('#histDayBar');
+  bar.style.width = target ? `${Math.min(100, (consumed / target) * 100)}%` : '0%';
+  bar.className = target && consumed > target
+    ? 'h-full rounded-full bg-gradient-to-r from-rose-400 to-rose-600 transition-all duration-500'
+    : 'h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500';
+
+  const status = $('#histDayStatus');
+  if (meals.length === 0) {
+    status.textContent = 'لا توجد وجبات';
+    status.className = 'rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold text-slate-500 dark:bg-slate-800 dark:text-slate-300';
+  } else if (!target || consumed <= target) {
+    status.textContent = 'ضمن الهدف';
+    status.className = 'rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400';
+  } else {
+    status.textContent = 'تجاوز الهدف';
+    status.className = 'rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-extrabold text-rose-600 dark:bg-rose-500/15 dark:text-rose-400';
+  }
+
+  const wInput = $('#histWeightInput');
+  if (wInput) wInput.value = weight != null ? weight : '';
+
+  const list = $('#histMealsList');
+  const empty = $('#histMealsEmpty');
+  if (meals.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+  } else {
+    empty.classList.add('hidden');
+    empty.classList.remove('flex');
+    list.innerHTML = meals.map(mealItemHTML).join('');
+  }
+}
+
+function renderConsistency() {
+  const tracked = getTrackedDayKeys();
+  const target = calcTargetCalories();
+  const withMeals = tracked.filter((k) => getDayMeals(k).length > 0);
+
+  $('#histTrackedDays').textContent = tracked.length;
+
+  if (withMeals.length && target) {
+    const onGoal = withMeals.filter((k) => getDayCalories(k) <= target).length;
+    $('#histAdherence').textContent = `${Math.round((onGoal / withMeals.length) * 100)}%`;
+  } else {
+    $('#histAdherence').textContent = '--';
+  }
+
+  const avg = withMeals.length
+    ? Math.round(withMeals.reduce((s, k) => s + getDayCalories(k), 0) / withMeals.length)
+    : 0;
+  $('#histAvgCal').textContent = avg ? num(avg) : '0';
+
+  $('#histBestStreak').textContent = calcStreak(tracked);
+}
+
+function calcStreak(keys) {
+  if (keys.length === 0) return 0;
+  const set = [...new Set(keys)].sort();
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < set.length; i++) {
+    run = addDays(set[i - 1], 1) === set[i] ? run + 1 : 1;
+    if (run > best) best = run;
+  }
+  return best;
+}
+
+function buildHistoryDayKeys(n) {
+  const today = toDateKey();
+  const keys = [];
+  for (let i = n - 1; i >= 0; i--) keys.push(addDays(today, -i));
+  return keys;
+}
+
+function setChartEmpty(emptyId, hasData) {
+  const empty = $(emptyId);
+  if (!empty) return;
+  empty.classList.toggle('hidden', hasData);
+  empty.classList.toggle('flex', !hasData);
+}
+
+function renderCalorieTrend() {
+  const canvas = $('#calorieTrendChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (calorieTrendChart) { calorieTrendChart.destroy(); calorieTrendChart = null; }
+
+  const keys = buildHistoryDayKeys(histRange);
+  const target = calcTargetCalories();
+  const data = keys.map((k) => getDayCalories(k));
+  const hasData = data.some((v) => v > 0);
+  setChartEmpty('#trendEmpty', hasData);
+  if (!hasData) return;
+
+  const c = chartThemeColors();
+  const ctx = canvas.getContext('2d');
+
+  const datasets = [{
+    type: 'bar',
+    label: 'سعرات اليوم',
+    data,
+    backgroundColor: data.map((v) => (target && v > target) ? 'rgba(244,63,94,.85)' : 'rgba(16,185,129,.85)'),
+    borderRadius: 5,
+    maxBarThickness: 24,
+    order: 2
+  }];
+  if (target) {
+    datasets.push({
+      type: 'line',
+      label: 'الهدف اليومي',
+      data: keys.map(() => target),
+      borderColor: '#f59e0b',
+      borderWidth: 2,
+      borderDash: [6, 4],
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: false,
+      order: 1
+    });
+  }
+
+  calorieTrendChart = new Chart(ctx, {
+    data: { labels: keys.map((k) => shortDate(k)), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: !!target,
+          position: 'bottom',
+          labels: { color: c.labelColor, font: { family: 'Cairo', size: 10, weight: '700' }, usePointStyle: true, boxWidth: 14, padding: 14 }
+        },
+        tooltip: {
+          rtl: true,
+          textDirection: 'rtl',
+          backgroundColor: c.tooltipBg,
+          titleFont: { family: 'Cairo', size: 11 },
+          bodyFont: { family: 'Cairo', size: 12, weight: '700' },
+          padding: 10,
+          cornerRadius: 10,
+          callbacks: {
+            title: (items) => formatDate(keys[items[0].dataIndex]),
+            label: (item) => item.datasetIndex === 0
+              ? `${item.parsed.y} سعرة`
+              : `الهدف: ${num(item.parsed.y)} سعرة`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: c.tickColor, font: { family: 'Cairo', size: 9 }, maxRotation: 0, autoSkipPadding: 18 },
+          border: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: c.gridColor },
+          border: { display: false },
+          ticks: { color: c.tickColor, font: { family: 'Cairo', size: 10 }, maxTicksLimit: 5 }
+        }
+      }
+    }
+  });
+}
+
+function renderMacroTrend() {
+  const canvas = $('#macroTrendChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (macroTrendChart) { macroTrendChart.destroy(); macroTrendChart = null; }
+
+  const keys = buildHistoryDayKeys(histRange);
+  const macros = keys.map((k) => getDayMacros(k));
+  const hasData = macros.some((m) => m.protein > 0 || m.carbs > 0 || m.fat > 0);
+  setChartEmpty('#macroEmpty', hasData);
+  if (!hasData) return;
+
+  const c = chartThemeColors();
+  const ctx = canvas.getContext('2d');
+
+  macroTrendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: keys.map((k) => shortDate(k)),
+      datasets: [
+        { label: 'بروتين', data: macros.map((m) => m.protein), backgroundColor: '#10b981', stack: 'macros' },
+        { label: 'كربوهيدرات', data: macros.map((m) => m.carbs), backgroundColor: '#f59e0b', stack: 'macros' },
+        { label: 'دهون', data: macros.map((m) => m.fat), backgroundColor: '#ef4444', stack: 'macros' }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: c.labelColor, font: { family: 'Cairo', size: 10, weight: '700' }, usePointStyle: true, boxWidth: 14, padding: 14 }
+        },
+        tooltip: {
+          rtl: true,
+          textDirection: 'rtl',
+          backgroundColor: c.tooltipBg,
+          titleFont: { family: 'Cairo', size: 11 },
+          bodyFont: { family: 'Cairo', size: 12, weight: '700' },
+          padding: 10,
+          cornerRadius: 10,
+          callbacks: {
+            title: (items) => formatDate(keys[items[0].dataIndex]),
+            label: (item) => `${item.dataset.label}: ${Math.round(item.parsed.y)} غ`
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { color: c.tickColor, font: { family: 'Cairo', size: 9 }, maxRotation: 0, autoSkipPadding: 18 },
+          border: { display: false }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          grid: { color: c.gridColor },
+          border: { display: false },
+          ticks: { color: c.tickColor, font: { family: 'Cairo', size: 10 }, maxTicksLimit: 5 }
+        }
+      }
+    }
+  });
+}
+
+function renderActiveTab() {
+  if (currentTab === 'dashboard') renderDashboard();
+  else if (currentTab === 'meals') renderMeals();
+  else if (currentTab === 'history') renderHistory();
+  else if (currentTab === 'profile') renderProfile();
+  else if (currentTab === 'settings') renderSettings();
 }
 
 /* ==========================================================================
@@ -1250,7 +1848,7 @@ $('#customGoal').addEventListener('change', () => {
   state.customGoal = next;
   saveState();
   renderSettings();
-  renderDashboard();
+  renderActiveTab();
 
   showToast(next ? `تم تحديث الهدف اليومي إلى ${num(next)} سعرة ✓` : 'تمت العودة إلى الهدف التلقائي ✓');
 });
@@ -1313,6 +1911,9 @@ $('#mealForm').addEventListener('submit', (e) => {
   const name = $('#mealName').value.trim();
   const qty = $('#mealQty').value.trim();
   const calories = parseInt($('#mealCalories').value, 10);
+  const protein = parseFloat($('#mealProtein').value) || 0;
+  const carbs = parseFloat($('#mealCarbs').value) || 0;
+  const fats = parseFloat($('#mealFats').value) || 0;
 
   if (!Number.isFinite(calories) || calories <= 0) {
     showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
@@ -1323,7 +1924,7 @@ $('#mealForm').addEventListener('submit', (e) => {
     return;
   }
 
-  addMeal({ name, qty, calories });
+  addMealToDay(toDateKey(), { name, qty, calories, protein, carbs, fat: fats });
 
   $('#mealForm').reset();
   renderMeals();
@@ -1336,7 +1937,7 @@ $('#quickAddBtn').addEventListener('click', () => {
     showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
     return;
   }
-  addMeal({ name: 'إضافة سريعة', qty: '', calories });
+  addMealToDay(toDateKey(), { name: 'إضافة سريعة', qty: '', calories });
   $('#quickCalories').value = '';
   renderMeals();
   showToast(`تمت إضافة ${calories} سعرة ✓`);
@@ -1345,7 +1946,7 @@ $('#quickAddBtn').addEventListener('click', () => {
 $$('.chip').forEach((chip) => {
   chip.addEventListener('click', () => {
     const calories = parseInt(chip.dataset.quick, 10);
-    addMeal({ name: 'إضافة سريعة', qty: '', calories });
+    addMealToDay(toDateKey(), { name: 'إضافة سريعة', qty: '', calories });
     renderMeals();
     showToast(`تمت إضافة ${calories} سعرة ✓`);
   });
@@ -1358,13 +1959,12 @@ $('#mealsList').addEventListener('click', (e) => {
   if (editBtn) openEditModal(editBtn.dataset.edit);
 
   if (deleteBtn) {
-    const id = deleteBtn.dataset.delete;
-    const meal = state.meals.find((m) => m.id === id);
-    if (!meal) return;
+    const found = findMealById(deleteBtn.dataset.delete);
+    if (!found) return;
+    const meal = found.meal;
 
     if (confirm(`هل تريد حذف «${meal.name || 'وجبة سريعة'}»؟`)) {
-      state.meals = state.meals.filter((m) => m.id !== id);
-      saveState();
+      deleteMeal(found.dayKey, meal.id);
       renderMeals();
       showToast('تم حذف الوجبة');
     }
@@ -1374,13 +1974,17 @@ $('#mealsList').addEventListener('click', (e) => {
 let editingMealId = null;
 
 function openEditModal(id) {
-  const meal = state.meals.find((m) => m.id === id);
-  if (!meal) return;
+  const found = findMealById(id);
+  if (!found) return;
+  const meal = found.meal;
 
   editingMealId = id;
   $('#editName').value = meal.name;
   $('#editQty').value = meal.qty;
   $('#editCalories').value = meal.calories;
+  $('#editProtein').value = meal.protein || '';
+  $('#editCarbs').value = meal.carbs || '';
+  $('#editFats').value = meal.fat || '';
 
   const modal = $('#editModal');
   modal.classList.remove('hidden');
@@ -1404,21 +2008,86 @@ $('#saveEditBtn').addEventListener('click', () => {
     return;
   }
 
-  const meal = state.meals.find((m) => m.id === editingMealId);
-  if (!meal) return;
+  const found = findMealById(editingMealId);
+  if (!found) return;
+  const meal = found.meal;
 
   meal.name = $('#editName').value.trim();
   meal.qty = $('#editQty').value.trim();
   meal.calories = calories;
+  meal.protein = parseFloat($('#editProtein').value) || 0;
+  meal.carbs = parseFloat($('#editCarbs').value) || 0;
+  meal.fat = parseFloat($('#editFats').value) || 0;
 
   saveState();
   closeEditModal();
-  renderMeals();
+  if (currentTab === 'history') renderHistory();
+  else renderMeals();
   showToast('تم تحديث الوجبة ✓');
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !$('#editModal').classList.contains('hidden')) closeEditModal();
+});
+
+/* ==========================================================================
+   أحداث السجل التاريخي
+   ========================================================================== */
+$('#histPrev').addEventListener('click', () => setHistoryDate(addDays(historyDate, -1)));
+$('#histNext').addEventListener('click', () => setHistoryDate(addDays(historyDate, 1)));
+$('#histToday').addEventListener('click', () => setHistoryDate(toDateKey()));
+
+$('#histDate').addEventListener('change', (e) => {
+  if (e.target.value) setHistoryDate(e.target.value);
+});
+
+$('#histQuickAddBtn').addEventListener('click', () => {
+  const calories = parseInt($('#histQuickCalories').value, 10);
+  if (!Number.isFinite(calories) || calories <= 0) {
+    showToast('الرجاء إدخال عدد سعرات صحيح', 'error');
+    return;
+  }
+  addMealToDay(historyDate, { name: 'إضافة سريعة', calories });
+  $('#histQuickCalories').value = '';
+  renderHistory();
+  showToast(`تمت إضافة ${calories} سعرة ✓`);
+});
+
+$('#histWeightSave').addEventListener('click', () => {
+  const weight = parseFloat($('#histWeightInput').value);
+  if (!Number.isFinite(weight) || weight < 20 || weight > 400) {
+    showToast('الرجاء إدخال وزن صحيح (كغ)', 'error');
+    return;
+  }
+  upsertWeight(historyDate, weight);
+  saveState();
+  renderHistory();
+  showToast('تم حفظ الوزن ✓');
+});
+
+$('#histMealsList').addEventListener('click', (e) => {
+  const editBtn = e.target.closest('[data-edit]');
+  const deleteBtn = e.target.closest('[data-delete]');
+  if (editBtn) openEditModal(editBtn.dataset.edit);
+  if (deleteBtn) {
+    const found = findMealById(deleteBtn.dataset.delete);
+    if (!found) return;
+    const meal = found.meal;
+    if (confirm(`هل تريد حذف «${meal.name || 'وجبة سريعة'}»؟`)) {
+      deleteMeal(found.dayKey, meal.id);
+      renderHistory();
+      showToast('تم حذف الوجبة');
+    }
+  }
+});
+
+$$('.hist-range').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    histRange = parseInt(btn.dataset.range, 10) || 7;
+    $$('.hist-range').forEach((b) => b.classList.toggle('active', b === btn));
+    renderCalorieTrend();
+    renderMacroTrend();
+  });
 });
 
 $('#exportBtn').addEventListener('click', () => {
