@@ -183,8 +183,11 @@
   .chip:active { transform: scale(.94); background: #d1fae5; }
   .dark .chip { background: #1e293b; color: #cbd5e1; border-color: #334155; }
 
-  .hist-range { color: #94a3b8; transition: background .15s, color .15s; }
-  .hist-range.active { background: #10b981; color: #fff; }
+.hist-range { color: #94a3b8; transition: background .15s, color .15s; }
+.hist-range.active { background: #10b981; color: #fff; }
+
+.meal-mode { color: #94a3b8; padding: .5rem .5rem; font-size: .75rem; font-weight: 700; border-radius: .65rem; transition: background .15s, color .15s; cursor: pointer; }
+.meal-mode.active { background: #10b981; color: #fff; }
 
   input[type="date"].inp { color-scheme: light; direction: ltr; }
   .dark input[type="date"].inp { color-scheme: dark; }
@@ -383,6 +386,23 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex min-w-0 items-center gap-2.5">
+          <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-sm font-extrabold">بنك الأطعمة</h3>
+            <p class="text-[10px] font-semibold text-slate-400">إدارة الأطعمة المحفوظة حسب القيم لكل 100 غرام</p>
+          </div>
+        </div>
+        <button type="button" id="openLibraryBtn" class="btn-secondary !w-auto !px-4">إدارة</button>
+      </div>
+    </div>
+
     <form id="mealForm" class="card space-y-3">
       <h3 class="flex items-center gap-1.5 text-sm font-extrabold">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
@@ -391,16 +411,61 @@
         إضافة وجبة مفصّلة
       </h3>
 
-      <div class="grid grid-cols-2 gap-2.5">
-        <input id="mealName" type="text" placeholder="اسم الوجبة" class="inp" />
-        <input id="mealQty" type="text" placeholder="الكمية (مثال: طبق)" class="inp" />
+      <div class="grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <button type="button" class="meal-mode active" data-mode="manual">إدخال يدوي</button>
+        <button type="button" class="meal-mode" data-mode="library">اختيار من البنك</button>
       </div>
-      <input id="mealCalories" type="number" inputmode="numeric" placeholder="السعرات الحرارية" class="inp" />
-      <div class="grid grid-cols-3 gap-2.5">
-        <input id="mealProtein" type="number" inputmode="decimal" step="0.1" placeholder="بروتين (غ)" class="inp" />
-        <input id="mealCarbs" type="number" inputmode="decimal" step="0.1" placeholder="كربوهيدرات (غ)" class="inp" />
-        <input id="mealFats" type="number" inputmode="decimal" step="0.1" placeholder="دهون (غ)" class="inp" />
+
+      <div id="mealManualPanel" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="mealName" type="text" placeholder="اسم الوجبة" class="inp" />
+          <input id="mealQty" type="text" placeholder="الكمية (مثال: طبق)" class="inp" />
+        </div>
+        <input id="mealCalories" type="number" inputmode="numeric" placeholder="السعرات الحرارية" class="inp" />
+        <div class="grid grid-cols-3 gap-2.5">
+          <input id="mealProtein" type="number" inputmode="decimal" step="0.1" placeholder="بروتين (غ)" class="inp" />
+          <input id="mealCarbs" type="number" inputmode="decimal" step="0.1" placeholder="كربوهيدرات (غ)" class="inp" />
+          <input id="mealFats" type="number" inputmode="decimal" step="0.1" placeholder="دهون (غ)" class="inp" />
+        </div>
+        <label class="flex cursor-pointer items-center gap-2 pt-1 text-xs font-extrabold text-slate-600 dark:text-slate-300">
+          <input id="mealSaveToLib" type="checkbox" class="h-4 w-4 accent-emerald-500" />
+          حفظ في بنك الأطعمة للاستخدام مستقبلاً
+        </label>
+        <div id="mealLibWeightWrap" class="hidden space-y-1.5">
+          <input id="mealLibWeight" type="number" inputmode="decimal" step="1" min="1" placeholder="وزن الحصة بالغرام (افتراضي 100)" class="inp" />
+          <p class="text-[10px] font-semibold text-slate-400">تُحوَّل القيم المدخلة إلى سعرات ومغذيات لكل 100 غرام عند الحفظ في البنك.</p>
+        </div>
       </div>
+
+      <div id="mealLibraryPanel" class="hidden space-y-3">
+        <div class="flex gap-2">
+          <select id="mealFoodSelect" class="inp flex-1">
+            <option value="">اختر طعاماً من البنك</option>
+          </select>
+          <button type="button" id="mealLibraryManageBtn" class="btn-secondary !w-auto !px-3" aria-label="إدارة بنك الأطعمة">إدارة</button>
+        </div>
+        <input id="mealWeight" type="number" inputmode="decimal" step="any" placeholder="الوزن بالغرام (مثال: 150)" class="inp" />
+        <div id="mealCalcPreview" class="rounded-2xl bg-emerald-50 p-3 dark:bg-emerald-500/10">
+          <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400">سعرات الحصّة</p>
+          <p id="mealCalcCalories" class="mt-0.5 text-xl font-extrabold leading-none text-emerald-600 dark:text-emerald-400">--</p>
+          <div class="mt-2.5 grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-xl bg-white py-2 dark:bg-slate-900">
+              <p id="mealCalcProtein" class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">--</p>
+              <p class="mt-0.5 text-[10px] font-bold text-slate-400">بروتين (غ)</p>
+            </div>
+            <div class="rounded-xl bg-white py-2 dark:bg-slate-900">
+              <p id="mealCalcCarbs" class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">--</p>
+              <p class="mt-0.5 text-[10px] font-bold text-slate-400">كربوهيدرات (غ)</p>
+            </div>
+            <div class="rounded-xl bg-white py-2 dark:bg-slate-900">
+              <p id="mealCalcFats" class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">--</p>
+              <p class="mt-0.5 text-[10px] font-bold text-slate-400">دهون (غ)</p>
+            </div>
+          </div>
+        </div>
+        <p class="text-[10px] font-semibold text-slate-400">اختر الطعام ثم أدخل وزن الحصة بالغرام لحساب السعرات والمغذيات تلقائياً.</p>
+      </div>
+
       <button type="submit" class="btn-primary">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -811,6 +876,57 @@
   </div>
 </div>
 
+<!-- ======================= بنك الأطعمة ======================= -->
+<div id="libraryModal" class="fixed inset-0 z-[70] hidden">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-close-lib></div>
+  <div class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl dark:bg-slate-900"
+       style="padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));">
+    <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+
+    <div class="mb-0.5 flex items-center justify-between">
+      <h3 class="text-base font-extrabold">بنك الأطعمة</h3>
+      <button id="libraryCloseBtn" aria-label="إغلاق"
+        class="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 active:scale-90 dark:hover:bg-slate-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <p class="mb-4 text-[10px] font-semibold text-slate-400">جميع القيم محفوظة لكل 100 غرام</p>
+
+    <form id="foodForm" class="mb-3 hidden space-y-2.5 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/60">
+      <h4 id="foodFormTitle" class="text-xs font-extrabold text-slate-600 dark:text-slate-300"></h4>
+      <input id="foodName" type="text" placeholder="اسم الطعام" class="inp" />
+      <div class="grid grid-cols-2 gap-2">
+        <input id="foodCalories" type="number" inputmode="decimal" step="any" placeholder="سعرات / 100غ" class="inp" />
+        <input id="foodProtein" type="number" inputmode="decimal" step="0.1" placeholder="بروتين / 100غ" class="inp" />
+        <input id="foodCarbs" type="number" inputmode="decimal" step="0.1" placeholder="كربوهيدرات / 100غ" class="inp" />
+        <input id="foodFats" type="number" inputmode="decimal" step="0.1" placeholder="دهون / 100غ" class="inp" />
+      </div>
+      <div class="flex gap-2 pt-1">
+        <button type="button" id="foodFormCancel" class="btn-secondary">إلغاء</button>
+        <button type="submit" class="btn-primary">حفظ الطعام</button>
+      </div>
+    </form>
+
+    <div class="flex gap-2">
+      <input id="foodSearch" type="text" placeholder="بحث بالاسم..." class="inp flex-1" />
+      <button type="button" id="foodAddBtn" class="btn-primary !w-auto !px-4">إضافة</button>
+    </div>
+
+    <ul id="foodList" class="mt-3 max-h-80 space-y-2 overflow-y-auto"></ul>
+    <div id="foodEmpty" class="card mt-3 hidden flex-col items-center gap-2 py-8 text-center">
+      <div class="grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <p class="text-sm font-extrabold text-slate-400">لا توجد أطعمة في البنك بعد</p>
+      <p class="text-[11px] font-semibold text-slate-400">اضغط «إضافة» أو فعّل «حفظ في بنك الأطعمة» من نموذج الإدخال</p>
+    </div>
+  </div>
+</div>
+
 <!-- ======================= التنبيهات ======================= -->
 <div id="toast"
      class="pointer-events-none fixed bottom-24 left-1/2 z-[80] -translate-x-1/2 translate-y-3 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white opacity-0 shadow-xl transition-all duration-300"></div>
@@ -842,10 +958,11 @@ const DEFAULT_STATE = {
     goal: 'maintain'
   },
   days: {},
+  foods: [],
   customGoal: null,
   lastActiveDate: null,
   theme: 'light',
-  version: 2
+  version: 3
 };
 
 /* ==========================================================================
@@ -985,6 +1102,19 @@ function normalizeState(raw) {
 
   const customGoal = Number(raw.customGoal);
   result.customGoal = Number.isFinite(customGoal) && customGoal > 0 ? customGoal : null;
+
+  result.foods = Array.isArray(raw.foods)
+    ? raw.foods
+        .filter((f) => f && typeof f === 'object' && typeof f.name === 'string' && String(f.name).trim())
+        .map((f) => ({
+          id: typeof f.id === 'string' && f.id ? f.id : uid(),
+          name: String(f.name).trim(),
+          calories: Math.max(0, Number(f.calories) || 0),
+          protein: Math.round((Number(f.protein) || 0) * 10) / 10,
+          carbs: Math.round((Number(f.carbs) || 0) * 10) / 10,
+          fat: Math.round((Number(f.fat) || 0) * 10) / 10
+        }))
+    : [];
 
   return result;
 }
@@ -1143,6 +1273,183 @@ function getTodayMeals() {
 
 function getTodayCalories() {
   return getDayCalories(toDateKey());
+}
+
+/* ==========================================================================
+   بنك الأطعمة (القيم لكل 100 غرام)
+   ========================================================================== */
+const r1 = (v) => Math.round((Number(v) || 0) * 10) / 10;
+const fmtRat = (v) => (Number.isInteger(Number(v)) ? Math.round(Number(v)) : r1(v));
+
+let currentMealMode = 'manual';
+let libraryFoodQuery = '';
+let editingFoodId = null;
+
+function findFoodById(id) {
+  return state.foods.find((f) => f.id === id) || null;
+}
+
+function addFoodToLibrary({ name, calories, protein, carbs, fat }) {
+  state.foods.push({
+    id: uid(),
+    name: String(name || '').trim(),
+    calories: Math.max(0, Number(calories) || 0),
+    protein: r1(protein),
+    carbs: r1(carbs),
+    fat: r1(fat)
+  });
+  saveState();
+}
+
+function updateFood(id, { name, calories, protein, carbs, fat }) {
+  const food = findFoodById(id);
+  if (!food) return false;
+  food.name = String(name || '').trim();
+  food.calories = Math.max(0, Number(calories) || 0);
+  food.protein = r1(protein);
+  food.carbs = r1(carbs);
+  food.fat = r1(fat);
+  saveState();
+  return true;
+}
+
+function deleteFood(id) {
+  const idx = state.foods.findIndex((f) => f.id === id);
+  if (idx < 0) return false;
+  state.foods.splice(idx, 1);
+  saveState();
+  return true;
+}
+
+function foodItemHTML(food) {
+  return `
+    <li class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z"/>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-extrabold">${escapeHtml(food.name)}</p>
+        <p class="mt-0.5 text-[11px] font-semibold text-slate-400">${num(food.calories)} سعرة • بروتين ${fmtRat(food.protein)}غ • كارب ${fmtRat(food.carbs)}غ • دهون ${fmtRat(food.fat)}غ / 100غ</p>
+      </div>
+      <button data-food-edit="${food.id}" aria-label="تعديل"
+        class="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 active:scale-90 dark:hover:bg-slate-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+      <button data-food-delete="${food.id}" aria-label="حذف"
+        class="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500 active:scale-90 dark:hover:bg-rose-500/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </li>`;
+}
+
+function renderFoodLibrary() {
+  const q = libraryFoodQuery.trim().toLowerCase();
+  const foods = state.foods.filter((f) => !q || f.name.toLowerCase().includes(q));
+  const list = $('#foodList');
+  const empty = $('#foodEmpty');
+
+  if (foods.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+  } else {
+    empty.classList.add('hidden');
+    empty.classList.remove('flex');
+    list.innerHTML = foods.map(foodItemHTML).join('');
+  }
+}
+
+function renderFoodSelect() {
+  const select = $('#mealFoodSelect');
+  if (!select) return;
+  const current = select.value || '';
+  select.innerHTML = '<option value="">اختر طعاماً من البنك</option>' +
+    state.foods.map((f) => `<option value="${f.id}">${escapeHtml(f.name)} — ${num(f.calories)} سعرة/100غ</option>`).join('');
+  select.value = current;
+}
+
+function applyLibraryCalculation() {
+  const food = findFoodById($('#mealFoodSelect').value);
+  const weight = parseFloat($('#mealWeight').value);
+  const valid = !!food && Number.isFinite(weight) && weight > 0;
+
+  if (!valid) {
+    $('#mealCalcCalories').textContent = '--';
+    $('#mealCalcProtein').textContent = '--';
+    $('#mealCalcCarbs').textContent = '--';
+    $('#mealCalcFats').textContent = '--';
+    return null;
+  }
+
+  const k = weight / 100;
+  const cal = Math.max(0, Math.round(food.calories * k));
+  const protein = r1(food.protein * k);
+  const carbs = r1(food.carbs * k);
+  const fat = r1(food.fat * k);
+
+  $('#mealCalcCalories').textContent = `${num(cal)} سعرة`;
+  $('#mealCalcProtein').textContent = fmtRat(protein);
+  $('#mealCalcCarbs').textContent = fmtRat(carbs);
+  $('#mealCalcFats').textContent = fmtRat(fat);
+
+  $('#mealName').value = food.name;
+  $('#mealQty').value = `${fmtRat(weight)} غرام`;
+  $('#mealCalories').value = cal;
+  $('#mealProtein').value = protein;
+  $('#mealCarbs').value = carbs;
+  $('#mealFats').value = fat;
+
+  return { cal, protein, carbs, fat };
+}
+
+function setMealMode(mode) {
+  currentMealMode = mode === 'library' ? 'library' : 'manual';
+  $$('.meal-mode').forEach((b) => b.classList.toggle('active', b.dataset.mode === currentMealMode));
+  $('#mealManualPanel').classList.toggle('hidden', currentMealMode !== 'manual');
+  $('#mealLibraryPanel').classList.toggle('hidden', currentMealMode !== 'library');
+  if (currentMealMode === 'library') renderFoodSelect();
+}
+
+function resetMealForm() {
+  $('#mealForm').reset();
+  $('#mealWeight').value = '';
+  $('#mealSaveToLib').checked = false;
+  $('#mealLibWeight').value = '';
+  $('#mealLibWeightWrap').classList.add('hidden');
+  setMealMode('manual');
+  applyLibraryCalculation();
+}
+
+function openLibraryModal() {
+  renderFoodLibrary();
+  renderFoodSelect();
+  $('#libraryModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLibraryModal() {
+  $('#libraryModal').classList.add('hidden');
+  $('#foodForm').classList.add('hidden');
+  editingFoodId = null;
+  document.body.style.overflow = '';
+}
+
+function openFoodForm(food) {
+  editingFoodId = food ? food.id : null;
+  $('#foodFormTitle').textContent = food ? 'تعديل الطعام' : 'إضافة طعام جديد';
+  $('#foodName').value = food ? food.name : '';
+  $('#foodCalories').value = food ? food.calories : '';
+  $('#foodProtein').value = food ? food.protein : '';
+  $('#foodCarbs').value = food ? food.carbs : '';
+  $('#foodFats').value = food ? food.fat : '';
+  $('#foodForm').classList.remove('hidden');
+  $('#foodName').focus();
 }
 
 /* ==========================================================================
@@ -1438,6 +1745,7 @@ function renderMeals() {
   const meals = getTodayMeals();
   const total = meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
 
+  renderFoodSelect();
   $('#mealsTotal').textContent = num(total);
   $('#mealsCount').textContent = meals.length;
 
@@ -1867,6 +2175,37 @@ $('#weightForm').addEventListener('submit', (e) => {
 $('#mealForm').addEventListener('submit', (e) => {
   e.preventDefault();
 
+  if (currentMealMode === 'library') {
+    const food = findFoodById($('#mealFoodSelect').value);
+    const weight = parseFloat($('#mealWeight').value);
+    if (!food) {
+      showToast('اختر طعاماً من بنك الأطعمة', 'error');
+      return;
+    }
+    if (!Number.isFinite(weight) || weight <= 0) {
+      showToast('الرجاء إدخال الوزن بالغرام', 'error');
+      return;
+    }
+    const calc = applyLibraryCalculation();
+    if (!calc || calc.cal <= 0) {
+      showToast('تعذّر حساب السعرات', 'error');
+      return;
+    }
+
+    addMealToDay(toDateKey(), {
+      name: $('#mealName').value.trim(),
+      qty: $('#mealQty').value.trim(),
+      calories: calc.cal,
+      protein: calc.protein,
+      carbs: calc.carbs,
+      fat: calc.fat
+    });
+    resetMealForm();
+    renderMeals();
+    showToast('تمت إضافة الوجبة ✓');
+    return;
+  }
+
   const name = $('#mealName').value.trim();
   const qty = $('#mealQty').value.trim();
   const calories = parseInt($('#mealCalories').value, 10);
@@ -1883,11 +2222,29 @@ $('#mealForm').addEventListener('submit', (e) => {
     return;
   }
 
+  const saveToLib = $('#mealSaveToLib').checked;
+  if (saveToLib && !name) {
+    showToast('أدخل اسم الوجبة لحفظها في بنك الأطعمة', 'error');
+    return;
+  }
+
   addMealToDay(toDateKey(), { name, qty, calories, protein, carbs, fat: fats });
 
-  $('#mealForm').reset();
+  if (saveToLib) {
+    const libWeight = parseFloat($('#mealLibWeight').value);
+    const k = 100 / (Number.isFinite(libWeight) && libWeight > 0 ? libWeight : 100);
+    addFoodToLibrary({
+      name,
+      calories: Math.round(calories * k),
+      protein: r1(protein * k),
+      carbs: r1(carbs * k),
+      fat: r1(fats * k)
+    });
+  }
+
+  resetMealForm();
   renderMeals();
-  showToast('تمت إضافة الوجبة ✓');
+  showToast(saveToLib ? 'تمت إضافة الوجبة وحفظها في البنك ✓' : 'تمت إضافة الوجبة ✓');
 });
 
 $('#quickAddBtn').addEventListener('click', () => {
@@ -1909,6 +2266,87 @@ $$('.chip').forEach((chip) => {
     renderMeals();
     showToast(`تمت إضافة ${calories} سعرة ✓`);
   });
+});
+
+/* ==========================================================================
+   أحداث بنك الأطعمة
+   ========================================================================== */
+$('#openLibraryBtn').addEventListener('click', openLibraryModal);
+$('#mealLibraryManageBtn').addEventListener('click', openLibraryModal);
+$('#libraryCloseBtn').addEventListener('click', closeLibraryModal);
+$$('[data-close-lib]').forEach((el) => el.addEventListener('click', closeLibraryModal));
+
+$('#foodAddBtn').addEventListener('click', () => openFoodForm(null));
+
+$('#foodForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const name = $('#foodName').value.trim();
+  const calories = parseFloat($('#foodCalories').value);
+  const protein = parseFloat($('#foodProtein').value) || 0;
+  const carbs = parseFloat($('#foodCarbs').value) || 0;
+  const fats = parseFloat($('#foodFats').value) || 0;
+
+  if (!name) {
+    showToast('أدخل اسم الطعام', 'error');
+    return;
+  }
+  if (!Number.isFinite(calories) || calories <= 0) {
+    showToast('أدخل سعرات صحيحة لكل 100 غرام', 'error');
+    return;
+  }
+
+  const values = { name, calories, protein, carbs, fat: fats };
+  if (editingFoodId) {
+    updateFood(editingFoodId, values);
+    showToast('تم تحديث الطعام ✓');
+  } else {
+    addFoodToLibrary(values);
+    showToast('تمت إضافة الطعام للبنك ✓');
+  }
+  closeFoodFormHook();
+  renderFoodLibrary();
+  renderFoodSelect();
+});
+
+function closeFoodFormHook() {
+  editingFoodId = null;
+  $('#foodForm').classList.add('hidden');
+}
+
+$('#foodFormCancel').addEventListener('click', closeFoodFormHook);
+
+$('#foodSearch').addEventListener('input', (e) => {
+  libraryFoodQuery = e.target.value;
+  renderFoodLibrary();
+});
+
+$('#foodList').addEventListener('click', (e) => {
+  const editBtn = e.target.closest('[data-food-edit]');
+  const deleteBtn = e.target.closest('[data-food-delete]');
+
+  if (editBtn) {
+    const food = findFoodById(editBtn.dataset.foodEdit);
+    if (food) openFoodForm(food);
+  }
+
+  if (deleteBtn) {
+    const food = findFoodById(deleteBtn.dataset.foodDelete);
+    if (!food) return;
+    if (confirm(`هل تريد حذف «${food.name}» من بنك الأطعمة؟`)) {
+      deleteFood(food.id);
+      renderFoodLibrary();
+      renderFoodSelect();
+      showToast('تم حذف الطعام من البنك');
+    }
+  }
+});
+
+$$('.meal-mode').forEach((btn) => btn.addEventListener('click', () => setMealMode(btn.dataset.mode)));
+$('#mealFoodSelect').addEventListener('change', applyLibraryCalculation);
+$('#mealWeight').addEventListener('input', applyLibraryCalculation);
+$('#mealSaveToLib').addEventListener('change', (e) => {
+  $('#mealLibWeightWrap').classList.toggle('hidden', !e.target.checked);
 });
 
 $('#mealsList').addEventListener('click', (e) => {
@@ -1986,7 +2424,13 @@ $('#saveEditBtn').addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !$('#editModal').classList.contains('hidden')) closeEditModal();
+  if (e.key !== 'Escape') return;
+  const lib = $('#libraryModal');
+  if (lib && !lib.classList.contains('hidden')) {
+    closeLibraryModal();
+    return;
+  }
+  if (!$('#editModal').classList.contains('hidden')) closeEditModal();
 });
 
 /* ==========================================================================
@@ -2100,7 +2544,7 @@ $('#importInput').addEventListener('change', (e) => {
 });
 
 $('#resetBtn').addEventListener('click', () => {
-  if (!confirm('سيتم حذف جميع بياناتك نهائياً (الملف الشخصي، الوجبات، سجل الوزن). هل أنت متأكد؟')) return;
+  if (!confirm('سيتم حذف جميع بياناتك نهائياً (الملف الشخصي، الوجبات، سجل الوزن، بنك الأطعمة). هل أنت متأكد؟')) return;
 
   const theme = state.theme;
   localStorage.removeItem(STORAGE_KEY);
