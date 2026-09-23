@@ -479,35 +479,6 @@
       </div>
     </div>
 
-    <!-- مغذيات اليوم المحدد -->
-    <div class="card">
-      <h3 class="mb-3 text-sm font-extrabold">مغذيات هذا اليوم</h3>
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="rounded-xl bg-emerald-50 py-2.5 dark:bg-emerald-500/10">
-          <p id="histProteinDay" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0 غ</p>
-          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">بروتين</p>
-        </div>
-        <div class="rounded-xl bg-amber-50 py-2.5 dark:bg-amber-500/10">
-          <p id="histCarbsDay" class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0 غ</p>
-          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">كربوهيدرات</p>
-        </div>
-        <div class="rounded-xl bg-rose-50 py-2.5 dark:bg-rose-500/10">
-          <p id="histFatsDay" class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0 غ</p>
-          <p class="mt-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">دهون</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- تسجيل وزن اليوم المحدد -->
-    <div class="card">
-      <h3 class="mb-3 text-sm font-extrabold">تسجيل وزن هذا اليوم</h3>
-      <div class="flex gap-2">
-        <input id="histWeightInput" type="number" inputmode="decimal" step="0.1" placeholder="مثال: 72.5" class="inp flex-1" />
-        <button id="histWeightSave" class="btn-primary !w-auto px-5">حفظ</button>
-      </div>
-      <p class="mt-1.5 text-[10px] font-semibold text-slate-400">يُربط الوزن بتاريخ اليوم المحدد ويظهر في مخطط الوزن.</p>
-    </div>
-
     <!-- وجبات اليوم المحدد -->
     <div class="card">
       <h3 class="mb-3 text-sm font-extrabold">وجبات هذا اليوم</h3>
@@ -1570,7 +1541,6 @@ function renderHistoryDay() {
   const target = calcTargetCalories();
   const meals = getDayMeals(historyDate);
   const consumed = meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
-  const macros = getDayMacros(historyDate);
   const day = dayEntry(historyDate, false);
   const weight = day ? day.weight : null;
 
@@ -1578,12 +1548,6 @@ function renderHistoryDay() {
   $('#histDayTarget').textContent = target ? num(target) : '--';
   $('#histDayMeals').textContent = meals.length;
   $('#histDayWeight').textContent = weight != null ? weight : '--';
-
-  const macroSum = Math.round(macros.protein);
-  $('#histDayMacros').textContent = macroSum;
-  $('#histProteinDay').textContent = `${Math.round(macros.protein)} غ`;
-  $('#histCarbsDay').textContent = `${Math.round(macros.carbs)} غ`;
-  $('#histFatsDay').textContent = `${Math.round(macros.fat)} غ`;
 
   const bar = $('#histDayBar');
   bar.style.width = target ? `${Math.min(100, (consumed / target) * 100)}%` : '0%';
@@ -1602,9 +1566,6 @@ function renderHistoryDay() {
     status.textContent = 'تجاوز الهدف';
     status.className = 'rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-extrabold text-rose-600 dark:bg-rose-500/15 dark:text-rose-400';
   }
-
-  const wInput = $('#histWeightInput');
-  if (wInput) wInput.value = weight != null ? weight : '';
 
   const list = $('#histMealsList');
   const empty = $('#histMealsEmpty');
@@ -2051,18 +2012,6 @@ $('#histQuickAddBtn').addEventListener('click', () => {
   $('#histQuickCalories').value = '';
   renderHistory();
   showToast(`تمت إضافة ${calories} سعرة ✓`);
-});
-
-$('#histWeightSave').addEventListener('click', () => {
-  const weight = parseFloat($('#histWeightInput').value);
-  if (!Number.isFinite(weight) || weight < 20 || weight > 400) {
-    showToast('الرجاء إدخال وزن صحيح (كغ)', 'error');
-    return;
-  }
-  upsertWeight(historyDate, weight);
-  saveState();
-  renderHistory();
-  showToast('تم حفظ الوزن ✓');
 });
 
 $('#histMealsList').addEventListener('click', (e) => {
