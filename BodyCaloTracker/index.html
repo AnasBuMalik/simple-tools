@@ -484,12 +484,7 @@
       <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
         <div id="histDayBar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"></div>
       </div>
-      <div class="mt-3 flex justify-center">
-        <div class="w-24 rounded-xl bg-slate-50 py-2.5 text-center dark:bg-slate-800/60">
-          <p id="histDayMeals" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</p>
-          <p class="mt-0.5 text-[10px] font-bold text-slate-400">وجبة</p>
-        </div>
-      </div>
+    </div>
     </div>
 
     <!-- وجبات هذا اليوم (قابلة للطيّ) -->
@@ -1549,7 +1544,6 @@ function renderHistoryDay() {
 
   $('#histDayCalories').textContent = num(consumed);
   $('#histDayTarget').textContent = target ? num(target) : '--';
-  $('#histDayMeals').textContent = meals.length;
   const countEl = $('#histMealsToggleCount');
   if (countEl) countEl.textContent = `${meals.length} وجبة • ${num(consumed)} سعرة`;
 
