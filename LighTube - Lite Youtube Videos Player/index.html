@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LighTube</title>
+    <style>
+        :root {
+            --bg-color: #0b0f0d;
+            --input-bg: #131a15;
+            --accent-green: #22c55e;        /* اللون الأخضر المضيء للإطار والأزرار */
+            --accent-hover: #16a34a;
+            --shadow-green: #14532d;        /* أخضر أغمق ومميز للظل/Outline ليعطي تباين فخم */
+            --text-color: #f3f4f6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 850px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* عنوان الموقع */
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin: 0 0 15px 0;
+            color: var(--accent-green);
+            text-shadow: 3px 3px 0px var(--shadow-green); /* ظل متميز بأخضر غامق */
+        }
+
+        /* حاوية حقل الإدخال مع ظل غامق ومميز */
+        .input-group {
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 5px 5px 0px var(--shadow-green); /* Outline أغمق وملاحظ تماماً */
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: 2px solid var(--accent-green);
+            border-right: none;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 0;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: #6b7280;
+        }
+
+        input:focus {
+            background: #1a241d;
+            border-color: #4ade80;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--accent-green);
+            color: #000000;
+            border: 2px solid var(--accent-green);
+            cursor: pointer;
+            border-radius: 0;
+            font-family: inherit;
+        }
+
+        button:active {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* حاوية الفيديو مع ظل غامق أعمق */
+        .video-wrapper {
+            width: 100%;
+            background: #000;
+            border: 2px solid var(--accent-green);
+            box-shadow: 6px 6px 0px var(--shadow-green); /* Outline مميز ومفصول بوضوح */
+            display: none; 
+            aspect-ratio: 16 / 9;
+            position: relative;
+            max-height: 72vh;
+        }
+
+        .video-wrapper.active {
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* التجاوب مع الشاشات الصغيرة */
+        @media (max-width: 600px) {
+            .container { margin-top: 15px; }
+            h1 { font-size: 1.5rem; letter-spacing: 3px; margin-bottom: 12px; }
+            .input-group {
+                flex-direction: column;
+                box-shadow: none;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            input {
+                border-right: 2px solid var(--accent-green);
+                box-shadow: 4px 4px 0px var(--shadow-green);
+            }
+            button {
+                box-shadow: 4px 4px 0px var(--shadow-green);
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>LighTube</h1>
+        
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste Youtube video link here to play..." autofocus>
+            <button id="playBtn">Play</button>
+        </div>
+
+        <div id="playerWrapper" class="video-wrapper">
+            <div id="player"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const input = document.getElementById('urlInput');
+            const playerDiv = document.getElementById('player');
+            const playerWrapper = document.getElementById('playerWrapper');
+            const playBtn = document.getElementById('playBtn');
+
+            function extractVideoData(url) {
+                let videoId = null;
+                let startTime = '';
+
+                const idPatterns = [
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/|youtube\.com\/live\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/,
+                    /youtube\.com\/watch\?.*[?&]v=([a-zA-Z0-9_-]{11})/
+                ];
+                for (const pattern of idPatterns) {
+                    const match = url.match(pattern);
+                    if (match) {
+                        videoId = match[1];
+                        break;
+                    }
+                }
+
+                const timeMatch = url.match(/[?&]t=([0-9]+)s?/);
+                if (timeMatch) {
+                    startTime = '&start=' + timeMatch[1]; 
+                }
+
+                return { videoId, startTime };
+            }
+
+            function playVideo() {
+                const url = input.value.trim();
+                if (!url) return;
+
+                const { videoId, startTime } = extractVideoData(url);
+                
+                if (!videoId) {
+                    alert('Invalid link. Please check and try again.');
+                    return;
+                }
+
+                playerDiv.innerHTML = '';
+
+                const iframe = document.createElement('iframe');
+                
+                iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3${startTime}&origin=${encodeURIComponent(window.location.origin)}`;
+                
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('loading', 'eager');
+                iframe.title = 'YouTube Lite Player';
+
+                playerDiv.appendChild(iframe);
+                playerWrapper.classList.add('active'); 
+
+                input.blur(); 
+            }
+
+            function clearVideo() {
+                playerDiv.innerHTML = '';
+                playerWrapper.classList.remove('active');
+                input.value = '';
+                input.focus();
+            }
+
+            // Events
+            playBtn.addEventListener('click', playVideo);
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') playVideo();
+            });
+
+            // Esc key to close video immediately
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && playerWrapper.classList.contains('active')) {
+                    clearVideo();
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>
