@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>خارطة الطريق — ربط "مرجع" بـ Google Drive</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#fdfaf3;
+  --paper-2:#f5efe1;
+  --card:#fffdf8;
+  --ink:#2c2a26;
+  --muted:#7d7566;
+  --line:#e6dfcc;
+  --line-strong:#d6cdb5;
+  --margin:#e8a6a6;
+  --accent:#b45309;
+  --accent-2:#0f766e;
+  --accent-soft:rgba(180,83,9,.12);
+  --teal-soft:rgba(15,118,110,.12);
+  --ok:#10b981;
+  --warn:#f59e0b;
+  --danger:#dc2626;
+  --shadow:0 1px 2px rgba(90,70,30,.06), 0 10px 28px rgba(90,70,30,.09);
+  --shadow-sm:0 1px 2px rgba(90,70,30,.07), 0 3px 10px rgba(90,70,30,.06);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"Noto Naskh Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  background-color:var(--paper);
+  color:var(--ink);
+  line-height:1.85;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(180,83,9,.06) 1px, transparent 0);
+  background-size:22px 22px;
+}
+svg{flex-shrink:0}
+code{
+  font-family:"JetBrains Mono",Consolas,monospace;
+  background:var(--paper-2);
+  padding:2px 7px;
+  border-radius:6px;
+  font-size:.88em;
+  color:var(--accent);
+  border:1px solid var(--line);
+  direction:ltr;
+  display:inline-block;
+  word-break:break-all;
+}
+
+/* ==========================================================
+   الغلاف
+   ========================================================== */
+.hero{
+  padding:60px 20px 40px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(180,83,9,.10), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(15,118,110,.10), transparent 45%);
+  z-index:0;
+}
+.hero > *{position:relative;z-index:1}
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 16px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:20px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-badge .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--ok);
+  box-shadow:0 0 0 4px rgba(16,185,129,.15);
+}
+.hero h1{
+  font-size:clamp(28px,5vw,44px);
+  font-weight:800;
+  margin:0 0 14px;
+  line-height:1.3;
+  letter-spacing:-.5px;
+}
+.hero h1 .accent{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero p{
+  max-width:620px;
+  margin:0 auto;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.9;
+}
+
+/* ==========================================================
+   الحاوية الرئيسية
+   ========================================================== */
+.wrap{
+  max-width:900px;
+  margin:0 auto;
+  padding:20px 20px 80px;
+}
+
+/* ==========================================================
+   شريط التقدم
+   ========================================================== */
+.progress-wrap{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px 22px;
+  margin-bottom:30px;
+  box-shadow:var(--shadow-sm);
+}
+.progress-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  font-size:14px;
+  font-weight:700;
+}
+.progress-head .label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+}
+.progress-head .count{
+  color:var(--accent);
+  font-weight:800;
+}
+.progress-bar{
+  height:8px;
+  background:var(--paper-2);
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  border-radius:999px;
+  transition:width .4s ease;
+  width:0%;
+}
+
+/* ==========================================================
+   الخطوات
+   ========================================================== */
+.step{
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:24px 26px;
+  margin-bottom:20px;
+  box-shadow:var(--shadow-sm);
+  transition:transform .2s ease, box-shadow .2s ease;
+  overflow:hidden;
+}
+.step:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow);
+}
+.step::before{
+  content:'';
+  position:absolute;
+  inset-block:0;
+  inset-inline-start:0;
+  width:5px;
+  background:var(--step-color, var(--accent));
+}
+.step::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.35;
+  background-image:repeating-linear-gradient(
+    to bottom,
+    transparent 0 33px,
+    var(--line) 33px 34px
+  );
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.6),transparent 75%);
+          mask-image:linear-gradient(to bottom,rgba(0,0,0,.6),transparent 75%);
+}
+
+.step-head{
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:16px;
+  position:relative;
+  z-index:2;
+}
+.step-num{
+  flex-shrink:0;
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  font-weight:800;
+  color:#fff;
+  background:var(--step-color, var(--accent));
+  box-shadow:0 6px 16px rgba(180,83,9,.28);
+}
+.step-title-wrap{flex:1;min-width:0}
+.step-kicker{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.step-title{
+  font-size:19px;
+  font-weight:800;
+  margin:0;
+  line-height:1.45;
+}
+
+.step-body{
+  position:relative;
+  z-index:2;
+}
+.step-body > p:first-child{margin-top:0}
+.step-body p{margin:0 0 12px}
+
+/* قوائم الخطوات */
+.tasks{
+  list-style:none;
+  padding:0;
+  margin:14px 0;
+  display:grid;
+  gap:10px;
+  counter-reset:task;
+}
+.tasks li{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:12px 14px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:12px;
+  font-size:14.5px;
+  line-height:1.75;
+  cursor:pointer;
+  transition:.18s;
+  position:relative;
+}
+.tasks li:hover{
+  border-color:var(--accent);
+  background:var(--card);
+}
+.tasks li.done{
+  opacity:.65;
+  border-color:var(--line-strong);
+}
+.tasks li.done .check{background:var(--ok);border-color:var(--ok)}
+.tasks li.done .check svg{opacity:1;transform:scale(1)}
+.tasks li.done .task-text{text-decoration:line-through;text-decoration-color:var(--muted)}
+
+.check{
+  flex-shrink:0;
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  border:2px solid var(--line-strong);
+  background:var(--card);
+  display:grid;
+  place-items:center;
+  margin-top:3px;
+  transition:.2s;
+  color:#fff;
+}
+.check svg{
+  opacity:0;
+  transform:scale(.5);
+  transition:.2s;
+}
+.task-text{flex:1;min-width:0}
+
+/* صندوق تنبيه */
+.note{
+  display:flex;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.8;
+  margin:14px 0;
+  border:1px solid;
+}
+.note-icon{flex-shrink:0;margin-top:2px}
+.note.info{
+  background:var(--teal-soft);
+  border-color:rgba(15,118,110,.3);
+  color:#0f766e;
+}
+.note.warn{
+  background:rgba(245,158,11,.12);
+  border-color:rgba(245,158,11,.35);
+  color:#92400e;
+}
+.note.danger{
+  background:rgba(220,38,38,.10);
+  border-color:rgba(220,38,38,.32);
+  color:#991b1b;
+}
+.note.tip{
+  background:var(--accent-soft);
+  border-color:rgba(180,83,9,.3);
+  color:var(--accent);
+}
+.note strong{font-weight:800}
+.note p{margin:0}
+
+/* شبكة مسارات */
+.paths{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+.path{
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px dashed var(--line-strong);
+  background:var(--paper);
+}
+.path-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+  font-size:13.5px;
+  margin-bottom:8px;
+  color:var(--ink);
+}
+.path code{
+  display:block;
+  margin-top:6px;
+  font-size:12.5px;
+  direction:ltr;
+  text-align:left;
+}
+
+/* ==========================================================
+   الوصول السريع
+   ========================================================== */
+.quick-links{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+  margin:26px 0;
+}
+.quick-link{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  text-decoration:none;
+  color:var(--ink);
+  font-weight:700;
+  font-size:14px;
+  transition:.18s;
+  box-shadow:var(--shadow-sm);
+}
+.quick-link:hover{
+  transform:translateY(-2px);
+  border-color:var(--accent);
+  box-shadow:var(--shadow);
+}
+.quick-link .qi{
+  width:38px;height:38px;
+  border-radius:11px;
+  display:grid;place-items:center;
+  background:var(--accent-soft);
+  color:var(--accent);
+  flex-shrink:0;
+}
+
+/* ==========================================================
+   خلاصة سريعة
+   ========================================================== */
+.summary{
+  margin-top:40px;
+  padding:28px;
+  background:linear-gradient(135deg, rgba(180,83,9,.06), rgba(15,118,110,.06));
+  border:1px solid var(--line);
+  border-radius:18px;
+  position:relative;
+  overflow:hidden;
+}
+.summary::before{
+  content:'';
+  position:absolute;
+  top:-40px;inset-inline-end:-40px;
+  width:140px;height:140px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(180,83,9,.15),transparent 70%);
+}
+.summary h2{
+  display:flex;align-items:center;gap:10px;
+  font-size:20px;font-weight:800;margin:0 0 16px;
+  position:relative;
+}
+.summary ol{
+  margin:0;padding-inline-start:22px;
+  position:relative;
+  font-size:15px;
+}
+.summary li{
+  padding:6px 0;
+  line-height:1.9;
+}
+
+/* ==========================================================
+   شارات الروابط
+   ========================================================== */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  background:var(--accent-soft);
+  color:var(--accent);
+  margin-inline-end:6px;
+}
+.pill.alt{
+  background:var(--teal-soft);
+  color:var(--accent-2);
+}
+
+/* أزرار أسفل الصفحة */
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:36px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 22px;
+  border-radius:11px;
+  font-size:14.5px;
+  font-weight:700;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  cursor:pointer;
+  text-decoration:none;
+  transition:.18s;
+  box-shadow:var(--shadow-sm);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+  border-color:transparent;
+}
+.btn-teal{
+  background:var(--accent-2);
+  color:#fff;
+  border-color:transparent;
+}
+
+/* الفوتر */
+footer{
+  text-align:center;
+  padding:30px 20px 50px;
+  color:var(--muted);
+  font-size:13.5px;
+}
+footer .heart{
+  display:inline-flex;
+  vertical-align:middle;
+  margin:0 3px;
+  color:var(--accent);
+}
+
+/* ثيم داكن اختياري */
+@media (prefers-color-scheme: dark){
+  body{
+    --paper:#15161a;
+    --paper-2:#1c1e23;
+    --card:#1e2127;
+    --ink:#e9e6df;
+    --muted:#9b968c;
+    --line:#2c3037;
+    --line-strong:#3a3f48;
+    --accent:#f59e0b;
+    --accent-2:#2dd4bf;
+    --accent-soft:rgba(245,158,11,.14);
+    --teal-soft:rgba(45,212,191,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4), 0 3px 10px rgba(0,0,0,.28);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(245,158,11,.05) 1px, transparent 0);
+  }
+  .note.info{color:#6ee7b7}
+  .note.warn{color:#fbbf24}
+  .note.danger{color:#fca5a5}
+  .note.tip{color:var(--accent)}
+}
+
+/* طباعة */
+@media print{
+  body{background:#fff}
+  .step{break-inside:avoid;box-shadow:none}
+  .quick-links,.actions{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     الغلاف
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    <span>دليل عملي مبسّط</span>
+  </div>
+  <h1>
+    خارطة الطريق لربط
+    <span class="accent">«مرجع»</span>
+    بـ Google Drive
+  </h1>
+  <p>
+    ثماني خطوات واضحة تأخذك من الصفر إلى المزامنة السحابية الكاملة.
+    اتبع الخطوات بالترتيب، وضع علامة على كل خطوة تنجزها.
+  </p>
+</section>
+
+<div class="wrap">
+
+  <!-- شريط التقدم -->
+  <div class="progress-wrap">
+    <div class="progress-head">
+      <span class="label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        التقدّم
+      </span>
+      <span class="count"><span id="doneCount">0</span> / <span id="totalCount">8</span></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- روابط سريعة -->
+  <div class="quick-links">
+    <a class="quick-link" href="https://console.cloud.google.com" target="_blank" rel="noopener">
+      <span class="qi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+      </span>
+      <span>Google Cloud Console</span>
+    </a>
+    <a class="quick-link" href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener">
+      <span class="qi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+      </span>
+      <span>تفعيل Drive API</span>
+    </a>
+    <a class="quick-link" href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener">
+      <span class="qi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+      </span>
+      <span>شاشة الموافقة OAuth</span>
+    </a>
+    <a class="quick-link" href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">
+      <span class="qi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+      </span>
+      <span>بيانات الاعتماد</span>
+    </a>
+  </div>
+
+  <!-- ============================================================
+       الخطوة 1
+       ============================================================ -->
+  <article class="step" style="--step-color:#b45309">
+    <div class="step-head">
+      <div class="step-num">1</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الأولى</div>
+        <h2 class="step-title">إنشاء مشروع على Google Cloud</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>المشروع هو الحاوية التي ستضم كل إعدادات الربط. كل حساب Google يقدر ينشئ عددًا غير محدود من المشاريع مجانًا.</p>
+      <ul class="tasks" data-step="1">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">افتح <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> وسجّل الدخول بحسابك.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في أعلى الصفحة، اضغط على قائمة المشاريع ثم اختر <strong>مشروع جديد (New Project)</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">أدخل اسمًا للمشروع، مثلًا: <code>maraje3</code> ثم اضغط <strong>إنشاء</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">تأكد من اختيار المشروع الجديد في الشريط العلوي.</span></li>
+      </ul>
+      <div class="note tip">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+        <p><strong>ملاحظة:</strong> اختر اسمًا تعرفه لاحقًا، فالاسم سيظهر في كل صفحات الإعداد القادمة.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 2
+       ============================================================ -->
+  <article class="step" style="--step-color:#0f766e">
+    <div class="step-head">
+      <div class="step-num">2</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الثانية</div>
+        <h2 class="step-title">تفعيل Google Drive API</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Google لا تسمح لأي تطبيق بالوصول إلى Drive افتراضيًا. يجب أن تفعّل الـ API يدويًا لكل مشروع.</p>
+      <ul class="tasks" data-step="2">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">من القائمة الجانبية، اختر <strong>APIs &amp; Services</strong> ثم <strong>Library</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في خانة البحث اكتب: <code>Google Drive API</code>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط على النتيجة ثم اضغط زر <strong>Enable</strong> (تفعيل).</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">انتظر حتى تظهر رسالة نجاح التفعيل.</span></li>
+      </ul>
+      <div class="note info">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+        <p>قد يستغرق التفعيل نصف دقيقة. عندما يظهر تاريخ ووقت آخر تفعيل، فقد نجحت.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 3
+       ============================================================ -->
+  <article class="step" style="--step-color:#7c3aed">
+    <div class="step-head">
+      <div class="step-num">3</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الثالثة</div>
+        <h2 class="step-title">إعداد شاشة الموافقة (OAuth Consent Screen)</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>هذه الشاشة هي التي ستظهر للمستخدم عند تسجيل الدخول، وتحدد ما يريد التطبيق الوصول إليه.</p>
+      <ul class="tasks" data-step="3">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اذهب إلى <strong>APIs &amp; Services</strong> ثم <strong>OAuth consent screen</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اختر نوع المستخدم <strong>External</strong> ثم اضغط <strong>Create</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">املأ الاسم وبريدك الإلكتروني، ثم أكمل الخطوات.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في قسم <strong>Scopes</strong> أضف النطاق التالي:</span></li>
+      </ul>
+      <p style="text-align:center;margin:12px 0"><code>https://www.googleapis.com/auth/drive.file</code></p>
+      <ul class="tasks" data-step="3">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في قسم <strong>Test users</strong> أضف بريدك الإلكتروني (نفس البريد الذي ستسجل الدخول به).</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط <strong>Save and Continue</strong> حتى النهاية.</span></li>
+      </ul>
+      <div class="note warn">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        <p><strong>خطأ شائع:</strong> نسيان إضافة بريدك في Test users سيؤدي إلى خطأ <code>403: access_denied</code> لاحقًا.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 4
+       ============================================================ -->
+  <article class="step" style="--step-color:#be123c">
+    <div class="step-head">
+      <div class="step-num">4</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الرابعة</div>
+        <h2 class="step-title">إنشاء Client ID</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>هذا المعرّف هو ما يعرّف Google بتطبيقك، وهو المفتاح الأول الذي ستضعه داخل الأداة.</p>
+      <ul class="tasks" data-step="4">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اذهب إلى <strong>APIs &amp; Services</strong> ثم <strong>Credentials</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط <strong>Create Credentials</strong> واختر <strong>OAuth client ID</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text"><strong>Application type:</strong> اختر <strong>Web application</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text"><strong>Name:</strong> اكتب <code>Marja3 Web</code>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">أضف عناوين JavaScript المصرّح بها (حسب مكان تشغيل الأداة).</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط <strong>Create</strong> وانسخ <strong>Client ID</strong>.</span></li>
+      </ul>
+
+      <div class="paths">
+        <div class="path">
+          <div class="path-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            تشغيل محلي
+          </div>
+          <code>http://localhost</code>
+          <code>http://127.0.0.1</code>
+        </div>
+        <div class="path">
+          <div class="path-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            GitHub Pages
+          </div>
+          <code>https://username.github.io</code>
+        </div>
+      </div>
+
+      <div class="note tip">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+        <p>اكتب النطاق فقط، بدون شرطة مائلة في النهاية، وبدون اسم المستودع.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 5
+       ============================================================ -->
+  <article class="step" style="--step-color:#0369a1">
+    <div class="step-head">
+      <div class="step-num">5</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الخامسة</div>
+        <h2 class="step-title">إنشاء API Key</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>المفتاح الثاني. هذا يسمح للأداة باستدعاء خدمات Google دون الحاجة إلى تفويض مستخدم في كل مرة.</p>
+      <ul class="tasks" data-step="5">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في صفحة <strong>Credentials</strong>، اضغط <strong>Create Credentials</strong> ثم اختر <strong>API key</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">انسخ المفتاح الظاهر.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">(اختياري) من <strong>Edit API key</strong> قيّد المفتاح بـ <strong>Google Drive API</strong> فقط لمزيد من الأمان.</span></li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 6
+       ============================================================ -->
+  <article class="step" style="--step-color:#15803d">
+    <div class="step-head">
+      <div class="step-num">6</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة السادسة</div>
+        <h2 class="step-title">إدخال المفاتيح داخل أداة «مرجع»</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>الآن ننتقل من Google Cloud إلى الأداة نفسها.</p>
+      <ul class="tasks" data-step="6">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">افتح أداة «مرجع» في المتصفح.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط زر الترس في الشريط العلوي لفتح <strong>الإعدادات</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">الصق <strong>Client ID</strong> في الحقل الأول، و<strong>API Key</strong> في الحقل الثاني.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط <strong>حفظ المفاتيح</strong>.</span></li>
+      </ul>
+      <div class="note info">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span>
+        <p>المفاتيح تُحفظ في متصفحك فقط (LocalStorage)، ولا تُرسل إلى أي خادم غير Google.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 7
+       ============================================================ -->
+  <article class="step" style="--step-color:#a16207">
+    <div class="step-head">
+      <div class="step-num">7</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة السابعة</div>
+        <h2 class="step-title">الاتصال بـ Google والموافقة</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>هنا ستظهر لك شاشة Google التي أعددتها مسبقًا للموافقة على الصلاحيات.</p>
+      <ul class="tasks" data-step="7">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">في نافذة الإعدادات، اضغط <strong>الاتصال بـ Google</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اختر حسابك من النافذة المنبثقة.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">إذا ظهرت شاشة «Google hasn't verified this app»، اضغط <strong>Advanced</strong> ثم <strong>Go to Marja3 (unsafe)</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط <strong>Continue / Allow</strong> للموافقة على الصلاحية.</span></li>
+      </ul>
+      <div class="note warn">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        <p>رسالة "غير موثّق" طبيعية لأن تطبيقك خاص بك وليس منشورًا للعموم. اضغط "Advanced" وتابع.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخطوة 8
+       ============================================================ -->
+  <article class="step" style="--step-color:#c2410c">
+    <div class="step-head">
+      <div class="step-num">8</div>
+      <div class="step-title-wrap">
+        <div class="step-kicker">الخطوة الثامنة</div>
+        <h2 class="step-title">المزامنة والتحقق</h2>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>الخطوة الأخيرة. بعد هذه، كل شيء سيعمل تلقائيًا.</p>
+      <ul class="tasks" data-step="8">
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">اضغط زر <strong>مزامنة</strong> في الشريط العلوي.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">انتظر ظهور رسالة <strong>«تم إنشاء نسخة احتياطية على Drive»</strong>.</span></li>
+        <li><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="task-text">افتح <a href="https://drive.google.com" target="_blank" rel="noopener">Google Drive</a> وابحث عن ملف <code>references_backup.json</code> للتأكد.</span></li>
+      </ul>
+      <div class="note info">
+        <span class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+        <p>لن يظهر الملف في «ملفاتي» إلا بعد أول عملية رفع، وهذا طبيعي. استخدم البحث في Drive للتأكد.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============================================================
+       الخلاصة
+       ============================================================ -->
+  <section class="summary">
+    <h2>
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      الخلاصة السريعة
+    </h2>
+    <ol>
+      <li>أنشئ مشروعًا على <strong>Google Cloud</strong>.</li>
+      <li>فعّل <strong>Google Drive API</strong>.</li>
+      <li>أعدّ <strong>OAuth Consent Screen</strong> وأضف النطاق وبريدك.</li>
+      <li>أنشئ <strong>OAuth Client ID</strong> (نوع Web).</li>
+      <li>أنشئ <strong>API Key</strong>.</li>
+      <li>الصق المفتاحين في <strong>إعدادات الأداة</strong>.</li>
+      <li>اضغط <strong>الاتصال بـ Google</strong> ووافق.</li>
+      <li>اضغط <strong>مزامنة</strong>، وانتهى الأمر.</li>
+    </ol>
+  </section>
+
+  <!-- الأزرار -->
+  <div class="actions">
+    <a class="btn btn-primary" href="https://console.cloud.google.com" target="_blank" rel="noopener">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+      افتح Google Cloud
+    </a>
+    <button class="btn" onclick="window.print()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      طباعة الدليل
+    </button>
+    <button class="btn" onclick="resetProgress()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      إعادة تعيين التقدم
+    </button>
+  </div>
+
+</div>
+
+<footer>
+  صُنع بكل <span class="heart">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+  </span> لأداة «مرجع»
+</footer>
+
+<script>
+(function(){
+  const STORAGE = 'marja.roadmap.progress.v1';
+  const tasks = document.querySelectorAll('.tasks li');
+  const fill = document.getElementById('progressFill');
+  const doneEl = document.getElementById('doneCount');
+  const totalEl = document.getElementById('totalCount');
+
+  totalEl.textContent = tasks.length;
+
+  // استرجاع الحالة
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORAGE) || '{}'); } catch(e){}
+
+  function saveState(){
+    const state = {};
+    tasks.forEach((t, i) => { if (t.classList.contains('done')) state[i] = true; });
+    try { localStorage.setItem(STORAGE, JSON.stringify(state)); } catch(e){}
+  }
+
+  function updateProgress(){
+    const done = document.querySelectorAll('.tasks li.done').length;
+    doneEl.textContent = done;
+    fill.style.width = (done / tasks.length * 100) + '%';
+  }
+
+  // تطبيق الحالة المحفوظة
+  tasks.forEach((t, i) => {
+    if (saved[i]) t.classList.add('done');
+    t.addEventListener('click', () => {
+      t.classList.toggle('done');
+      saveState();
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+
+  // إعادة التعيين
+  window.resetProgress = function(){
+    if (!confirm('هل تريد إعادة تعيين كل علامات التقدم؟')) return;
+    tasks.forEach(t => t.classList.remove('done'));
+    try { localStorage.removeItem(STORAGE); } catch(e){}
+    updateProgress();
+  };
+})();
+</script>
+
+</body>
+</html>
