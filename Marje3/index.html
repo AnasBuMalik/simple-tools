@@ -7,6 +7,10 @@
 <meta name="description" content="مرجع — أداة إدارة وملاحظات المراجع مع مزامنة Google Drive">
 <title>مرجع — أداة إدارة المراجع</title>
 
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -334,9 +338,6 @@ textarea.input{line-height:1.9;min-height:96px}
       <span data-icon="cloud" data-size="16"></span><span>مزامنة</span>
     </button>
     <button id="btnTheme" class="btn icon-only" title="تبديل الثيم" data-icon-btn="theme"></button>
-    <button id="btnInstall" class="btn btn-primary" hidden>
-      <span data-icon="download" data-size="16"></span><span>تثبيت</span>
-    </button>
     <button id="btnSettings" class="btn icon-only" title="الإعدادات">
       <span data-icon="settings" data-size="16"></span>
     </button>
@@ -1425,133 +1426,30 @@ textarea.input{line-height:1.9;min-height:96px}
   $('#btnSettings').onclick = openSettings;
 
   /* ============================================================
-     14) PWA — المانيفست والأيقونات
+     14) PWA — تسجيل Service Worker (تثبيت تلقائي عبر المتصفح)
      ============================================================ */
-  function drawRounded(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
-  function makeIcon(size) {
-    const c = document.createElement('canvas');
-    c.width = size; c.height = size;
-    const ctx = c.getContext('2d');
-
-    const g = ctx.createLinearGradient(0, 0, size, size);
-    g.addColorStop(0, '#b45309');
-    g.addColorStop(1, '#0f766e');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, size, size);
-
-    // الصفحة الورقية
-    ctx.fillStyle = '#fffdf8';
-    drawRounded(ctx, size * 0.19, size * 0.15, size * 0.62, size * 0.70, size * 0.075);
-    ctx.fill();
-
-    // خط الهامش
-    ctx.fillStyle = '#e8a6a6';
-    ctx.fillRect(size * 0.465, size * 0.15, size * 0.028, size * 0.70);
-
-    // الأسطر
-    ctx.fillStyle = '#ddd5c2';
-    for (let i = 0; i < 4; i++) {
-      ctx.fillRect(size * 0.265, size * 0.295 + i * size * 0.115, size * 0.47, size * 0.034);
+  function registerServiceWorker() {
+    if (!PWA_ALLOWED) {
+      console.info('PWA معطّل — يتطلب HTTPS أو localhost');
+      return;
     }
-
-    // شريط المرجع
-    ctx.fillStyle = '#b45309';
-    drawRounded(ctx, size * 0.62, size * 0.15, size * 0.13, size * 0.26, size * 0.03);
-    ctx.fill();
-
-    return c.toDataURL('image/png');
-  }
-
-  function injectManifest() {
-    if (!PWA_ALLOWED) return;
-    try {
-      const icon192 = makeIcon(192);
-      const icon512 = makeIcon(512);
-
-      const manifest = {
-        name: 'مرجع — أداة إدارة المراجع',
-        short_name: 'مرجع',
-        description: 'أداة إدارة وملاحظات المراجع مع مزامنة Google Drive',
-        lang: 'ar',
-        dir: 'rtl',
-        start_url: location.pathname + location.search,
-        scope: './',
-        display: 'standalone',
-        orientation: 'portrait-primary',
-        background_color: '#fdfaf3',
-        theme_color: '#b45309',
-        categories: ['productivity', 'education'],
-        icons: [
-          { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-        ]
-      };
-
-      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = URL.createObjectURL(blob);
-      document.head.appendChild(link);
-
-      const apple = document.createElement('link');
-      apple.rel = 'apple-touch-icon';
-      apple.href = icon192;
-      document.head.appendChild(apple);
-    } catch (e) {
-      console.warn('تعذّر توليد المانيفست:', e);
+    if (!('serviceWorker' in navigator)) {
+      console.info('Service Worker غير مدعوم في هذا المتصفح');
+      return;
     }
-  }
-
-  function tryServiceWorkerUpgrade() {
-    if (!PWA_ALLOWED) return;
-    if (!('serviceWorker' in navigator)) return;
     window.addEventListener('load', function () {
-      fetch('sw.js', { method: 'HEAD', cache: 'no-store' })
-        .then(function (r) {
-          const ct = (r.headers.get('content-type') || '').toLowerCase();
-          if (r.ok && (ct.indexOf('javascript') !== -1 || ct.indexOf('ecmascript') !== -1)) {
-            return navigator.serviceWorker.register('sw.js', { scope: './' });
-          }
-          return null;
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(function () {
+          console.info('Service Worker مُفعّل — التطبيق جاهز للتثبيت من المتصفح');
         })
-        .then(function (reg) {
-          if (reg) console.info('Service Worker مُفعّل — التطبيق قابل للتثبيت كـ WebAPK');
-        })
-        .catch(function () { /* الوضع Baseline عبر LocalStorage */ });
+        .catch(function (err) {
+          console.warn('تعذّر تسجيل Service Worker:', err);
+        });
     });
   }
 
-  let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    const btn = $('#btnInstall');
-    if (btn && PWA_ALLOWED) btn.hidden = false;
-  });
   window.addEventListener('appinstalled', function () {
-    deferredPrompt = null;
-    const btn = $('#btnInstall');
-    if (btn) btn.hidden = true;
     toast('تم تثبيت التطبيق على جهازك', 'ok');
-  });
-  $('#btnInstall').addEventListener('click', async function () {
-    if (!deferredPrompt) { toast('التثبيت غير متاح حالياً في هذا المتصفح', 'warn'); return; }
-    deferredPrompt.prompt();
-    try {
-      const choice = await deferredPrompt.userChoice;
-      if (choice && choice.outcome === 'accepted') toast('جارٍ التثبيت...', 'ok');
-    } catch (e) {}
-    deferredPrompt = null;
-    $('#btnInstall').hidden = true;
   });
 
   /* ============================================================
@@ -1570,13 +1468,7 @@ textarea.input{line-height:1.9;min-height:96px}
     hydrateStaticIcons();
     updateNet();
     renderApp();
-    injectManifest();
-    tryServiceWorkerUpgrade();
-
-    if (!PWA_ALLOWED) {
-      const btn = $('#btnInstall');
-      if (btn) btn.hidden = true;
-    }
+    registerServiceWorker();
 
     console.info('مرجع جاهز — PWA_ALLOWED = ' + PWA_ALLOWED);
   }
